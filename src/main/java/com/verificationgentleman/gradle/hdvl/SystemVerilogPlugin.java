@@ -17,6 +17,7 @@ package com.verificationgentleman.gradle.hdvl;
 
 import com.verificationgentleman.gradle.hdvl.internal.DefaultSourceSet;
 import org.gradle.api.*;
+import org.gradle.api.artifacts.ConfigurablePublishArtifact;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.model.ObjectFactory;
 
@@ -68,6 +69,12 @@ public class SystemVerilogPlugin implements Plugin<Project> {
 
     private void configureArgsFileArtifact(Project project) {
         GenArgsFile genArgsFile = (GenArgsFile) project.getTasks().getByName("genArgsFile");
-        project.getArtifacts().add("argsFiles", genArgsFile.getDestination());
+        Action<ConfigurablePublishArtifact> configureAction = new Action<>() {
+            @Override
+            public void execute(ConfigurablePublishArtifact configurablePublishArtifact) {
+                configurablePublishArtifact.builtBy(genArgsFile);
+            }
+        };
+        project.getArtifacts().add("argsFiles", genArgsFile.getDestination(), configureAction);
     }
 }

@@ -288,6 +288,9 @@ class SystemVerilogPluginFunctionalTest extends Specification {
 
         File producer = testProjectDir.newFolder('producer')
 
+        File producerSv = testProjectDir.newFolder('producer','src', 'main', 'sv')
+        new File(producerSv, 'dummy.sv').createNewFile()
+
         File producerBuildFile = new File(producer, "build.gradle")
         producerBuildFile << """
             plugins {
@@ -310,6 +313,7 @@ class SystemVerilogPluginFunctionalTest extends Specification {
 
         consumerBuildFile << """
             task assertConfigurations {
+                dependsOn project.configurations.incomingArgsFiles
                 doLast {
                     assert !project.configurations.incomingArgsFiles.files.empty
                 }
@@ -322,8 +326,9 @@ class SystemVerilogPluginFunctionalTest extends Specification {
             .withPluginClasspath()
             .withArguments(':consumer:assertConfigurations')
             .build()
-
+        println result.output
         then:
+        result.task(":producer:genArgsFile").outcome == SUCCESS
         result.task(":consumer:assertConfigurations").outcome == SUCCESS
     }
 }
