@@ -21,7 +21,6 @@ import org.gradle.api.Project;
 public class SystemVerilogPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
-        // TODO Implement
-	System.out.println("Applying SystemVerilog plugin");
+	    project.getExtensions().add("sourceSets", project.getObjects().domainObjectContainer(SourceSet.class));
     }
 }

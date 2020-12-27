@@ -45,4 +45,49 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         then:
         result.task(":help").outcome == SUCCESS
     }
+
+    def "can access 'sourceSets' property"() {
+        buildFile << """
+            task assertProps {
+                doLast {
+                    assert project.sourceSets != null
+                }
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withArguments('assertProps')
+                .build()
+
+        then:
+        result.task(":assertProps").outcome == SUCCESS
+    }
+
+    def "can configure a source set"() {
+        buildFile << """
+            sourceSets {
+                main
+            }
+            
+            task assertProps {
+                doLast {
+                    assert project.sourceSets.main != null
+                    assert project.sourceSets.main instanceof com.verificationgentleman.gradle.hdvl.SourceSet
+                }
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withArguments('assertProps')
+                .build()
+
+        then:
+        result.task(":assertProps").outcome == SUCCESS
+    }
 }
