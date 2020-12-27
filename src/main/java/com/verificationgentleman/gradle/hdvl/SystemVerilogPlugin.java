@@ -27,8 +27,8 @@ public class SystemVerilogPlugin implements Plugin<Project> {
         NamedDomainObjectContainer<SourceSet> sourceSets
                 = objectFactory.domainObjectContainer(SourceSet.class, sourceSetFactory);
 	    project.getExtensions().add("sourceSets", sourceSets);
-	    sourceSets.create("main");
-	    configureGenArgsFile(project);
+	    final SourceSet mainSourceSet = sourceSets.create("main");
+	    configureGenArgsFile(project, mainSourceSet);
     }
 
     private NamedDomainObjectFactory<SourceSet> newSourceSetFactory(ObjectFactory objectFactory) {
@@ -40,11 +40,12 @@ public class SystemVerilogPlugin implements Plugin<Project> {
         };
     }
 
-    private void configureGenArgsFile(Project project) {
+    private void configureGenArgsFile(Project project, SourceSet mainSourceSet) {
         project.getTasks().register("genArgsFile", GenArgsFile.class, new Action<GenArgsFile>() {
             @Override
             public void execute(GenArgsFile genArgsFile) {
                 genArgsFile.setDescription("Generates an argument file for the main source code.");
+                genArgsFile.setSource(mainSourceSet.getSv());
             }
         });
     }
