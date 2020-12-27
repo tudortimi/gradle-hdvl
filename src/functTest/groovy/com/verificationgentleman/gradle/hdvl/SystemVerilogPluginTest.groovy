@@ -20,6 +20,7 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
+import static org.gradle.testkit.runner.TaskOutcome.NO_SOURCE
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
 class SystemVerilogPluginFunctionalTest extends Specification {
@@ -44,5 +45,177 @@ class SystemVerilogPluginFunctionalTest extends Specification {
 
         then:
         result.task(":help").outcome == SUCCESS
+    }
+
+    def "can access 'sourceSets' property"() {
+        buildFile << """
+            task assertProps {
+                doLast {
+                    assert project.sourceSets != null
+                }
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withArguments('assertProps')
+                .build()
+
+        then:
+        result.task(":assertProps").outcome == SUCCESS
+    }
+
+    def "can configure a source set"() {
+        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(sv, 'dummy.sv').createNewFile()
+
+        buildFile << """
+            sourceSets {
+                main
+            }
+            
+            task copy(type: Copy) {
+                from sourceSets.main.sv.files
+                into 'build'
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withArguments('copy')
+                .build()
+
+        then:
+        result.task(":copy").outcome == SUCCESS
+        new File(testProjectDir.root, 'build/dummy.sv').exists()
+    }
+
+    def "source set ignores 'svh' files"() {
+        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(sv, 'dummy.sv').createNewFile()
+        new File(sv, 'dummy.svh').createNewFile()
+
+        buildFile << """
+            sourceSets {
+                main
+            }
+            
+            task copy(type: Copy) {
+                from sourceSets.main.sv.files
+                into 'build'
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withArguments('copy')
+                .build()
+
+        then:
+        result.task(":copy").outcome == SUCCESS
+        !(new File(testProjectDir.root, 'build/dummy.svh').exists())
+    }
+
+    def "can specify a source set source directory using a closure"() {
+        File sv = testProjectDir.newFolder('sv')
+        new File(sv, 'dummy.sv').createNewFile()
+
+        buildFile << """
+            sourceSets {
+                main {
+                    sv {
+                        srcDirs = ['sv']
+                    }
+                }
+            }
+            
+            task copy(type: Copy) {
+                from sourceSets.main.sv.files
+                into 'build'
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withArguments('copy')
+                .build()
+
+        then:
+        result.task(":copy").outcome == SUCCESS
+        new File(testProjectDir.root, 'build/dummy.sv').exists()
+    }
+
+    def "'main' source set is added by the plugin"() {
+        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(sv, 'dummy.sv').createNewFile()
+
+        buildFile << """            
+            task copy(type: Copy) {
+                from sourceSets.main.sv.files
+                into 'build'
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withArguments('copy')
+                .build()
+
+        then:
+        result.task(":copy").outcome == SUCCESS
+        new File(testProjectDir.root, 'build/dummy.sv').exists()
+    }
+
+    def "can specify a source set source exclude using am action"() {
+        // XXX Most tests use 'build.gradle', but in this test we want to use a Kotlin build script. It seems like
+        // overkill to create a new test class just fo this.
+        setup:
+        new File(testProjectDir.root, 'build.gradle').delete()
+
+        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(sv, 'dummy.sv').createNewFile()
+
+        File buildFile = testProjectDir.newFile('build.gradle.kts')
+        buildFile << """
+            plugins {
+                id("com.verificationgentleman.gradle.hdvl.systemverilog")
+            }
+            
+            sourceSets {
+                main {
+                    sv {
+                        exclude("**/dummy.sv")
+                    }
+                }
+            }
+            
+            tasks.register<Copy>("copy") {
+                // XXX Not clear why we can't just do 'sourceSets.main.sv'.
+                // 'sourceSets.main' doesn't return an object of type 'SourceSet', but a
+                // 'NamedDomainObjectProvider<SourceSet'. The Java plugin has the same issue.
+                from(sourceSets.main.get().sv.files)
+                into("build")
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withArguments('copy')
+                .build()
+
+        then:
+        result.task(":copy").outcome == NO_SOURCE
     }
 }
