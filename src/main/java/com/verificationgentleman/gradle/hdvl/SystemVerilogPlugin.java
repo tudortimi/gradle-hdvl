@@ -29,7 +29,7 @@ public class SystemVerilogPlugin implements Plugin<Project> {
         NamedDomainObjectFactory<SourceSet> sourceSetFactory = new NamedDomainObjectFactory<SourceSet>() {
             @Override
             public SourceSet create(String name) {
-                return new DefaultSourceSet(name, objectFactory);
+                return objectFactory.newInstance(DefaultSourceSet.class, name);
             }
         };
         NamedDomainObjectContainer<SourceSet> sourceSets
