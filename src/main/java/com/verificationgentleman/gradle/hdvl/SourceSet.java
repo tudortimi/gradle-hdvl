@@ -1,6 +1,7 @@
 package com.verificationgentleman.gradle.hdvl;
 
 import groovy.lang.Closure;
+import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.model.ObjectFactory;
@@ -27,13 +28,18 @@ public class SourceSet implements Named {
         return name;
     }
 
-    SourceDirectorySet getSv() {
+    public SourceDirectorySet getSv() {
         return sv;
     }
 
-    SourceSet sv(@Nullable Closure configureClosure) {
+    public SourceSet sv(@Nullable Closure configureClosure) {
         // XXX This is not part of the public Gradle API
         configure(configureClosure, getSv());
+        return this;
+    }
+
+    public SourceSet sv(Action<? super SourceDirectorySet> configureAction) {
+        configureAction.execute(getSv());
         return this;
     }
 }

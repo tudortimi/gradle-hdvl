@@ -20,6 +20,7 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
+import static org.gradle.testkit.runner.TaskOutcome.NO_SOURCE
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
 class SystemVerilogPluginFunctionalTest extends Specification {
@@ -173,5 +174,47 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         then:
         result.task(":copy").outcome == SUCCESS
         new File(testProjectDir.root, 'build/dummy.sv').exists()
+    }
+
+    def "can specify a source set source exclude using am action"() {
+        // XXX Most tests use 'build.gradle', but in this test we want to use a Kotlin build script. It seems like
+        // overkill to create a new test class just fo this.
+        setup:
+        new File(testProjectDir.root, 'build.gradle').delete()
+
+        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(sv, 'dummy.sv').createNewFile()
+
+        File buildFile = testProjectDir.newFile('build.gradle.kts')
+        buildFile << """
+            plugins {
+                id("com.verificationgentleman.gradle.hdvl.systemverilog")
+            }
+            
+            sourceSets {
+                main {
+                    sv {
+                        exclude("**/dummy.sv")
+                    }
+                }
+            }
+            
+            tasks.register<Copy>("copy") {
+                // XXX Not clear why we can't just do 'sourceSets.main.sv'. This is probably because when the extension
+                // is added, the element type of 'sourceSets' is lost.
+                from(sourceSets.get("main").sv.files)
+                into("build")
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withArguments('copy')
+                .build()
+
+        then:
+        result.task(":copy").outcome == NO_SOURCE
     }
 }
