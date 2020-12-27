@@ -65,7 +65,7 @@ public class SystemVerilogPlugin implements Plugin<Project> {
             public void execute(GenFullArgsFile genFullArgsFile) {
                 genFullArgsFile.setDescription("Generates an argument file for the main source code and its dependencies.");
                 genFullArgsFile.getSource().set(genArgsFile.getDestination());
-                genFullArgsFile.setDestination(new File(project.getBuildDir(), "full_args.f"));
+                genFullArgsFile.getDestination().set(new File(project.getBuildDir(), "full_args.f"));
             }
         });
     }

@@ -14,21 +14,18 @@ import java.io.IOException;
 
 public class GenFullArgsFile extends DefaultTask {
 
-    private File destination;
+    private final RegularFileProperty destination;
     private final RegularFileProperty source;
 
     @Inject
     public GenFullArgsFile(ObjectFactory objectFactory) {
+        destination = objectFactory.fileProperty();
         source = objectFactory.fileProperty();
     }
 
     @OutputFile
-    public File getDestination() {
+    public RegularFileProperty getDestination() {
         return destination;
-    }
-
-    public void setDestination(File destination) {
-        this.destination = destination;
     }
 
     @InputFile
@@ -46,7 +43,7 @@ public class GenFullArgsFile extends DefaultTask {
     }
 
     private void writeArgsFile() throws IOException {
-        FileWriter writer = new FileWriter(destination);
+        FileWriter writer = new FileWriter(destination.get().getAsFile());
         writer.write("-f " + source.get().getAsFile().getAbsolutePath() + "\n");
         writer.close();
     }
