@@ -16,10 +16,7 @@
 package com.verificationgentleman.gradle.hdvl;
 
 import com.verificationgentleman.gradle.hdvl.internal.DefaultSourceSet;
-import org.gradle.api.NamedDomainObjectContainer;
-import org.gradle.api.NamedDomainObjectFactory;
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
+import org.gradle.api.*;
 import org.gradle.api.model.ObjectFactory;
 
 public class SystemVerilogPlugin implements Plugin<Project> {
@@ -31,6 +28,7 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                 = objectFactory.domainObjectContainer(SourceSet.class, sourceSetFactory);
 	    project.getExtensions().add("sourceSets", sourceSets);
 	    sourceSets.create("main");
+	    configureGenArgsFile(project);
     }
 
     private NamedDomainObjectFactory<SourceSet> newSourceSetFactory(ObjectFactory objectFactory) {
@@ -40,5 +38,14 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                 return objectFactory.newInstance(DefaultSourceSet.class, name);
             }
         };
+    }
+
+    private void configureGenArgsFile(Project project) {
+        project.getTasks().register("genArgsFile", GenArgsFile.class, new Action<GenArgsFile>() {
+            @Override
+            public void execute(GenArgsFile genArgsFile) {
+                genArgsFile.setDescription("Generates an argument file for the main source code.");
+            }
+        });
     }
 }
