@@ -33,6 +33,7 @@ public class SystemVerilogPlugin implements Plugin<Project> {
 	    project.getExtensions().add("sourceSets", sourceSets);
 	    final SourceSet mainSourceSet = sourceSets.create("main");
 	    configureGenArgsFile(project, mainSourceSet);
+        configureGenFullArgsFile(project);
 	    configureArgsFileConfigurations(project);
 	    configureArgsFileArtifact(project);
     }
@@ -53,6 +54,16 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                 genArgsFile.setDescription("Generates an argument file for the main source code.");
                 genArgsFile.setSource(mainSourceSet.getSv());
                 genArgsFile.setDestination(new File(project.getBuildDir(), "args.f"));
+            }
+        });
+    }
+
+    private void configureGenFullArgsFile(Project project) {
+        project.getTasks().register("genFullArgsFile", GenFullArgsFile.class, new Action<GenFullArgsFile>() {
+            @Override
+            public void execute(GenFullArgsFile genFullArgsFile) {
+                genFullArgsFile.setDescription("Generates an argument file for the main source code and its dependencies.");
+                genFullArgsFile.setDestination(new File(project.getBuildDir(), "full_args.f"));
             }
         });
     }
