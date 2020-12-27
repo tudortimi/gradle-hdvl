@@ -326,7 +326,7 @@ class SystemVerilogPluginFunctionalTest extends Specification {
             .withPluginClasspath()
             .withArguments(':consumer:assertConfigurations')
             .build()
-        println result.output
+
         then:
         result.task(":producer:genArgsFile").outcome == SUCCESS
         result.task(":consumer:assertConfigurations").outcome == SUCCESS
