@@ -253,5 +253,6 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         then:
         result.task(":genArgsFile").outcome == SUCCESS
         new File(testProjectDir.root, 'build/args.f').exists()
+        new File(testProjectDir.root, 'build/args.f').text.contains('src/main/sv/dummy.sv')
     }
 }
