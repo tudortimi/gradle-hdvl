@@ -15,6 +15,7 @@ public class SourceSet implements Named {
         this.name = name;
         sv = objectFactory.sourceDirectorySet("sv", "SystemVerilog source");
         sv.srcDir("src/" + name + "/sv");
+        sv.getFilter().include("**/*.sv");
     }
 
     @Override
