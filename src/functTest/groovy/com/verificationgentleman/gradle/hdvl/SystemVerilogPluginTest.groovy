@@ -68,8 +68,7 @@ class SystemVerilogPluginFunctionalTest extends Specification {
 
     def "can configure a source set"() {
         File sv = testProjectDir.newFolder('src', 'main', 'sv')
-        File dummy = new File(sv, 'dummy.sv')
-        dummy.createNewFile()
+        new File(sv, 'dummy.sv').createNewFile()
 
         buildFile << """
             sourceSets {
