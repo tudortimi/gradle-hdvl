@@ -32,7 +32,8 @@ public class SystemVerilogPlugin implements Plugin<Project> {
 	    project.getExtensions().add("sourceSets", sourceSets);
 	    final SourceSet mainSourceSet = sourceSets.create("main");
 	    configureGenArgsFile(project, mainSourceSet);
-	    configureArgsFileConfiguration(project);
+	    configureArgsFileConfigurations(project);
+	    configureArgsFileArtifact(project);
     }
 
     private NamedDomainObjectFactory<SourceSet> newSourceSetFactory(ObjectFactory objectFactory) {
@@ -55,9 +56,18 @@ public class SystemVerilogPlugin implements Plugin<Project> {
         });
     }
 
-    private void configureArgsFileConfiguration(Project project) {
+    private void configureArgsFileConfigurations(Project project) {
         Configuration argsFiles = project.getConfigurations().create("argsFiles");
         argsFiles.setCanBeConsumed(true);
         argsFiles.setCanBeResolved(false);
+
+        Configuration incomingArgsFiles = project.getConfigurations().create("incomingArgsFiles");
+        incomingArgsFiles.setCanBeConsumed(false);
+        incomingArgsFiles.setCanBeResolved(true);
+    }
+
+    private void configureArgsFileArtifact(Project project) {
+        GenArgsFile genArgsFile = (GenArgsFile) project.getTasks().getByName("genArgsFile");
+        project.getArtifacts().add("argsFiles", genArgsFile.getDestination());
     }
 }

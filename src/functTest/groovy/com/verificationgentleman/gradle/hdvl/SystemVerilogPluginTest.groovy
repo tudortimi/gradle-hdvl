@@ -275,4 +275,55 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         then:
         result.task(":assertTasks").outcome == SUCCESS
     }
+
+    def "'argsFiles' artifacts produced by producer are consumed by consumer"() {
+        setup:
+        buildFile.delete()
+
+        File settingsFile = testProjectDir.newFile('settings.gradle')
+        settingsFile << """
+            include 'producer'
+            include 'consumer'
+        """
+
+        File producer = testProjectDir.newFolder('producer')
+
+        File producerBuildFile = new File(producer, "build.gradle")
+        producerBuildFile << """
+            plugins {
+                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+            }
+        """
+
+        File consumer = testProjectDir.newFolder('consumer')
+
+        File consumerBuildFile = new File(consumer, "build.gradle")
+        consumerBuildFile << """
+            plugins {
+                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+            }
+            
+            dependencies {
+                incomingArgsFiles(project(path: ':producer', configuration: 'argsFiles'))
+            }
+        """
+
+        consumerBuildFile << """
+            task assertConfigurations {
+                doLast {
+                    assert !project.configurations.incomingArgsFiles.files.empty
+                }
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':consumer:assertConfigurations')
+            .build()
+
+        then:
+        result.task(":consumer:assertConfigurations").outcome == SUCCESS
+    }
 }
