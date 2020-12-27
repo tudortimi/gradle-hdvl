@@ -26,15 +26,19 @@ public class SystemVerilogPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         final ObjectFactory objectFactory = project.getObjects();
-        NamedDomainObjectFactory<SourceSet> sourceSetFactory = new NamedDomainObjectFactory<SourceSet>() {
+        NamedDomainObjectFactory<SourceSet> sourceSetFactory = newSourceSetFactory(objectFactory);
+        NamedDomainObjectContainer<SourceSet> sourceSets
+                = objectFactory.domainObjectContainer(SourceSet.class, sourceSetFactory);
+	    project.getExtensions().add("sourceSets", sourceSets);
+	    sourceSets.create("main");
+    }
+
+    private NamedDomainObjectFactory<SourceSet> newSourceSetFactory(ObjectFactory objectFactory) {
+        return new NamedDomainObjectFactory<SourceSet>() {
             @Override
             public SourceSet create(String name) {
                 return objectFactory.newInstance(DefaultSourceSet.class, name);
             }
         };
-        NamedDomainObjectContainer<SourceSet> sourceSets
-                = objectFactory.domainObjectContainer(SourceSet.class, sourceSetFactory);
-	    project.getExtensions().add("sourceSets", sourceSets);
-	    sourceSets.create("main");
     }
 }
