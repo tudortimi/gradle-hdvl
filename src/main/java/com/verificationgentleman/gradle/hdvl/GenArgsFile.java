@@ -1,6 +1,7 @@
 package com.verificationgentleman.gradle.hdvl;
 
 import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
@@ -15,9 +16,8 @@ public class GenArgsFile extends SourceTask {
     private RegularFileProperty destination;
 
     @Inject
-    public GenArgsFile() {
-        // XXX 'getProject()' is not part of the public API
-        destination = getProject().getObjects().fileProperty();
+    public GenArgsFile(ObjectFactory objectFactory) {
+        destination = objectFactory.fileProperty();
     }
 
     @OutputFile

@@ -2,6 +2,7 @@ package com.verificationgentleman.gradle.hdvl;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
@@ -17,9 +18,8 @@ public class GenFullArgsFile extends DefaultTask {
     private final RegularFileProperty source;
 
     @Inject
-    public GenFullArgsFile() {
-        // XXX 'getProject()' is not part of the public API
-        source = getProject().getObjects().fileProperty();
+    public GenFullArgsFile(ObjectFactory objectFactory) {
+        source = objectFactory.fileProperty();
     }
 
     @OutputFile
