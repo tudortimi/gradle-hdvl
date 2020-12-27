@@ -15,14 +15,23 @@
  */
 package com.verificationgentleman.gradle.hdvl;
 
+import com.verificationgentleman.gradle.hdvl.internal.DefaultSourceSet;
 import org.gradle.api.NamedDomainObjectContainer;
+import org.gradle.api.NamedDomainObjectFactory;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
 public class SystemVerilogPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
-        NamedDomainObjectContainer<SourceSet> sourceSets = project.getObjects().domainObjectContainer(SourceSet.class);
+        NamedDomainObjectFactory<SourceSet> sourceSetFactory = new NamedDomainObjectFactory<SourceSet>() {
+            @Override
+            public SourceSet create(String name) {
+                return new DefaultSourceSet(name, project.getObjects());
+            }
+        };
+        NamedDomainObjectContainer<SourceSet> sourceSets
+                = project.getObjects().domainObjectContainer(SourceSet.class, sourceSetFactory);
 	    project.getExtensions().add("sourceSets", sourceSets);
 	    sourceSets.create("main");
     }
