@@ -46,6 +46,7 @@ public class SystemVerilogPlugin implements Plugin<Project> {
             public void execute(GenArgsFile genArgsFile) {
                 genArgsFile.setDescription("Generates an argument file for the main source code.");
                 genArgsFile.setSource(mainSourceSet.getSv());
+                genArgsFile.setDestinationDir(project.getBuildDir());
             }
         });
     }

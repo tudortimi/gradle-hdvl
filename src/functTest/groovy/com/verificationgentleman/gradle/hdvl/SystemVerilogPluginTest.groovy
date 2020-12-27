@@ -239,7 +239,7 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         result.task(":assertTasks").outcome == SUCCESS
     }
 
-    def "'getArgsFile' task is attached to main source"() {
+    def "'getArgsFile' task produces output"() {
         File sv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
@@ -252,5 +252,6 @@ class SystemVerilogPluginFunctionalTest extends Specification {
 
         then:
         result.task(":genArgsFile").outcome == SUCCESS
+        new File(testProjectDir.root, 'build/args.f').exists()
     }
 }
