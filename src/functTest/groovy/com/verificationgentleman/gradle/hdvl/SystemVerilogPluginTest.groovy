@@ -67,16 +67,18 @@ class SystemVerilogPluginFunctionalTest extends Specification {
     }
 
     def "can configure a source set"() {
+        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        File dummy = new File(sv, 'dummy.sv')
+        dummy.createNewFile()
+
         buildFile << """
             sourceSets {
                 main
             }
             
-            task assertProps {
-                doLast {
-                    assert project.sourceSets.main != null
-                    assert project.sourceSets.main instanceof com.verificationgentleman.gradle.hdvl.SourceSet
-                }
+            task copy(type: Copy) {
+                from sourceSets.main.sv.files
+                into 'build'
             }
         """
 
@@ -84,10 +86,11 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         def result = GradleRunner.create()
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
-                .withArguments('assertProps')
+                .withArguments('copy')
                 .build()
 
         then:
-        result.task(":assertProps").outcome == SUCCESS
+        result.task(":copy").outcome == SUCCESS
+        new File(testProjectDir.root, 'build/dummy.sv').exists()
     }
 }

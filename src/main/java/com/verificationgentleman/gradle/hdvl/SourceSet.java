@@ -1,16 +1,28 @@
 package com.verificationgentleman.gradle.hdvl;
 
 import org.gradle.api.Named;
+import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.model.ObjectFactory;
+
+import javax.inject.Inject;
 
 public class SourceSet implements Named {
     private final String name;
+    private final SourceDirectorySet sv;
 
-    public SourceSet(String name) {
+    @Inject
+    public SourceSet(String name, ObjectFactory objectFactory) {
         this.name = name;
+        sv = objectFactory.sourceDirectorySet("sv", "SystemVerilog source");
+        sv.srcDir("src/" + name + "/sv");
     }
 
     @Override
     public String getName() {
         return name;
+    }
+
+    SourceDirectorySet getSv() {
+        return sv;
     }
 }
