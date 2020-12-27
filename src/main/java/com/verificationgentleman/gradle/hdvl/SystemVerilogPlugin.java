@@ -20,6 +20,8 @@ import org.gradle.api.*;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.model.ObjectFactory;
 
+import java.io.File;
+
 public class SystemVerilogPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
@@ -48,7 +50,7 @@ public class SystemVerilogPlugin implements Plugin<Project> {
             public void execute(GenArgsFile genArgsFile) {
                 genArgsFile.setDescription("Generates an argument file for the main source code.");
                 genArgsFile.setSource(mainSourceSet.getSv());
-                genArgsFile.setDestinationDir(project.getBuildDir());
+                genArgsFile.setDestination(new File(project.getBuildDir(), "args.f"));
             }
         });
     }
