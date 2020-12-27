@@ -17,6 +17,7 @@ package com.verificationgentleman.gradle.hdvl;
 
 import com.verificationgentleman.gradle.hdvl.internal.DefaultSourceSet;
 import org.gradle.api.*;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.model.ObjectFactory;
 
 public class SystemVerilogPlugin implements Plugin<Project> {
@@ -29,6 +30,7 @@ public class SystemVerilogPlugin implements Plugin<Project> {
 	    project.getExtensions().add("sourceSets", sourceSets);
 	    final SourceSet mainSourceSet = sourceSets.create("main");
 	    configureGenArgsFile(project, mainSourceSet);
+	    configureArgsFileConfiguration(project);
     }
 
     private NamedDomainObjectFactory<SourceSet> newSourceSetFactory(ObjectFactory objectFactory) {
@@ -49,5 +51,11 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                 genArgsFile.setDestinationDir(project.getBuildDir());
             }
         });
+    }
+
+    private void configureArgsFileConfiguration(Project project) {
+        Configuration argsFiles = project.getConfigurations().create("argsFiles");
+        argsFiles.setCanBeConsumed(true);
+        argsFiles.setCanBeResolved(false);
     }
 }

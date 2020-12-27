@@ -255,4 +255,24 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         new File(testProjectDir.root, 'build/args.f').exists()
         new File(testProjectDir.root, 'build/args.f').text.contains('src/main/sv/dummy.sv')
     }
+
+    def "'argsFiles' configuration is added by the plugin"() {
+        buildFile << """
+            task assertTasks {
+                doLast {
+                    assert project.configurations.argsFiles != null
+                }
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('assertTasks')
+            .build()
+
+        then:
+        result.task(":assertTasks").outcome == SUCCESS
+    }
 }
