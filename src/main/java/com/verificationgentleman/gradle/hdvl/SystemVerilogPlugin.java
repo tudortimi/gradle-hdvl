@@ -15,12 +15,15 @@
  */
 package com.verificationgentleman.gradle.hdvl;
 
+import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
 public class SystemVerilogPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
-	    project.getExtensions().add("sourceSets", project.getObjects().domainObjectContainer(SourceSet.class));
+        NamedDomainObjectContainer<SourceSet> sourceSets = project.getObjects().domainObjectContainer(SourceSet.class);
+	    project.getExtensions().add("sourceSets", sourceSets);
+	    sourceSets.create("main");
     }
 }

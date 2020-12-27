@@ -151,4 +151,27 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         result.task(":copy").outcome == SUCCESS
         new File(testProjectDir.root, 'build/dummy.sv').exists()
     }
+
+    def "'main' source set is added by the plugin"() {
+        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(sv, 'dummy.sv').createNewFile()
+
+        buildFile << """            
+            task copy(type: Copy) {
+                from sourceSets.main.sv.files
+                into 'build'
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withArguments('copy')
+                .build()
+
+        then:
+        result.task(":copy").outcome == SUCCESS
+        new File(testProjectDir.root, 'build/dummy.sv').exists()
+    }
 }
