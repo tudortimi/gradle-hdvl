@@ -1,15 +1,26 @@
 package com.verificationgentleman.gradle.hdvl;
 
 import org.gradle.api.DefaultTask;
+import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
+import javax.inject.Inject;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class GenFullArgsFile extends DefaultTask {
 
     private File destination;
+    private final RegularFileProperty source;
+
+    @Inject
+    public GenFullArgsFile() {
+        // XXX 'getProject()' is not part of the public API
+        source = getProject().getObjects().fileProperty();
+    }
 
     @OutputFile
     public File getDestination() {
@@ -20,13 +31,24 @@ public class GenFullArgsFile extends DefaultTask {
         this.destination = destination;
     }
 
+    @InputFile
+    public RegularFileProperty getSource() {
+        return source;
+    }
+
     @TaskAction
     protected void generate() {
         try {
-            destination.createNewFile();
+            writeArgsFile();
         } catch (IOException e) {
             System.out.println("Could not create args file");
         }
+    }
+
+    private void writeArgsFile() throws IOException {
+        FileWriter writer = new FileWriter(destination);
+        writer.write("-f " + source.get().getAsFile().getAbsolutePath() + "\n");
+        writer.close();
     }
 
 }

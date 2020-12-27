@@ -332,7 +332,7 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         result.task(":consumer:assertConfigurations").outcome == SUCCESS
     }
 
-    def "'genFullArgsFile' task produces output"() {
+    def "'genFullArgsFile' task consumes output of 'genArgsFile"() {
         File sv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
@@ -344,7 +344,9 @@ class SystemVerilogPluginFunctionalTest extends Specification {
             .build()
 
         then:
+        result.task(":genArgsFile").outcome == SUCCESS
         result.task(":genFullArgsFile").outcome == SUCCESS
         new File(testProjectDir.root, 'build/full_args.f').exists()
+        new File(testProjectDir.root, 'build/full_args.f').text.contains('build/args.f')
     }
 }
