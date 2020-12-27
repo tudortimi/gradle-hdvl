@@ -17,7 +17,11 @@ package com.verificationgentleman.gradle.hdvl;
 
 import com.verificationgentleman.gradle.hdvl.internal.DefaultSourceSet;
 import org.gradle.api.*;
+import org.gradle.api.artifacts.ConfigurablePublishArtifact;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.model.ObjectFactory;
+
+import java.io.File;
 
 public class SystemVerilogPlugin implements Plugin<Project> {
     @Override
@@ -29,6 +33,8 @@ public class SystemVerilogPlugin implements Plugin<Project> {
 	    project.getExtensions().add("sourceSets", sourceSets);
 	    final SourceSet mainSourceSet = sourceSets.create("main");
 	    configureGenArgsFile(project, mainSourceSet);
+	    configureArgsFileConfigurations(project);
+	    configureArgsFileArtifact(project);
     }
 
     private NamedDomainObjectFactory<SourceSet> newSourceSetFactory(ObjectFactory objectFactory) {
@@ -46,8 +52,29 @@ public class SystemVerilogPlugin implements Plugin<Project> {
             public void execute(GenArgsFile genArgsFile) {
                 genArgsFile.setDescription("Generates an argument file for the main source code.");
                 genArgsFile.setSource(mainSourceSet.getSv());
-                genArgsFile.setDestinationDir(project.getBuildDir());
+                genArgsFile.setDestination(new File(project.getBuildDir(), "args.f"));
             }
         });
+    }
+
+    private void configureArgsFileConfigurations(Project project) {
+        Configuration argsFiles = project.getConfigurations().create("argsFiles");
+        argsFiles.setCanBeConsumed(true);
+        argsFiles.setCanBeResolved(false);
+
+        Configuration incomingArgsFiles = project.getConfigurations().create("incomingArgsFiles");
+        incomingArgsFiles.setCanBeConsumed(false);
+        incomingArgsFiles.setCanBeResolved(true);
+    }
+
+    private void configureArgsFileArtifact(Project project) {
+        GenArgsFile genArgsFile = (GenArgsFile) project.getTasks().getByName("genArgsFile");
+        Action<ConfigurablePublishArtifact> configureAction = new Action<>() {
+            @Override
+            public void execute(ConfigurablePublishArtifact configurablePublishArtifact) {
+                configurablePublishArtifact.builtBy(genArgsFile);
+            }
+        };
+        project.getArtifacts().add("argsFiles", genArgsFile.getDestination(), configureAction);
     }
 }

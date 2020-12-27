@@ -255,4 +255,80 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         new File(testProjectDir.root, 'build/args.f').exists()
         new File(testProjectDir.root, 'build/args.f').text.contains('src/main/sv/dummy.sv')
     }
+
+    def "'argsFiles' configuration is added by the plugin"() {
+        buildFile << """
+            task assertTasks {
+                doLast {
+                    assert project.configurations.argsFiles != null
+                }
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('assertTasks')
+            .build()
+
+        then:
+        result.task(":assertTasks").outcome == SUCCESS
+    }
+
+    def "'argsFiles' artifacts produced by producer are consumed by consumer"() {
+        setup:
+        buildFile.delete()
+
+        File settingsFile = testProjectDir.newFile('settings.gradle')
+        settingsFile << """
+            include 'producer'
+            include 'consumer'
+        """
+
+        File producer = testProjectDir.newFolder('producer')
+
+        File producerSv = testProjectDir.newFolder('producer','src', 'main', 'sv')
+        new File(producerSv, 'dummy.sv').createNewFile()
+
+        File producerBuildFile = new File(producer, "build.gradle")
+        producerBuildFile << """
+            plugins {
+                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+            }
+        """
+
+        File consumer = testProjectDir.newFolder('consumer')
+
+        File consumerBuildFile = new File(consumer, "build.gradle")
+        consumerBuildFile << """
+            plugins {
+                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+            }
+            
+            dependencies {
+                incomingArgsFiles(project(path: ':producer', configuration: 'argsFiles'))
+            }
+        """
+
+        consumerBuildFile << """
+            task assertConfigurations {
+                dependsOn project.configurations.incomingArgsFiles
+                doLast {
+                    assert !project.configurations.incomingArgsFiles.files.empty
+                }
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':consumer:assertConfigurations')
+            .build()
+        println result.output
+        then:
+        result.task(":producer:genArgsFile").outcome == SUCCESS
+        result.task(":consumer:assertConfigurations").outcome == SUCCESS
+    }
 }

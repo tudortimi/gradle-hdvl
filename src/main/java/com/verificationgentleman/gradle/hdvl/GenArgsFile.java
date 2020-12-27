@@ -1,6 +1,6 @@
 package com.verificationgentleman.gradle.hdvl;
 
-import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
 
@@ -10,15 +10,15 @@ import java.io.IOException;
 
 public class GenArgsFile extends SourceTask {
 
-    private File destinationDir;
+    private File destination;
 
-    @OutputDirectory
-    public File getDestinationDir() {
-        return destinationDir;
+    @OutputFile
+    public File getDestination() {
+        return destination;
     }
 
-    public void setDestinationDir(File destinationDir) {
-        this.destinationDir = destinationDir;
+    public void setDestination(File destination) {
+        this.destination = destination;
     }
 
     @TaskAction
@@ -31,8 +31,7 @@ public class GenArgsFile extends SourceTask {
     }
 
     private void writeArgsFile() throws IOException {
-        File argsFile = new File(destinationDir, "args.f");
-        FileWriter writer = new FileWriter(argsFile);
+        FileWriter writer = new FileWriter(destination);
         for (File f: getSource())
             writer.write(f.getAbsolutePath() + "\n");
         writer.close();
