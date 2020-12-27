@@ -20,18 +20,20 @@ import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.NamedDomainObjectFactory;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.model.ObjectFactory;
 
 public class SystemVerilogPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
+        final ObjectFactory objectFactory = project.getObjects();
         NamedDomainObjectFactory<SourceSet> sourceSetFactory = new NamedDomainObjectFactory<SourceSet>() {
             @Override
             public SourceSet create(String name) {
-                return new DefaultSourceSet(name, project.getObjects());
+                return new DefaultSourceSet(name, objectFactory);
             }
         };
         NamedDomainObjectContainer<SourceSet> sourceSets
-                = project.getObjects().domainObjectContainer(SourceSet.class, sourceSetFactory);
+                = objectFactory.domainObjectContainer(SourceSet.class, sourceSetFactory);
 	    project.getExtensions().add("sourceSets", sourceSets);
 	    sourceSets.create("main");
     }
