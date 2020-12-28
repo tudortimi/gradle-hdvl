@@ -276,22 +276,22 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         new File(testProjectDir.root, 'build/full_args.f').text.contains('build/args.f')
     }
 
-    def "'argsFiles' artifacts produced by producer are consumed by consumer in 'getFullArgsFile'"() {
+    def "'argsFiles' artifacts produced by direct dependencies are consumed by main project in 'getFullArgsFile'"() {
         setup:
         buildFile.delete()
 
         File settingsFile = testProjectDir.newFile('settings.gradle')
         settingsFile << """
-            include 'producer'
-            include 'consumer'
+            include 'directDependency'
+            include 'mainProject'
         """
 
-        File producerBuildFile = newStandardProject('producer')
+        File directDependencyBuildFile = newStandardProject('directDependency')
 
-        File consumerBuildFile = newStandardProject('consumer')
-        consumerBuildFile << """
+        File mainProjectBuildFile = newStandardProject('mainProject')
+        mainProjectBuildFile << """
             dependencies {
-                argsFiles(project(path: ':producer', configuration: 'argsFiles'))
+                argsFiles(project(path: ':directDependency', configuration: 'argsFiles'))
             }
         """
 
@@ -299,15 +299,15 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments(':consumer:genFullArgsFile')
+            .withArguments(':mainProject:genFullArgsFile')
             .build()
 
         then:
-        result.task(":producer:genArgsFile").outcome == SUCCESS
-        result.task(":consumer:genArgsFile").outcome == SUCCESS
-        result.task(":consumer:genFullArgsFile").outcome == SUCCESS
-        new File(testProjectDir.root, 'consumer/build/full_args.f').text.contains('producer/build/args.f')
-        new File(testProjectDir.root, 'consumer/build/full_args.f').text.contains('consumer/build/args.f')
+        result.task(":directDependency:genArgsFile").outcome == SUCCESS
+        result.task(":mainProject:genArgsFile").outcome == SUCCESS
+        result.task(":mainProject:genFullArgsFile").outcome == SUCCESS
+        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('directDependency/build/args.f')
+        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('mainProject/build/args.f')
     }
 
     def "'argsFiles' artifacts produced by transitive dependencies are consumed in 'genFullArgsFile'"() {
@@ -316,24 +316,24 @@ class SystemVerilogPluginFunctionalTest extends Specification {
 
         File settingsFile = testProjectDir.newFile('settings.gradle')
         settingsFile << """
-            include 'transitive'
-            include 'producer'
-            include 'consumer'
+            include 'transitiveDependency'
+            include 'directDependency'
+            include 'mainProject'
         """
 
-        File transitiveBuildFile = newStandardProject('transitive')
+        File transitiveDependencyBuildFile = newStandardProject('transitiveDependency')
 
-        File producerBuildFile = newStandardProject('producer')
-        producerBuildFile << """
+        File directDependencyBuildFile = newStandardProject('directDependency')
+        directDependencyBuildFile << """
             dependencies {
-                argsFiles(project(path: ':transitive', configuration: 'argsFiles'))
+                argsFiles(project(path: ':transitiveDependency', configuration: 'argsFiles'))
             }
         """
 
-        File consumerBuildFile = newStandardProject('consumer')
-        consumerBuildFile << """
+        File mainProjectBuildFile = newStandardProject('mainProject')
+        mainProjectBuildFile << """
             dependencies {
-                argsFiles(project(path: ':producer', configuration: 'argsFiles'))
+                argsFiles(project(path: ':directDependency', configuration: 'argsFiles'))
             }
         """
 
@@ -341,17 +341,17 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments(':consumer:genFullArgsFile')
+            .withArguments(':mainProject:genFullArgsFile')
             .build()
 
         then:
-        result.task(":transitive:genArgsFile").outcome == SUCCESS
-        result.task(":producer:genArgsFile").outcome == SUCCESS
-        result.task(":consumer:genArgsFile").outcome == SUCCESS
-        result.task(":consumer:genFullArgsFile").outcome == SUCCESS
-        new File(testProjectDir.root, 'consumer/build/full_args.f').text.contains('transitive/build/args.f')
-        new File(testProjectDir.root, 'consumer/build/full_args.f').text.contains('producer/build/args.f')
-        new File(testProjectDir.root, 'consumer/build/full_args.f').text.contains('consumer/build/args.f')
+        result.task(":transitiveDependency:genArgsFile").outcome == SUCCESS
+        result.task(":directDependency:genArgsFile").outcome == SUCCESS
+        result.task(":mainProject:genArgsFile").outcome == SUCCESS
+        result.task(":mainProject:genFullArgsFile").outcome == SUCCESS
+        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('transitiveDependency/build/args.f')
+        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('directDependency/build/args.f')
+        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('mainProject/build/args.f')
     }
 
     def "'argsFiles' are consumed in dependency order"() {
@@ -360,24 +360,24 @@ class SystemVerilogPluginFunctionalTest extends Specification {
 
         File settingsFile = testProjectDir.newFile('settings.gradle')
         settingsFile << """
-            include 'transitive'
-            include 'producer'
-            include 'consumer'
+            include 'transitiveDependency'
+            include 'directDependency'
+            include 'mainProject'
         """
 
-        File transitiveBuildFile = newStandardProject('transitive')
+        File transitiveDependencyBuildFile = newStandardProject('transitiveDependency')
 
-        File producerBuildFile = newStandardProject('producer')
-        producerBuildFile << """
+        File directDependencyBuildFile = newStandardProject('directDependency')
+        directDependencyBuildFile << """
             dependencies {
-                argsFiles(project(path: ':transitive', configuration: 'argsFiles'))
+                argsFiles(project(path: ':transitiveDependency', configuration: 'argsFiles'))
             }
         """
 
-        File consumerBuildFile = newStandardProject('consumer')
-        consumerBuildFile << """
+        File mainProjectBuildFile = newStandardProject('mainProject')
+        mainProjectBuildFile << """
             dependencies {
-                argsFiles(project(path: ':producer', configuration: 'argsFiles'))
+                argsFiles(project(path: ':directDependency', configuration: 'argsFiles'))
             }
         """
 
@@ -385,22 +385,22 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments(':consumer:genFullArgsFile')
+            .withArguments(':mainProject:genFullArgsFile')
             .build()
 
         then:
-        def lines = new File(testProjectDir.root, 'consumer/build/full_args.f').text.split('\n')
-        def transitiveIdx = lines.findIndexOf {
-            it.contains('transitive/build/args.f')
+        def lines = new File(testProjectDir.root, 'mainProject/build/full_args.f').text.split('\n')
+        def transitiveDependencyIdx = lines.findIndexOf {
+            it.contains('transitiveDependency/build/args.f')
         }
-        transitiveIdx != -1
-        def producerIdx = lines.findIndexOf(transitiveIdx) {
-            it.contains('producer/build/args.f')
+        transitiveDependencyIdx != -1
+        def directDependencyIdx = lines.findIndexOf(transitiveDependencyIdx) {
+            it.contains('directDependency/build/args.f')
         }
-        producerIdx != -1
-        def consumerIdx = lines.findIndexOf(transitiveIdx) {
-            it.contains('consumer/build/args.f')
+        directDependencyIdx != -1
+        def mainProjectIdx = lines.findIndexOf(transitiveDependencyIdx) {
+            it.contains('mainProject/build/args.f')
         }
-        consumerIdx != -1
+        mainProjectIdx != -1
     }
 }
