@@ -3,7 +3,8 @@ if (!inComposite) {
     includeBuild("../../..")
 }
 
-def gitReposPrefix = inComposite ? gradle.parent.rootProject.projectDir : ''
+def topGradle = gradle.parent ?: gradle
+def gitReposPrefix = topGradle.startParameter.currentDir
 
 sourceControl {
     gitRepository("$gitReposPrefix/../git-repos/build/utils0") {
