@@ -1,0 +1,7 @@
+includeBuild("../../..")
+
+sourceControl {
+    gitRepository("../git-repos/build/utils0") {
+        producesModule("com.verificationgentleman:utils0")
+    }
+}
