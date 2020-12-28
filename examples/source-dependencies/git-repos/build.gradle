@@ -4,17 +4,33 @@ class GenerateRepoTask extends DefaultTask {
 
     @TaskAction
     def generate() {
-        def repo = project.file("$project.buildDir/$packageName")
+        copyPackage()
+        initializeGitRepo()
+    }
+
+    def getRepo() {
+        return project.file("$project.buildDir/$packageName")
+    }
+
+    def copyPackage() {
         project.copy {
             from project.file("../$packageName")
             into repo
         }
-        // XXX Could get this using 'git rev-parse --show-toplevel', but it takes a lot of code to get output of commands
+        copyGitignore()
+    }
+
+    // XXX Can't get this to work with the 'copy' method, because it ignores '.gitignore' files
+    def copyGitignore() {
+        // XXX Could get this using 'git rev-parse --show-toplevel', but it takes a lot of code to get output of
+        // executed commands
         def projectRoot = project.file('../../../')
-        // XXX Can't get this to work with the 'copy' method, because it ignores '.gitignore' files
         project.exec {
             commandLine 'cp', "$projectRoot/.gitignore", repo
         }
+    }
+
+    def initializeGitRepo(){
         project.exec {
             executable 'git'
             args 'init'
