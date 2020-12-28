@@ -66,20 +66,13 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                 genFullArgsFile.setDescription("Generates an argument file for the main source code and its dependencies.");
                 genFullArgsFile.getSource().set(genArgsFile.getDestination());
                 genFullArgsFile.getDestination().set(new File(project.getBuildDir(), "full_args.f"));
-                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName("incomingArgsFiles"));
+                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName("argsFiles"));
             }
         });
     }
 
     private void configureArgsFileConfigurations(Project project) {
         Configuration argsFiles = project.getConfigurations().create("argsFiles");
-        argsFiles.setCanBeConsumed(true);
-        argsFiles.setCanBeResolved(false);
-
-        Configuration incomingArgsFiles = project.getConfigurations().create("incomingArgsFiles");
-        incomingArgsFiles.setCanBeConsumed(false);
-        incomingArgsFiles.setCanBeResolved(true);
-        incomingArgsFiles.extendsFrom(argsFiles);
     }
 
     private void configureArgsFileArtifact(Project project) {
