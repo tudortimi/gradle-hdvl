@@ -1,0 +1,3 @@
+tasks.register('run') {
+    dependsOn gradle.includedBuild('tb').task(':genFullArgsFile')
+}

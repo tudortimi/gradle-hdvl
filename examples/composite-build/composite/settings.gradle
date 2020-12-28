@@ -1,0 +1,7 @@
+// XXX Needed to get access to the plugin
+// Not what I expected. I thought, that if the projects include the plugin build in their own 'settings.gradle', then
+// the composite wouldn't need to
+includeBuild("../../..")
+
+includeBuild '../tb'
+includeBuild '../uvc0'
