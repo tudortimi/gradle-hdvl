@@ -42,7 +42,7 @@ class SystemVerilogPluginFunctionalTest extends Specification {
      * @param name The project name
      * @return The build file of the project
      */
-    def newStandardProject(name) {
+    def newStandardProject(String name) {
         File folder = testProjectDir.newFolder(name)
 
         File sv = testProjectDir.newFolder(name,'src', 'main', 'sv')
