@@ -1,0 +1,37 @@
+// XXX Could get this using 'git rev-parse --show-toplevel', but it takes a lot of code to get output of commands
+def projectRoot = file('../../../')
+
+task generateRepos {
+    def repo = file("$buildDir/utils0")
+    doLast {
+        copy {
+            from file('../utils0')
+            into repo
+        }
+        // XXX Can't get this to work with the 'copy' method, because it ignores '.gitignore' files
+        exec {
+            commandLine 'cp', "$projectRoot/.gitignore", repo
+        }
+        exec {
+            executable 'git'
+            args 'init'
+            workingDir repo
+        }
+        exec {
+            executable 'git'
+            args 'add', '.'
+            workingDir repo
+        }
+        exec {
+            executable 'git'
+            args 'commit', '-m', 'Initial commit'
+            workingDir repo
+        }
+    }
+}
+
+task clean(type: Delete) {
+    delete {
+        'build'
+    }
+}
