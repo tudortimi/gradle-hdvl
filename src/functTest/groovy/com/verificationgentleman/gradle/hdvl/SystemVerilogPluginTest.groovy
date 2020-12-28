@@ -474,4 +474,82 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         new File(testProjectDir.root, 'consumer/build/full_args.f').text.contains('producer/build/args.f')
         new File(testProjectDir.root, 'consumer/build/full_args.f').text.contains('consumer/build/args.f')
     }
+
+    def "'argsFiles' are consumed in dependency order"() {
+        setup:
+        buildFile.delete()
+
+        File settingsFile = testProjectDir.newFile('settings.gradle')
+        settingsFile << """
+            include 'transitive'
+            include 'producer'
+            include 'consumer'
+        """
+
+        File transitive = testProjectDir.newFolder('transitive')
+
+        File transitiveSv = testProjectDir.newFolder('transitive','src', 'main', 'sv')
+        new File(transitiveSv, 'transitive.sv').createNewFile()
+
+        File transitiveBuildFile = new File(transitive, "build.gradle")
+        transitiveBuildFile << """
+            plugins {
+                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+            }
+        """
+
+        File producer = testProjectDir.newFolder('producer')
+
+        File producerSv = testProjectDir.newFolder('producer','src', 'main', 'sv')
+        new File(producerSv, 'producer.sv').createNewFile()
+
+        File producerBuildFile = new File(producer, "build.gradle")
+        producerBuildFile << """
+            plugins {
+                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+            }
+            
+            dependencies {
+                argsFiles(project(path: ':transitive', configuration: 'argsFiles'))
+            }
+        """
+
+        File consumer = testProjectDir.newFolder('consumer')
+
+        File consumerSv = testProjectDir.newFolder('consumer','src', 'main', 'sv')
+        new File(consumerSv, 'consumer.sv').createNewFile()
+
+        File consumerBuildFile = new File(consumer, "build.gradle")
+        consumerBuildFile << """
+            plugins {
+                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+            }
+            
+            dependencies {
+                argsFiles(project(path: ':producer', configuration: 'argsFiles'))
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':consumer:genFullArgsFile')
+            .build()
+
+        then:
+        def lines = new File(testProjectDir.root, 'consumer/build/full_args.f').text.split('\n')
+        def transitiveIdx = lines.findIndexOf {
+            it.contains('transitive/build/args.f')
+        }
+        transitiveIdx != -1
+        def producerIdx = lines.findIndexOf(transitiveIdx) {
+            it.contains('producer/build/args.f')
+        }
+        producerIdx != -1
+        def consumerIdx = lines.findIndexOf(transitiveIdx) {
+            it.contains('consumer/build/args.f')
+        }
+        consumerIdx != -1
+    }
 }

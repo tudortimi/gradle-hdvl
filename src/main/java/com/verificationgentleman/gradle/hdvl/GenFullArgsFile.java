@@ -13,6 +13,10 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.Collections.reverse;
 
 public class GenFullArgsFile extends DefaultTask {
 
@@ -56,11 +60,23 @@ public class GenFullArgsFile extends DefaultTask {
 
     private void writeArgsFile() throws IOException {
         FileWriter writer = new FileWriter(destination.get().getAsFile());
-        for (File argsFile: argsFiles) {
+        for (File argsFile: getArgsFilesInDependencyOrder()) {
             writer.write("-f " + argsFile.getAbsolutePath() + "\n");
         }
         writer.write("-f " + source.get().getAsFile().getAbsolutePath() + "\n");
         writer.close();
+    }
+
+    // XXX When looping over the configuration, the args files are returned in top/down order. Direct dependencies come
+    // first, followed by transitive dependencies. We need them in the other order.
+    // This is probably an implementation detail, so it's probably not so good to rely on this order.
+    private List<File> getArgsFilesInDependencyOrder() {
+        List<File> result = new ArrayList<>();
+        for (File argsFile: argsFiles) {
+            result.add(argsFile);
+        }
+        reverse(result);
+        return result;
     }
 
 }
