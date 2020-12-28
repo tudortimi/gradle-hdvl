@@ -3,7 +3,3 @@ plugins {
 }
 
 group 'com.verificationgentleman'
-
-dependencies {
-    compile 'com.verificationgentleman:utils0'
-}

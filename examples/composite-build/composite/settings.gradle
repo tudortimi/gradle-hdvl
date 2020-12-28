@@ -5,3 +5,4 @@ includeBuild("../../..")
 
 includeBuild '../tb'
 includeBuild '../uvc0'
+includeBuild '../utils0'
