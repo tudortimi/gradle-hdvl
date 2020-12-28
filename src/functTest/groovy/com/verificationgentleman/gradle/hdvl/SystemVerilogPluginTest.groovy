@@ -219,26 +219,6 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         result.task(":copy").outcome == NO_SOURCE
     }
 
-    def "'getArgsFile' task is added by the plugin"() {
-        buildFile << """
-            task assertTasks {
-                doLast {
-                    assert project.tasks.genArgsFile != null
-                }
-            }
-        """
-
-        when:
-        def result = GradleRunner.create()
-            .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
-            .withArguments('assertTasks')
-            .build()
-
-        then:
-        result.task(":assertTasks").outcome == SUCCESS
-    }
-
     def "'getArgsFile' task produces output"() {
         File sv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
