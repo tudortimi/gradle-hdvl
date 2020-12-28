@@ -30,22 +30,17 @@ class GenerateRepoTask extends DefaultTask {
         }
     }
 
-    def initializeGitRepo(){
-        project.exec {
-            executable 'git'
-            args 'init'
-            workingDir repo
+    def initializeGitRepo() {
+        def gitExec = { String... gitArgs ->
+            project.exec {
+                executable 'git'
+                workingDir repo
+                args gitArgs
+            }
         }
-        project.exec {
-            executable 'git'
-            args 'add', '.'
-            workingDir repo
-        }
-        project.exec {
-            executable 'git'
-            args 'commit', '-m', 'Initial commit'
-            workingDir repo
-        }
+        gitExec 'init'
+        gitExec 'add', '.'
+        gitExec 'commit', '-m', 'Initial commit'
     }
 }
 
