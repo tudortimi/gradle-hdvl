@@ -1,9 +1,11 @@
 package com.verificationgentleman.gradle.hdvl;
 
 import org.gradle.api.DefaultTask;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
@@ -16,6 +18,7 @@ public class GenFullArgsFile extends DefaultTask {
 
     private final RegularFileProperty destination;
     private final RegularFileProperty source;
+    private FileCollection argsFiles;
 
     @Inject
     public GenFullArgsFile(ObjectFactory objectFactory) {
@@ -33,6 +36,15 @@ public class GenFullArgsFile extends DefaultTask {
         return source;
     }
 
+    @InputFiles
+    public FileCollection getArgsFiles() {
+        return argsFiles;
+    }
+
+    public void setArgsFiles(FileCollection argsFiles) {
+        this.argsFiles = argsFiles;
+    }
+
     @TaskAction
     protected void generate() {
         try {
@@ -44,6 +56,9 @@ public class GenFullArgsFile extends DefaultTask {
 
     private void writeArgsFile() throws IOException {
         FileWriter writer = new FileWriter(destination.get().getAsFile());
+        for (File argsFile: argsFiles) {
+            writer.write("-f " + argsFile.getAbsolutePath() + "\n");
+        }
         writer.write("-f " + source.get().getAsFile().getAbsolutePath() + "\n");
         writer.close();
     }

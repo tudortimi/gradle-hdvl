@@ -349,4 +349,57 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         new File(testProjectDir.root, 'build/full_args.f').exists()
         new File(testProjectDir.root, 'build/full_args.f').text.contains('build/args.f')
     }
+
+    def "'argsFiles' artifacts produced by producer are consumed by consumer in 'getFullArgsFile'"() {
+        setup:
+        buildFile.delete()
+
+        File settingsFile = testProjectDir.newFile('settings.gradle')
+        settingsFile << """
+            include 'producer'
+            include 'consumer'
+        """
+
+        File producer = testProjectDir.newFolder('producer')
+
+        File producerSv = testProjectDir.newFolder('producer','src', 'main', 'sv')
+        new File(producerSv, 'producer.sv').createNewFile()
+
+        File producerBuildFile = new File(producer, "build.gradle")
+        producerBuildFile << """
+            plugins {
+                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+            }
+        """
+
+        File consumer = testProjectDir.newFolder('consumer')
+
+        File consumerSv = testProjectDir.newFolder('consumer','src', 'main', 'sv')
+        new File(consumerSv, 'consumer.sv').createNewFile()
+
+        File consumerBuildFile = new File(consumer, "build.gradle")
+        consumerBuildFile << """
+            plugins {
+                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+            }
+            
+            dependencies {
+                incomingArgsFiles(project(path: ':producer', configuration: 'argsFiles'))
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':consumer:genFullArgsFile')
+            .build()
+
+        then:
+        result.task(":producer:genArgsFile").outcome == SUCCESS
+        result.task(":consumer:genArgsFile").outcome == SUCCESS
+        result.task(":consumer:genFullArgsFile").outcome == SUCCESS
+        new File(testProjectDir.root, 'consumer/build/full_args.f').text.contains('producer/build/args.f')
+        new File(testProjectDir.root, 'consumer/build/full_args.f').text.contains('consumer/build/args.f')
+    }
 }
