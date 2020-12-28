@@ -3,8 +3,10 @@ if (!inComposite) {
     includeBuild("../../..")
 }
 
+def gitReposPrefix = inComposite ? gradle.parent.rootProject.projectDir : ''
+
 sourceControl {
-    gitRepository("../git-repos/build/utils0") {
+    gitRepository("$gitReposPrefix/../git-repos/build/utils0") {
         producesModule("com.verificationgentleman:utils0")
     }
 }
