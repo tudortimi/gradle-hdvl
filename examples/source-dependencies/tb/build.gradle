@@ -1,0 +1,11 @@
+plugins {
+    id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+}
+
+dependencies {
+    compile('com.verificationgentleman:uvc0') {
+        version {
+            branch = 'master'
+        }
+    }
+}

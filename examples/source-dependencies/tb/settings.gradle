@@ -1,0 +1,8 @@
+// Only needed because we're not getting the plugin from a plugin repository
+includeBuild("../../..")
+
+sourceControl {
+    gitRepository("../git-repos/build/uvc0") {
+        producesModule("com.verificationgentleman:uvc0")
+    }
+}

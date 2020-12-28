@@ -1,0 +1,64 @@
+class GenerateRepoTask extends DefaultTask {
+    @Input
+    String packageName = "dummy"
+
+    @TaskAction
+    def generate() {
+        copyPackage()
+        initializeGitRepo()
+    }
+
+    def getRepo() {
+        return project.file("$project.buildDir/$packageName")
+    }
+
+    def copyPackage() {
+        project.copy {
+            from project.file("../$packageName")
+            into repo
+        }
+        copyGitignore()
+    }
+
+    // XXX Can't get this to work with the 'copy' method, because it ignores '.gitignore' files
+    def copyGitignore() {
+        // XXX Could get this using 'git rev-parse --show-toplevel', but it takes a lot of code to get output of
+        // executed commands
+        def projectRoot = project.file('../../../')
+        project.exec {
+            commandLine 'cp', "$projectRoot/.gitignore", repo
+        }
+    }
+
+    def initializeGitRepo() {
+        def gitExec = { String... gitArgs ->
+            project.exec {
+                executable 'git'
+                workingDir repo
+                args gitArgs
+            }
+        }
+        gitExec 'init'
+        gitExec 'add', '.'
+        gitExec 'commit', '-m', 'Initial commit'
+    }
+}
+
+task generateUtils0Repo(type: GenerateRepoTask) {
+    packageName = 'utils0'
+}
+
+task generateUvc0Repo(type: GenerateRepoTask) {
+    packageName = 'uvc0'
+}
+
+task generateRepos {
+    finalizedBy generateUtils0Repo
+    finalizedBy generateUvc0Repo
+}
+
+task clean(type: Delete) {
+    delete {
+        'build'
+    }
+}
