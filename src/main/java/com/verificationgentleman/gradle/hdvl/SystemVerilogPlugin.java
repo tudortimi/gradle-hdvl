@@ -19,6 +19,7 @@ import com.verificationgentleman.gradle.hdvl.internal.DefaultSourceSet;
 import org.gradle.api.*;
 import org.gradle.api.artifacts.ConfigurablePublishArtifact;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.model.ObjectFactory;
 
 import java.io.File;
@@ -34,7 +35,7 @@ public class SystemVerilogPlugin implements Plugin<Project> {
 	    final SourceSet mainSourceSet = sourceSets.create("main");
 	    configureGenArgsFile(project, mainSourceSet);
         configureGenFullArgsFile(project);
-	    configureCompileConfiguration(project);
+	    configureConfigurations(project);
 	    configureCompileArtifact(project);
     }
 
@@ -71,8 +72,11 @@ public class SystemVerilogPlugin implements Plugin<Project> {
         });
     }
 
-    private void configureCompileConfiguration(Project project) {
-        Configuration compile = project.getConfigurations().create("compile");
+    private void configureConfigurations(Project project) {
+        Configuration compileConfiguration = project.getConfigurations().create("compile");
+
+        Configuration defaultConfiguration = project.getConfigurations().create(Dependency.DEFAULT_CONFIGURATION);
+        defaultConfiguration.extendsFrom(compileConfiguration);
     }
 
     private void configureCompileArtifact(Project project) {

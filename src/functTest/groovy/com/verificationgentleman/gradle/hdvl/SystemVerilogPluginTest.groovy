@@ -291,7 +291,7 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         File mainProjectBuildFile = newStandardProject('mainProject')
         mainProjectBuildFile << """
             dependencies {
-                compile project(path: ':directDependency', configuration: 'compile')
+                compile project(':directDependency')
             }
         """
 
@@ -326,14 +326,14 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         File directDependencyBuildFile = newStandardProject('directDependency')
         directDependencyBuildFile << """
             dependencies {
-                compile project(path: ':transitiveDependency', configuration: 'compile')
+                compile project(':transitiveDependency')
             }
         """
 
         File mainProjectBuildFile = newStandardProject('mainProject')
         mainProjectBuildFile << """
             dependencies {
-                compile project(path: ':directDependency', configuration: 'compile')
+                compile project(':directDependency')
             }
         """
 
@@ -370,14 +370,14 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         File directDependencyBuildFile = newStandardProject('directDependency')
         directDependencyBuildFile << """
             dependencies {
-                compile project(path: ':transitiveDependency', configuration: 'compile')
+                compile project(':transitiveDependency')
             }
         """
 
         File mainProjectBuildFile = newStandardProject('mainProject')
         mainProjectBuildFile << """
             dependencies {
-                compile project(path: ':directDependency', configuration: 'compile')
+                compile project(':directDependency')
             }
         """
 
