@@ -219,7 +219,7 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         result.task(":copy").outcome == NO_SOURCE
     }
 
-    def "'getArgsFile' task produces output"() {
+    def "'genArgsFile' task produces output"() {
         File sv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
