@@ -79,6 +79,7 @@ public class SystemVerilogPlugin implements Plugin<Project> {
         Configuration incomingArgsFiles = project.getConfigurations().create("incomingArgsFiles");
         incomingArgsFiles.setCanBeConsumed(false);
         incomingArgsFiles.setCanBeResolved(true);
+        incomingArgsFiles.extendsFrom(argsFiles);
     }
 
     private void configureArgsFileArtifact(Project project) {
