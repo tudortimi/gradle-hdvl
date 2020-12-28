@@ -1,4 +1,7 @@
-includeBuild("../../..")
+boolean inComposite = gradle.parent != null
+if (!inComposite) {
+    includeBuild("../../..")
+}
 
 sourceControl {
     gitRepository("../git-repos/build/utils0") {
