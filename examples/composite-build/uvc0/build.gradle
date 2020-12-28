@@ -1,0 +1,9 @@
+plugins {
+    id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+}
+
+group 'com.verificationgentleman'
+
+dependencies {
+    compile 'com.verificationgentleman:utils0'
+}
