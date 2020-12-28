@@ -176,7 +176,7 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         new File(testProjectDir.root, 'build/dummy.sv').exists()
     }
 
-    def "can specify a source set source exclude using am action"() {
+    def "can specify a source set source exclude using an action"() {
         // XXX Most tests use 'build.gradle', but in this test we want to use a Kotlin build script. It seems like
         // overkill to create a new test class just fo this.
         setup:
