@@ -36,6 +36,28 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         """
     }
 
+    /**
+     * Creates a new project in a new directory, with a standard layout.
+     *
+     * @param name The project name
+     * @return The build file of the project
+     */
+    def newStandardProject(String name) {
+        File folder = testProjectDir.newFolder(name)
+
+        File sv = testProjectDir.newFolder(name,'src', 'main', 'sv')
+        new File(sv, "${name}.sv").createNewFile()
+
+        File buildFile = new File(folder, "build.gradle")
+        buildFile << """
+            plugins {
+                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+            }
+        """
+
+        return buildFile
+    }
+
     def "can successfully import the plugin"() {
         when:
         def result = GradleRunner.create()
@@ -176,7 +198,7 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         new File(testProjectDir.root, 'build/dummy.sv').exists()
     }
 
-    def "can specify a source set source exclude using am action"() {
+    def "can specify a source set source exclude using an action"() {
         // XXX Most tests use 'build.gradle', but in this test we want to use a Kotlin build script. It seems like
         // overkill to create a new test class just fo this.
         setup:
@@ -219,27 +241,7 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         result.task(":copy").outcome == NO_SOURCE
     }
 
-    def "'getArgsFile' task is added by the plugin"() {
-        buildFile << """
-            task assertTasks {
-                doLast {
-                    assert project.tasks.genArgsFile != null
-                }
-            }
-        """
-
-        when:
-        def result = GradleRunner.create()
-            .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
-            .withArguments('assertTasks')
-            .build()
-
-        then:
-        result.task(":assertTasks").outcome == SUCCESS
-    }
-
-    def "'getArgsFile' task produces output"() {
+    def "'genArgsFile' task produces output"() {
         File sv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
@@ -254,82 +256,6 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         result.task(":genArgsFile").outcome == SUCCESS
         new File(testProjectDir.root, 'build/args.f').exists()
         new File(testProjectDir.root, 'build/args.f').text.contains('src/main/sv/dummy.sv')
-    }
-
-    def "'argsFiles' configuration is added by the plugin"() {
-        buildFile << """
-            task assertTasks {
-                doLast {
-                    assert project.configurations.argsFiles != null
-                }
-            }
-        """
-
-        when:
-        def result = GradleRunner.create()
-            .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
-            .withArguments('assertTasks')
-            .build()
-
-        then:
-        result.task(":assertTasks").outcome == SUCCESS
-    }
-
-    def "'argsFiles' artifacts produced by producer are consumed by consumer"() {
-        setup:
-        buildFile.delete()
-
-        File settingsFile = testProjectDir.newFile('settings.gradle')
-        settingsFile << """
-            include 'producer'
-            include 'consumer'
-        """
-
-        File producer = testProjectDir.newFolder('producer')
-
-        File producerSv = testProjectDir.newFolder('producer','src', 'main', 'sv')
-        new File(producerSv, 'dummy.sv').createNewFile()
-
-        File producerBuildFile = new File(producer, "build.gradle")
-        producerBuildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
-            }
-        """
-
-        File consumer = testProjectDir.newFolder('consumer')
-
-        File consumerBuildFile = new File(consumer, "build.gradle")
-        consumerBuildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
-            }
-            
-            dependencies {
-                argsFiles(project(path: ':producer', configuration: 'argsFiles'))
-            }
-        """
-
-        consumerBuildFile << """
-            task assertConfigurations {
-                dependsOn project.configurations.incomingArgsFiles
-                doLast {
-                    assert !project.configurations.incomingArgsFiles.files.empty
-                }
-            }
-        """
-
-        when:
-        def result = GradleRunner.create()
-            .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
-            .withArguments(':consumer:assertConfigurations')
-            .build()
-
-        then:
-        result.task(":producer:genArgsFile").outcome == SUCCESS
-        result.task(":consumer:assertConfigurations").outcome == SUCCESS
     }
 
     def "'genFullArgsFile' task consumes output of 'genArgsFile"() {
@@ -350,41 +276,22 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         new File(testProjectDir.root, 'build/full_args.f').text.contains('build/args.f')
     }
 
-    def "'argsFiles' artifacts produced by producer are consumed by consumer in 'getFullArgsFile'"() {
+    def "'argsFiles' artifacts produced by direct dependencies are consumed by main project in 'genFullArgsFile'"() {
         setup:
         buildFile.delete()
 
         File settingsFile = testProjectDir.newFile('settings.gradle')
         settingsFile << """
-            include 'producer'
-            include 'consumer'
+            include 'directDependency'
+            include 'mainProject'
         """
 
-        File producer = testProjectDir.newFolder('producer')
+        File directDependencyBuildFile = newStandardProject('directDependency')
 
-        File producerSv = testProjectDir.newFolder('producer','src', 'main', 'sv')
-        new File(producerSv, 'producer.sv').createNewFile()
-
-        File producerBuildFile = new File(producer, "build.gradle")
-        producerBuildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
-            }
-        """
-
-        File consumer = testProjectDir.newFolder('consumer')
-
-        File consumerSv = testProjectDir.newFolder('consumer','src', 'main', 'sv')
-        new File(consumerSv, 'consumer.sv').createNewFile()
-
-        File consumerBuildFile = new File(consumer, "build.gradle")
-        consumerBuildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
-            }
-            
+        File mainProjectBuildFile = newStandardProject('mainProject')
+        mainProjectBuildFile << """
             dependencies {
-                argsFiles(project(path: ':producer', configuration: 'argsFiles'))
+                argsFiles(project(path: ':directDependency', configuration: 'argsFiles'))
             }
         """
 
@@ -392,15 +299,15 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments(':consumer:genFullArgsFile')
+            .withArguments(':mainProject:genFullArgsFile')
             .build()
 
         then:
-        result.task(":producer:genArgsFile").outcome == SUCCESS
-        result.task(":consumer:genArgsFile").outcome == SUCCESS
-        result.task(":consumer:genFullArgsFile").outcome == SUCCESS
-        new File(testProjectDir.root, 'consumer/build/full_args.f').text.contains('producer/build/args.f')
-        new File(testProjectDir.root, 'consumer/build/full_args.f').text.contains('consumer/build/args.f')
+        result.task(":directDependency:genArgsFile").outcome == SUCCESS
+        result.task(":mainProject:genArgsFile").outcome == SUCCESS
+        result.task(":mainProject:genFullArgsFile").outcome == SUCCESS
+        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('directDependency/build/args.f')
+        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('mainProject/build/args.f')
     }
 
     def "'argsFiles' artifacts produced by transitive dependencies are consumed in 'genFullArgsFile'"() {
@@ -409,52 +316,24 @@ class SystemVerilogPluginFunctionalTest extends Specification {
 
         File settingsFile = testProjectDir.newFile('settings.gradle')
         settingsFile << """
-            include 'transitive'
-            include 'producer'
-            include 'consumer'
+            include 'transitiveDependency'
+            include 'directDependency'
+            include 'mainProject'
         """
 
-        File transitive = testProjectDir.newFolder('transitive')
+        File transitiveDependencyBuildFile = newStandardProject('transitiveDependency')
 
-        File transitiveSv = testProjectDir.newFolder('transitive','src', 'main', 'sv')
-        new File(transitiveSv, 'transitive.sv').createNewFile()
-
-        File transitiveBuildFile = new File(transitive, "build.gradle")
-        transitiveBuildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
-            }
-        """
-
-        File producer = testProjectDir.newFolder('producer')
-
-        File producerSv = testProjectDir.newFolder('producer','src', 'main', 'sv')
-        new File(producerSv, 'producer.sv').createNewFile()
-
-        File producerBuildFile = new File(producer, "build.gradle")
-        producerBuildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
-            }
-            
+        File directDependencyBuildFile = newStandardProject('directDependency')
+        directDependencyBuildFile << """
             dependencies {
-                argsFiles(project(path: ':transitive', configuration: 'argsFiles'))
+                argsFiles(project(path: ':transitiveDependency', configuration: 'argsFiles'))
             }
         """
 
-        File consumer = testProjectDir.newFolder('consumer')
-
-        File consumerSv = testProjectDir.newFolder('consumer','src', 'main', 'sv')
-        new File(consumerSv, 'consumer.sv').createNewFile()
-
-        File consumerBuildFile = new File(consumer, "build.gradle")
-        consumerBuildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
-            }
-            
+        File mainProjectBuildFile = newStandardProject('mainProject')
+        mainProjectBuildFile << """
             dependencies {
-                argsFiles(project(path: ':producer', configuration: 'argsFiles'))
+                argsFiles(project(path: ':directDependency', configuration: 'argsFiles'))
             }
         """
 
@@ -462,17 +341,17 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments(':consumer:genFullArgsFile')
+            .withArguments(':mainProject:genFullArgsFile')
             .build()
 
         then:
-        result.task(":transitive:genArgsFile").outcome == SUCCESS
-        result.task(":producer:genArgsFile").outcome == SUCCESS
-        result.task(":consumer:genArgsFile").outcome == SUCCESS
-        result.task(":consumer:genFullArgsFile").outcome == SUCCESS
-        new File(testProjectDir.root, 'consumer/build/full_args.f').text.contains('transitive/build/args.f')
-        new File(testProjectDir.root, 'consumer/build/full_args.f').text.contains('producer/build/args.f')
-        new File(testProjectDir.root, 'consumer/build/full_args.f').text.contains('consumer/build/args.f')
+        result.task(":transitiveDependency:genArgsFile").outcome == SUCCESS
+        result.task(":directDependency:genArgsFile").outcome == SUCCESS
+        result.task(":mainProject:genArgsFile").outcome == SUCCESS
+        result.task(":mainProject:genFullArgsFile").outcome == SUCCESS
+        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('transitiveDependency/build/args.f')
+        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('directDependency/build/args.f')
+        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('mainProject/build/args.f')
     }
 
     def "'argsFiles' are consumed in dependency order"() {
@@ -481,52 +360,24 @@ class SystemVerilogPluginFunctionalTest extends Specification {
 
         File settingsFile = testProjectDir.newFile('settings.gradle')
         settingsFile << """
-            include 'transitive'
-            include 'producer'
-            include 'consumer'
+            include 'transitiveDependency'
+            include 'directDependency'
+            include 'mainProject'
         """
 
-        File transitive = testProjectDir.newFolder('transitive')
+        File transitiveDependencyBuildFile = newStandardProject('transitiveDependency')
 
-        File transitiveSv = testProjectDir.newFolder('transitive','src', 'main', 'sv')
-        new File(transitiveSv, 'transitive.sv').createNewFile()
-
-        File transitiveBuildFile = new File(transitive, "build.gradle")
-        transitiveBuildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
-            }
-        """
-
-        File producer = testProjectDir.newFolder('producer')
-
-        File producerSv = testProjectDir.newFolder('producer','src', 'main', 'sv')
-        new File(producerSv, 'producer.sv').createNewFile()
-
-        File producerBuildFile = new File(producer, "build.gradle")
-        producerBuildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
-            }
-            
+        File directDependencyBuildFile = newStandardProject('directDependency')
+        directDependencyBuildFile << """
             dependencies {
-                argsFiles(project(path: ':transitive', configuration: 'argsFiles'))
+                argsFiles(project(path: ':transitiveDependency', configuration: 'argsFiles'))
             }
         """
 
-        File consumer = testProjectDir.newFolder('consumer')
-
-        File consumerSv = testProjectDir.newFolder('consumer','src', 'main', 'sv')
-        new File(consumerSv, 'consumer.sv').createNewFile()
-
-        File consumerBuildFile = new File(consumer, "build.gradle")
-        consumerBuildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
-            }
-            
+        File mainProjectBuildFile = newStandardProject('mainProject')
+        mainProjectBuildFile << """
             dependencies {
-                argsFiles(project(path: ':producer', configuration: 'argsFiles'))
+                argsFiles(project(path: ':directDependency', configuration: 'argsFiles'))
             }
         """
 
@@ -534,22 +385,22 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments(':consumer:genFullArgsFile')
+            .withArguments(':mainProject:genFullArgsFile')
             .build()
 
         then:
-        def lines = new File(testProjectDir.root, 'consumer/build/full_args.f').text.split('\n')
-        def transitiveIdx = lines.findIndexOf {
-            it.contains('transitive/build/args.f')
+        def lines = new File(testProjectDir.root, 'mainProject/build/full_args.f').text.split('\n')
+        def transitiveDependencyIdx = lines.findIndexOf {
+            it.contains('transitiveDependency/build/args.f')
         }
-        transitiveIdx != -1
-        def producerIdx = lines.findIndexOf(transitiveIdx) {
-            it.contains('producer/build/args.f')
+        transitiveDependencyIdx != -1
+        def directDependencyIdx = lines.findIndexOf(transitiveDependencyIdx) {
+            it.contains('directDependency/build/args.f')
         }
-        producerIdx != -1
-        def consumerIdx = lines.findIndexOf(transitiveIdx) {
-            it.contains('consumer/build/args.f')
+        directDependencyIdx != -1
+        def mainProjectIdx = lines.findIndexOf(transitiveDependencyIdx) {
+            it.contains('mainProject/build/args.f')
         }
-        consumerIdx != -1
+        mainProjectIdx != -1
     }
 }
