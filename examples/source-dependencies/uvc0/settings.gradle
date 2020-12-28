@@ -1,8 +1,10 @@
+// Only needed because we're not getting the plugin from a plugin repository
 boolean inComposite = gradle.parent != null
 if (!inComposite) {
     includeBuild("../../..")
 }
 
+// Only needed because we're not getting the code from a real Git repository
 def topGradle = gradle.parent ?: gradle
 def gitReposPrefix = topGradle.startParameter.currentDir
 

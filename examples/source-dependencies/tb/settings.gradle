@@ -1,3 +1,4 @@
+// Only needed because we're not getting the plugin from a plugin repository
 includeBuild("../../..")
 
 sourceControl {
