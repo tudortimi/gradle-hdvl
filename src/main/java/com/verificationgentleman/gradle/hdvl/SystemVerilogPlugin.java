@@ -73,10 +73,6 @@ public class SystemVerilogPlugin implements Plugin<Project> {
 
     private void configureCompileConfiguration(Project project) {
         Configuration compile = project.getConfigurations().create("compile");
-
-        // FIXME Remove once tests updated
-        Configuration argsFile = project.getConfigurations().create("argsFiles");
-        compile.extendsFrom(argsFile);
     }
 
     private void configureCompileArtifact(Project project) {
@@ -87,7 +83,6 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                 configurablePublishArtifact.builtBy(genArgsFile);
             }
         };
-        // FIXME Update to use 'compile' configuration
-        project.getArtifacts().add("argsFiles", genArgsFile.getDestination(), configureAction);
+        project.getArtifacts().add("compile", genArgsFile.getDestination(), configureAction);
     }
 }
