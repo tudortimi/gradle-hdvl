@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-    argsFiles(project(path: ':utils0', configuration: 'argsFiles'))
+    compile project(path: ':utils0', configuration: 'compile')
 }

@@ -34,8 +34,8 @@ public class SystemVerilogPlugin implements Plugin<Project> {
 	    final SourceSet mainSourceSet = sourceSets.create("main");
 	    configureGenArgsFile(project, mainSourceSet);
         configureGenFullArgsFile(project);
-	    configureArgsFileConfigurations(project);
-	    configureArgsFileArtifact(project);
+	    configureCompileConfiguration(project);
+	    configureCompileArtifact(project);
     }
 
     private NamedDomainObjectFactory<SourceSet> newSourceSetFactory(ObjectFactory objectFactory) {
@@ -66,23 +66,16 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                 genFullArgsFile.setDescription("Generates an argument file for the main source code and its dependencies.");
                 genFullArgsFile.getSource().set(genArgsFile.getDestination());
                 genFullArgsFile.getDestination().set(new File(project.getBuildDir(), "full_args.f"));
-                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName("incomingArgsFiles"));
+                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName("compile"));
             }
         });
     }
 
-    private void configureArgsFileConfigurations(Project project) {
-        Configuration argsFiles = project.getConfigurations().create("argsFiles");
-        argsFiles.setCanBeConsumed(true);
-        argsFiles.setCanBeResolved(false);
-
-        Configuration incomingArgsFiles = project.getConfigurations().create("incomingArgsFiles");
-        incomingArgsFiles.setCanBeConsumed(false);
-        incomingArgsFiles.setCanBeResolved(true);
-        incomingArgsFiles.extendsFrom(argsFiles);
+    private void configureCompileConfiguration(Project project) {
+        Configuration compile = project.getConfigurations().create("compile");
     }
 
-    private void configureArgsFileArtifact(Project project) {
+    private void configureCompileArtifact(Project project) {
         GenArgsFile genArgsFile = (GenArgsFile) project.getTasks().getByName("genArgsFile");
         Action<ConfigurablePublishArtifact> configureAction = new Action<>() {
             @Override
@@ -90,6 +83,6 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                 configurablePublishArtifact.builtBy(genArgsFile);
             }
         };
-        project.getArtifacts().add("argsFiles", genArgsFile.getDestination(), configureAction);
+        project.getArtifacts().add("compile", genArgsFile.getDestination(), configureAction);
     }
 }
