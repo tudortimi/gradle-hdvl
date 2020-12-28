@@ -1,0 +1,7 @@
+plugins {
+    id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+}
+
+dependencies {
+    argsFiles(project(path: ':uvc0', configuration: 'argsFiles'))
+}

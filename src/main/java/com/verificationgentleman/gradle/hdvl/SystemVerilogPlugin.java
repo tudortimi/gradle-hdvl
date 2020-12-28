@@ -33,6 +33,7 @@ public class SystemVerilogPlugin implements Plugin<Project> {
 	    project.getExtensions().add("sourceSets", sourceSets);
 	    final SourceSet mainSourceSet = sourceSets.create("main");
 	    configureGenArgsFile(project, mainSourceSet);
+        configureGenFullArgsFile(project);
 	    configureArgsFileConfigurations(project);
 	    configureArgsFileArtifact(project);
     }
@@ -52,7 +53,20 @@ public class SystemVerilogPlugin implements Plugin<Project> {
             public void execute(GenArgsFile genArgsFile) {
                 genArgsFile.setDescription("Generates an argument file for the main source code.");
                 genArgsFile.setSource(mainSourceSet.getSv());
-                genArgsFile.setDestination(new File(project.getBuildDir(), "args.f"));
+                genArgsFile.getDestination().set(new File(project.getBuildDir(), "args.f"));
+            }
+        });
+    }
+
+    private void configureGenFullArgsFile(Project project) {
+        GenArgsFile genArgsFile = (GenArgsFile) project.getTasks().getByName("genArgsFile");
+        project.getTasks().register("genFullArgsFile", GenFullArgsFile.class, new Action<GenFullArgsFile>() {
+            @Override
+            public void execute(GenFullArgsFile genFullArgsFile) {
+                genFullArgsFile.setDescription("Generates an argument file for the main source code and its dependencies.");
+                genFullArgsFile.getSource().set(genArgsFile.getDestination());
+                genFullArgsFile.getDestination().set(new File(project.getBuildDir(), "full_args.f"));
+                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName("incomingArgsFiles"));
             }
         });
     }
@@ -65,6 +79,7 @@ public class SystemVerilogPlugin implements Plugin<Project> {
         Configuration incomingArgsFiles = project.getConfigurations().create("incomingArgsFiles");
         incomingArgsFiles.setCanBeConsumed(false);
         incomingArgsFiles.setCanBeResolved(true);
+        incomingArgsFiles.extendsFrom(argsFiles);
     }
 
     private void configureArgsFileArtifact(Project project) {
