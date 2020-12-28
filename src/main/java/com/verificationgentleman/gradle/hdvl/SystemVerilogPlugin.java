@@ -34,8 +34,8 @@ public class SystemVerilogPlugin implements Plugin<Project> {
 	    final SourceSet mainSourceSet = sourceSets.create("main");
 	    configureGenArgsFile(project, mainSourceSet);
         configureGenFullArgsFile(project);
-	    configureArgsFileConfigurations(project);
-	    configureArgsFileArtifact(project);
+	    configureCompileConfiguration(project);
+	    configureCompileArtifact(project);
     }
 
     private NamedDomainObjectFactory<SourceSet> newSourceSetFactory(ObjectFactory objectFactory) {
@@ -66,16 +66,20 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                 genFullArgsFile.setDescription("Generates an argument file for the main source code and its dependencies.");
                 genFullArgsFile.getSource().set(genArgsFile.getDestination());
                 genFullArgsFile.getDestination().set(new File(project.getBuildDir(), "full_args.f"));
-                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName("argsFiles"));
+                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName("compile"));
             }
         });
     }
 
-    private void configureArgsFileConfigurations(Project project) {
-        Configuration argsFiles = project.getConfigurations().create("argsFiles");
+    private void configureCompileConfiguration(Project project) {
+        Configuration compile = project.getConfigurations().create("compile");
+
+        // FIXME Remove once tests updated
+        Configuration argsFile = project.getConfigurations().create("argsFiles");
+        compile.extendsFrom(argsFile);
     }
 
-    private void configureArgsFileArtifact(Project project) {
+    private void configureCompileArtifact(Project project) {
         GenArgsFile genArgsFile = (GenArgsFile) project.getTasks().getByName("genArgsFile");
         Action<ConfigurablePublishArtifact> configureAction = new Action<>() {
             @Override
@@ -83,6 +87,7 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                 configurablePublishArtifact.builtBy(genArgsFile);
             }
         };
+        // FIXME Update to use 'compile' configuration
         project.getArtifacts().add("argsFiles", genArgsFile.getDestination(), configureAction);
     }
 }
