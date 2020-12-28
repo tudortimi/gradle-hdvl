@@ -276,7 +276,7 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         new File(testProjectDir.root, 'build/full_args.f').text.contains('build/args.f')
     }
 
-    def "'argsFiles' artifacts produced by direct dependencies are consumed by main project in 'getFullArgsFile'"() {
+    def "'argsFiles' artifacts produced by direct dependencies are consumed by main project in 'genFullArgsFile'"() {
         setup:
         buildFile.delete()
 
