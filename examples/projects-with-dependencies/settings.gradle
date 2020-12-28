@@ -1,0 +1,4 @@
+includeBuild("../..")
+
+include 'tb'
+include 'uvc0'
