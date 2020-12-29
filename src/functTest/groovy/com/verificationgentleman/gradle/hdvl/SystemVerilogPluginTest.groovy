@@ -424,9 +424,8 @@ class SystemVerilogPluginFunctionalTest extends Specification {
 
         then:
         def lines = new File(testProjectDir.root, 'build/args.f').text.split('\n')
-        lines.each {
-            if (!it.contains('-makelib') && !it.contains('-endlib'))
-                assert it.startsWith('  ')
+        lines.findAll { !it.contains('-makelib') && !it.contains('-endlib') }.each {
+            assert it.startsWith('  ')
         }
     }
 
