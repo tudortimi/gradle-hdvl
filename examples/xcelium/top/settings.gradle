@@ -1,0 +1,4 @@
+includeBuild("../../..")
+
+includeBuild '../some-package'
+includeBuild '../some-other-package'
