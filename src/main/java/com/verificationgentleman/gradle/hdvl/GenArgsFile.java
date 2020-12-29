@@ -1,5 +1,7 @@
 package com.verificationgentleman.gradle.hdvl;
 
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileTree;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.*;
@@ -14,6 +16,7 @@ public class GenArgsFile extends SourceTask {
 
     private RegularFileProperty destination;
     private Set<File> privateIncludeDirs;
+    private FileCollection cSourceFiles = getProject().getObjects().fileCollection();
 
     @Inject
     public GenArgsFile(ObjectFactory objectFactory) {
@@ -34,6 +37,21 @@ public class GenArgsFile extends SourceTask {
         this.privateIncludeDirs = privateIncludeDirs;
     }
 
+    @InputFiles
+    @SkipWhenEmpty
+    @PathSensitive(PathSensitivity.ABSOLUTE)
+    public FileTree getCSource() {
+        return cSourceFiles.getAsFileTree();
+    }
+
+    public void setCSource(FileTree source) {
+        setCSource((Object) source);
+    }
+
+    public void setCSource(Object source) {
+        cSourceFiles = getProject().getObjects().fileCollection().from(source);
+    }
+
     @TaskAction
     protected void generate() {
         try {
@@ -49,7 +67,9 @@ public class GenArgsFile extends SourceTask {
         for (File f: getPrivateIncludeDirs())
             writer.write("  " + "-incdir " + f.getAbsolutePath() + "\n");
         for (File f: getSource())
-            writer.write("  " + f.getAbsolutePath() + "\n");
+            writer.write(f.getAbsolutePath() + "\n");
+        for (File f: getCSource())
+            writer.write(f.getAbsolutePath() + "\n");
         writer.write("-endlib\n");
         writer.close();
     }

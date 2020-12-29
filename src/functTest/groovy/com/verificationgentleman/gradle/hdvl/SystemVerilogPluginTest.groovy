@@ -175,6 +175,37 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         new File(testProjectDir.root, 'build/dummy.sv').exists()
     }
 
+    def "can specify a source set C source directory using a closure"() {
+        File sv = testProjectDir.newFolder('c')
+        new File(sv, 'dummy.c').createNewFile()
+
+        buildFile << """
+            sourceSets {
+                main {
+                    c {
+                        srcDirs = ['c']
+                    }
+                }
+            }
+            
+            task copy(type: Copy) {
+                from sourceSets.main.c.files
+                into 'build'
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('copy')
+            .build()
+
+        then:
+        result.task(":copy").outcome == SUCCESS
+        new File(testProjectDir.root, 'build/dummy.c').exists()
+    }
+
     def "'main' source set is added by the plugin"() {
         File sv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
@@ -241,6 +272,49 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         result.task(":copy").outcome == NO_SOURCE
     }
 
+    def "can specify a source set C source exclude using an action"() {
+        // XXX Most tests use 'build.gradle', but in this test we want to use a Kotlin build script. It seems like
+        // overkill to create a new test class just fo this.
+        setup:
+        new File(testProjectDir.root, 'build.gradle').delete()
+
+        File sv = testProjectDir.newFolder('src', 'main', 'c')
+        new File(sv, 'dummy.c').createNewFile()
+
+        File buildFile = testProjectDir.newFile('build.gradle.kts')
+        buildFile << """
+            plugins {
+                id("com.verificationgentleman.gradle.hdvl.systemverilog")
+            }
+            
+            sourceSets {
+                main {
+                    c {
+                        exclude("**/dummy.c")
+                    }
+                }
+            }
+            
+            tasks.register<Copy>("copy") {
+                // XXX Not clear why we can't just do 'sourceSets.main.sv'.
+                // 'sourceSets.main' doesn't return an object of type 'SourceSet', but a
+                // 'NamedDomainObjectProvider<SourceSet'. The Java plugin has the same issue.
+                from(sourceSets.main.get().c.files)
+                into("build")
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('copy')
+            .build()
+
+        then:
+        result.task(":copy").outcome == NO_SOURCE
+    }
+
     def "'genArgsFile' task produces output"() {
         File sv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
@@ -288,6 +362,21 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         def lineWithIncdir = lines.find { it.contains('-incdir') }
         lineWithIncdir != null
         lineWithIncdir.endsWith("src/main/sv")
+    }
+
+    def "'genArgsFile' task writes C files to args file"() {
+        File c = testProjectDir.newFolder('src', 'main', 'c')
+        new File(c, 'dummy.c').createNewFile()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genArgsFile')
+            .build()
+
+        then:
+        new File(testProjectDir.root, 'build/args.f').text.contains('src/main/c/dummy.c')
     }
 
     def "'genFullArgsFile' task consumes output of 'genArgsFile"() {
