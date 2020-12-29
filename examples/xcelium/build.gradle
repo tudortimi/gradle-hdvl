@@ -3,3 +3,10 @@ plugins {
 }
 
 group 'com.verificationgentleman'
+
+task run(type: Exec) {
+    dependsOn genFullArgsFile
+    commandLine 'xrun', '-elaborate', '-f', genFullArgsFile.destination.get().asFile
+    workingDir "$buildDir/xrun"
+    mkdir workingDir
+}
