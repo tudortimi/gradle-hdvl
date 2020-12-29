@@ -55,4 +55,11 @@ public class DefaultSourceSet implements SourceSet {
     public SourceDirectorySet getC() {
         return c;
     }
+
+    @Override
+    public DefaultSourceSet c(@Nullable Closure configureClosure) {
+        // XXX This is not part of the public Gradle API
+        configure(configureClosure, getC());
+        return this;
+    }
 }
