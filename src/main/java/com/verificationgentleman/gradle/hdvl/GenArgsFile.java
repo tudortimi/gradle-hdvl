@@ -45,10 +45,12 @@ public class GenArgsFile extends SourceTask {
 
     private void writeArgsFile() throws IOException {
         FileWriter writer = new FileWriter(destination.get().getAsFile());
+        writer.write("-makelib worklib\n");
         for (File f: getPrivateIncludeDirs())
-            writer.write("-incdir " + f.getAbsolutePath() + "\n");
+            writer.write("  " + "-incdir " + f.getAbsolutePath() + "\n");
         for (File f: getSource())
-            writer.write(f.getAbsolutePath() + "\n");
+            writer.write("  " + f.getAbsolutePath() + "\n");
+        writer.write("-endlib\n");
         writer.close();
     }
 
