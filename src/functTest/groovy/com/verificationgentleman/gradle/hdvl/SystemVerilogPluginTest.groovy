@@ -409,6 +409,26 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         new File(testProjectDir.root, 'build/args.f').text.contains('src/main/c/dummy.c')
     }
 
+    def "'genArgsFile' task indents entries in makelib block"() {
+        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(sv, 'dummy.sv').createNewFile()
+        File c = testProjectDir.newFolder('src', 'main', 'c')
+        new File(c, 'dummy.c').createNewFile()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genArgsFile')
+            .build()
+
+        then:
+        def lines = new File(testProjectDir.root, 'build/args.f').text.split('\n')
+        lines.findAll { !it.contains('-makelib') && !it.contains('-endlib') }.each {
+            assert it.startsWith('  ')
+        }
+    }
+
     def "'genFullArgsFile' task consumes output of 'genArgsFile"() {
         File sv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()

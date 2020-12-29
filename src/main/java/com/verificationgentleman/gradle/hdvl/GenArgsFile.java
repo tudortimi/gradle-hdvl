@@ -68,9 +68,9 @@ public class GenArgsFile extends SourceTask {
         for (File f: getPrivateIncludeDirs())
             writer.write("  " + "-incdir " + f.getAbsolutePath() + "\n");
         for (File f: getSource())
-            writer.write(f.getAbsolutePath() + "\n");
+            writer.write("  " + f.getAbsolutePath() + "\n");
         for (File f: getCSource())
-            writer.write(f.getAbsolutePath() + "\n");
+            writer.write("  " + f.getAbsolutePath() + "\n");
         writer.write("-endlib\n");
         writer.close();
     }
