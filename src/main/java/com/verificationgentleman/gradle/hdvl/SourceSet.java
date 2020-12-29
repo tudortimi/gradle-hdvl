@@ -18,4 +18,6 @@ public interface SourceSet extends Named {
     SourceDirectorySet getC();
 
     SourceSet c(@Nullable Closure configureClosure);
+
+    SourceSet c(Action<? super SourceDirectorySet> configureAction);
 }

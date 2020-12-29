@@ -62,4 +62,10 @@ public class DefaultSourceSet implements SourceSet {
         configure(configureClosure, getC());
         return this;
     }
+
+    @Override
+    public DefaultSourceSet c(Action<? super SourceDirectorySet> configureAction) {
+        configureAction.execute(getC());
+        return this;
+    }
 }
