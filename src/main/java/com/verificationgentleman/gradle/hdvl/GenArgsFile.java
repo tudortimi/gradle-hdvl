@@ -2,18 +2,18 @@ package com.verificationgentleman.gradle.hdvl;
 
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.tasks.OutputFile;
-import org.gradle.api.tasks.SourceTask;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Set;
 
 public class GenArgsFile extends SourceTask {
 
     private RegularFileProperty destination;
+    private Set<File> privateIncludeDirs;
 
     @Inject
     public GenArgsFile(ObjectFactory objectFactory) {
@@ -23,6 +23,15 @@ public class GenArgsFile extends SourceTask {
     @OutputFile
     public RegularFileProperty getDestination() {
         return destination;
+    }
+
+    @Input
+    public Set<File> getPrivateIncludeDirs() {
+        return privateIncludeDirs;
+    }
+
+    public void setPrivateIncludeDirs(Set<File> privateIncludeDirs) {
+        this.privateIncludeDirs = privateIncludeDirs;
     }
 
     @TaskAction
@@ -36,6 +45,8 @@ public class GenArgsFile extends SourceTask {
 
     private void writeArgsFile() throws IOException {
         FileWriter writer = new FileWriter(destination.get().getAsFile());
+        for (File f: getPrivateIncludeDirs())
+            writer.write("-incdir " + f.getAbsolutePath() + "\n");
         for (File f: getSource())
             writer.write(f.getAbsolutePath() + "\n");
         writer.close();
