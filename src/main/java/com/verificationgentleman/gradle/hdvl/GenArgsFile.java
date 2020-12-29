@@ -10,12 +10,11 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Set;
 
 public class GenArgsFile extends SourceTask {
 
     private RegularFileProperty destination;
-    private Set<File> privateIncludeDirs;
+    private FileCollection privateIncludeDirs;
     private FileCollection cSourceFiles = getProject().getObjects().fileCollection();
 
     @Inject
@@ -28,12 +27,14 @@ public class GenArgsFile extends SourceTask {
         return destination;
     }
 
-    @Input
-    public Set<File> getPrivateIncludeDirs() {
+    @InputFiles
+    @SkipWhenEmpty
+    @PathSensitive(PathSensitivity.ABSOLUTE)
+    public FileCollection getPrivateIncludeDirs() {
         return privateIncludeDirs;
     }
 
-    public void setPrivateIncludeDirs(Set<File> privateIncludeDirs) {
+    public void setPrivateIncludeDirs(FileCollection privateIncludeDirs) {
         this.privateIncludeDirs = privateIncludeDirs;
     }
 
