@@ -70,7 +70,7 @@ public class GenArgsFile extends SourceTask {
         for (File f: getSource())
             writer.write("  " + f.getAbsolutePath() + "\n");
         for (File f: getCSource())
-            writer.write(f.getAbsolutePath() + "\n");
+            writer.write("  " + f.getAbsolutePath() + "\n");
         writer.write("-endlib\n");
         writer.close();
     }

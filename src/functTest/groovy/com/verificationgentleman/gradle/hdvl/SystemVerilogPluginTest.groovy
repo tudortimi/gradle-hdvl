@@ -412,6 +412,8 @@ class SystemVerilogPluginFunctionalTest extends Specification {
     def "'genArgsFile' task indents entries in makelib block"() {
         File sv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
+        File c = testProjectDir.newFolder('src', 'main', 'c')
+        new File(c, 'dummy.c').createNewFile()
 
         when:
         def result = GradleRunner.create()
