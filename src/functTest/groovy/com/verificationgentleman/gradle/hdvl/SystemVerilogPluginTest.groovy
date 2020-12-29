@@ -255,7 +255,39 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         then:
         result.task(":genArgsFile").outcome == SUCCESS
         new File(testProjectDir.root, 'build/args.f').exists()
+    }
+
+    def "'genArgsFile' task writes compile files to args file"() {
+        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(sv, 'dummy.sv').createNewFile()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genArgsFile')
+            .build()
+
+        then:
         new File(testProjectDir.root, 'build/args.f').text.contains('src/main/sv/dummy.sv')
+    }
+
+    def "'genArgsFile' task writes private include directories to args file"() {
+        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(sv, 'dummy.sv').createNewFile()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genArgsFile')
+            .build()
+
+        then:
+        def lines = new File(testProjectDir.root, 'build/args.f').text.split("\n")
+        def lineWithIncdir = lines.find { it.contains('-incdir') }
+        lineWithIncdir != null
+        lineWithIncdir.endsWith("src/main/sv")
     }
 
     def "'genFullArgsFile' task consumes output of 'genArgsFile"() {
