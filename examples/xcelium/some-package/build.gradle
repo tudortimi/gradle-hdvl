@@ -1,0 +1,20 @@
+plugins {
+    id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+}
+
+group 'com.verificationgentleman'
+
+extensions.xrunDir = file("$buildDir/xrun")
+
+task run(type: Exec) {
+    dependsOn genFullArgsFile
+    commandLine 'xrun', '-compile', '-f', genFullArgsFile.destination.get().asFile
+    workingDir xrunDir
+    mkdir workingDir
+}
+
+task clean {
+    doLast {
+        delete xrunDir
+    }
+}

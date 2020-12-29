@@ -4,11 +4,15 @@ plugins {
 
 group 'com.verificationgentleman'
 
+dependencies {
+    compile 'com.verificationgentleman:some-package'
+}
+
 extensions.xrunDir = file("$buildDir/xrun")
 
 task run(type: Exec) {
     dependsOn genFullArgsFile
-    commandLine 'xrun', '-elaborate', '-f', genFullArgsFile.destination.get().asFile
+    commandLine 'xrun', '-compile', '-f', genFullArgsFile.destination.get().asFile
     workingDir xrunDir
     mkdir workingDir
 }
