@@ -290,6 +290,21 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         lineWithIncdir.endsWith("src/main/sv")
     }
 
+    def "'genArgsFile' task writes C files to args file"() {
+        File c = testProjectDir.newFolder('src', 'main', 'c')
+        new File(c, 'dummy.c').createNewFile()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genArgsFile')
+            .build()
+
+        then:
+        new File(testProjectDir.root, 'build/args.f').text.contains('src/main/c/dummy.c')
+    }
+
     def "'genFullArgsFile' task consumes output of 'genArgsFile"() {
         File sv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
