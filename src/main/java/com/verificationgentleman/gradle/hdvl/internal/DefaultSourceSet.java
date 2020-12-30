@@ -68,6 +68,12 @@ public class DefaultSourceSet implements SourceSet {
     }
 
     @Override
+    public DefaultSourceSet svHeaders(Action<? super SourceDirectorySet> configureAction) {
+        configureAction.execute(getSvHeaders());
+        return this;
+    }
+
+    @Override
     public SourceDirectorySet getC() {
         return c;
     }
