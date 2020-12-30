@@ -61,6 +61,13 @@ public class DefaultSourceSet implements SourceSet {
     }
 
     @Override
+    public DefaultSourceSet svHeaders(@Nullable Closure configureClosure) {
+        // XXX This is not part of the public Gradle API
+        configure(configureClosure, getSvHeaders());
+        return this;
+    }
+
+    @Override
     public SourceDirectorySet getC() {
         return c;
     }

@@ -17,6 +17,8 @@ public interface SourceSet extends Named {
 
     SourceDirectorySet getSvHeaders();
 
+    SourceSet svHeaders(@Nullable Closure configureClosure);
+
     SourceDirectorySet getC();
 
     SourceSet c(@Nullable Closure configureClosure);

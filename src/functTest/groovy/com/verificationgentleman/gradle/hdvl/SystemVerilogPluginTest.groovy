@@ -175,6 +175,37 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         new File(testProjectDir.root, 'build/dummy.sv').exists()
     }
 
+    def "can specify a source set source exported header directory using a closure"() {
+        File sv = testProjectDir.newFolder('sv')
+        new File(sv, 'dummy.svh').createNewFile()
+
+        buildFile << """
+            sourceSets {
+                main {
+                    svHeaders {
+                        srcDirs = ['sv']
+                    }
+                }
+            }
+            
+            task copy(type: Copy) {
+                from sourceSets.main.svHeaders.files
+                into 'build'
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('copy')
+            .build()
+
+        then:
+        result.task(":copy").outcome == SUCCESS
+        new File(testProjectDir.root, 'build/dummy.svh').exists()
+    }
+
     def "can specify a source set C source directory using a closure"() {
         File sv = testProjectDir.newFolder('c')
         new File(sv, 'dummy.c').createNewFile()
