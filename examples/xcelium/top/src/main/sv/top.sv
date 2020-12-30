@@ -10,4 +10,10 @@ module top;
     from_some_other_package.do_some_other_thing();
   endfunction
 
+
+  `include "some_package_with_exported_headers_macros.svh"
+
+  initial
+    `some_package_with_exported_headers_macro
+
 endmodule

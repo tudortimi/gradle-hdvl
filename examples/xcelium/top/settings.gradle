@@ -2,3 +2,4 @@ includeBuild("../../..")
 
 includeBuild '../some-package'
 includeBuild '../some-other-package'
+includeBuild '../some-package-with-exported-headers'

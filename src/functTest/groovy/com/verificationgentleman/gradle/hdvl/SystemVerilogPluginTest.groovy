@@ -175,6 +175,37 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         new File(testProjectDir.root, 'build/dummy.sv').exists()
     }
 
+    def "can specify a source set source exported header directory using a closure"() {
+        File sv = testProjectDir.newFolder('sv')
+        new File(sv, 'dummy.svh').createNewFile()
+
+        buildFile << """
+            sourceSets {
+                main {
+                    svHeaders {
+                        srcDirs = ['sv']
+                    }
+                }
+            }
+            
+            task copy(type: Copy) {
+                from sourceSets.main.svHeaders.files
+                into 'build'
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('copy')
+            .build()
+
+        then:
+        result.task(":copy").outcome == SUCCESS
+        new File(testProjectDir.root, 'build/dummy.svh').exists()
+    }
+
     def "can specify a source set C source directory using a closure"() {
         File sv = testProjectDir.newFolder('c')
         new File(sv, 'dummy.c').createNewFile()
@@ -267,6 +298,49 @@ class SystemVerilogPluginFunctionalTest extends Specification {
                 .withPluginClasspath()
                 .withArguments('copy')
                 .build()
+
+        then:
+        result.task(":copy").outcome == NO_SOURCE
+    }
+
+    def "can specify a source set exported header source exclude using an action"() {
+        // XXX Most tests use 'build.gradle', but in this test we want to use a Kotlin build script. It seems like
+        // overkill to create a new test class just fo this.
+        setup:
+        new File(testProjectDir.root, 'build.gradle').delete()
+
+        File sv = testProjectDir.newFolder('src', 'main', 'sv_headers')
+        new File(sv, 'dummy.svh').createNewFile()
+
+        File buildFile = testProjectDir.newFile('build.gradle.kts')
+        buildFile << """
+            plugins {
+                id("com.verificationgentleman.gradle.hdvl.systemverilog")
+            }
+            
+            sourceSets {
+                main {
+                    svHeaders {
+                        exclude("**/dummy.svh")
+                    }
+                }
+            }
+            
+            tasks.register<Copy>("copy") {
+                // XXX Not clear why we can't just do 'sourceSets.main.sv'.
+                // 'sourceSets.main' doesn't return an object of type 'SourceSet', but a
+                // 'NamedDomainObjectProvider<SourceSet'. The Java plugin has the same issue.
+                from(sourceSets.main.get().svHeaders.files)
+                into("build")
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('copy')
+            .build()
 
         then:
         result.task(":copy").outcome == NO_SOURCE
@@ -392,6 +466,40 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         !lineWithIncdir.contains("src")
         !lineWithIncdir.contains("main")
         lineWithIncdir.endsWith("sv")
+    }
+
+    def "'genArgsFile' task writes exported header directories to args file"() {
+        File svHeaders = testProjectDir.newFolder('src', 'main', 'sv_headers')
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genArgsFile')
+            .build()
+
+        then:
+        def lines = new File(testProjectDir.root, 'build/args.f').text.split("\n")
+        def linesWithIncdir = lines.findAll { it.contains('-incdir') }
+        !linesWithIncdir.isEmpty()
+        linesWithIncdir.any { it.endsWith("src/main/sv_headers") }
+    }
+
+    def "'genArgsFile' task doesn't write exported header directories to args file if none exist"() {
+        // No 'sv_headers' directory
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genArgsFile')
+            .build()
+
+        then:
+        def lines = new File(testProjectDir.root, 'build/args.f').text.split("\n")
+        def linesWithIncdir = lines.findAll { it.contains('-incdir') }
+        !linesWithIncdir.isEmpty()
+        linesWithIncdir.each { assert !it.endsWith("src/main/sv_headers") }
     }
 
     def "'genArgsFile' task writes C files to args file"() {
