@@ -7,6 +7,7 @@ group 'com.verificationgentleman'
 dependencies {
     compile 'com.verificationgentleman:some-package'
     compile 'com.verificationgentleman:some-other-package'
+    compile 'com.verificationgentleman:some-package-with-exported-headers'
 }
 
 extensions.xrunDir = file("$buildDir/xrun")
