@@ -94,7 +94,7 @@ public class GenArgsFile extends SourceTask {
     // a dependency on this project. If such projects include headers from this project, there will be no compile error.
     // This isn't consistent with what would happen in a multi-step compilation flow, where an error would be issued.
     private void writeExportedHeaders(FileWriter writer) throws IOException {
-        for (File f: getExportedIncludeDirs())
+        for (File f: getExportedIncludeDirs().filter(File::exists))
             writer.write("-incdir " + f.getAbsolutePath() + "\n");
     }
 

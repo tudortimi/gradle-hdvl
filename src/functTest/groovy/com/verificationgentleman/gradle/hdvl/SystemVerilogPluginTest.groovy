@@ -411,6 +411,23 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         linesWithIncdir.any { it.endsWith("src/main/sv_headers") }
     }
 
+    def "'genArgsFile' task doesn't write exported header directories to args file if none exist"() {
+        // No 'sv_headers' directory
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genArgsFile')
+            .build()
+
+        then:
+        def lines = new File(testProjectDir.root, 'build/args.f').text.split("\n")
+        def linesWithIncdir = lines.findAll { it.contains('-incdir') }
+        !linesWithIncdir.isEmpty()
+        linesWithIncdir.each { assert !it.endsWith("src/main/sv_headers") }
+    }
+
     def "'genArgsFile' task writes C files to args file"() {
         File c = testProjectDir.newFolder('src', 'main', 'c')
         new File(c, 'dummy.c').createNewFile()
