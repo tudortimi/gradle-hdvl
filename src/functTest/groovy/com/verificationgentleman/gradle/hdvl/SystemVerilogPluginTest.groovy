@@ -394,6 +394,23 @@ class SystemVerilogPluginFunctionalTest extends Specification {
         lineWithIncdir.endsWith("sv")
     }
 
+    def "'genArgsFile' task writes exported header directories to args file"() {
+        File svHeaders = testProjectDir.newFolder('src', 'main', 'sv_headers')
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genArgsFile')
+            .build()
+
+        then:
+        def lines = new File(testProjectDir.root, 'build/args.f').text.split("\n")
+        def linesWithIncdir = lines.findAll { it.contains('-incdir') }
+        !linesWithIncdir.isEmpty()
+        linesWithIncdir.any { it.endsWith("src/main/sv_headers") }
+    }
+
     def "'genArgsFile' task writes C files to args file"() {
         File c = testProjectDir.newFolder('src', 'main', 'c')
         new File(c, 'dummy.c').createNewFile()
