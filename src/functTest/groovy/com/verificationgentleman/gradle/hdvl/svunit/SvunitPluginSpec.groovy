@@ -10,15 +10,18 @@ import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
 class SvunitPluginSpec extends Specification  {
     @Rule TemporaryFolder testProjectDir = new TemporaryFolder()
+    File buildFile
 
-    def "can successfully import the plugin"() {
-        File buildFile = new File(testProjectDir.root, "build.gradle")
+    def setup() {
+        buildFile = testProjectDir.newFile('build.gradle')
         buildFile << """
             plugins {
                 id 'com.verificationgentleman.gradle.hdvl.svunit'
             }
         """
+    }
 
+    def "can successfully import the plugin"() {
         when:
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
@@ -30,13 +33,6 @@ class SvunitPluginSpec extends Specification  {
     }
 
     def "importing the plugin applies the 'systemverilog' plugin"() {
-        File buildFile = new File(testProjectDir.root, "build.gradle")
-        buildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.svunit'
-            }
-        """
-
         when:
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
@@ -53,13 +49,6 @@ class SvunitPluginSpec extends Specification  {
     def "'test' source set is added by the plugin"() {
         File sv = testProjectDir.newFolder('src', 'test', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
-
-        File buildFile = new File(testProjectDir.root, "build.gradle")
-        buildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.svunit'
-            }
-        """
 
         buildFile << """
             task copy(type: Copy) {
