@@ -49,4 +49,34 @@ class SvunitPluginSpec extends Specification  {
         def pluginsLine = result.output.split('\n').find { it.startsWith('plugins:') }
         pluginsLine.contains(SystemVerilogPlugin.class.name)
     }
+
+    def "'test' source set is added by the plugin"() {
+        File sv = testProjectDir.newFolder('src', 'test', 'sv')
+        new File(sv, 'dummy.sv').createNewFile()
+
+        File buildFile = new File(testProjectDir.root, "build.gradle")
+        buildFile << """
+            plugins {
+                id 'com.verificationgentleman.gradle.hdvl.svunit'
+            }
+        """
+
+        buildFile << """
+            task copy(type: Copy) {
+                from sourceSets.test.sv.files
+                into 'build'
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('copy')
+            .build()
+
+        then:
+        result.task(":copy").outcome == SUCCESS
+        new File(testProjectDir.root, 'build/dummy.sv').exists()
+    }
 }
