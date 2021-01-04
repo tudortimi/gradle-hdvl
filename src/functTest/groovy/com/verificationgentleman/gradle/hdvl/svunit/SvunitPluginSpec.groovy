@@ -1,5 +1,6 @@
 package com.verificationgentleman.gradle.hdvl.svunit
 
+import com.verificationgentleman.gradle.hdvl.SystemVerilogPlugin
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -26,5 +27,26 @@ class SvunitPluginSpec extends Specification  {
 
         then:
         result.task(":help").outcome == SUCCESS
+    }
+
+    def "importing the plugin applies the 'systemverilog' plugin"() {
+        File buildFile = new File(testProjectDir.root, "build.gradle")
+        buildFile << """
+            plugins {
+                id 'com.verificationgentleman.gradle.hdvl.svunit'
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':properties')
+            .build()
+
+        then:
+        result.task(":properties").outcome == SUCCESS
+        def pluginsLine = result.output.split('\n').find { it.startsWith('plugins:') }
+        pluginsLine.contains(SystemVerilogPlugin.class.name)
     }
 }
