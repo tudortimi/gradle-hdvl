@@ -15,6 +15,10 @@ gradlePlugin {
             id = "com.verificationgentleman.gradle.hdvl.systemverilog"
             implementationClass = "com.verificationgentleman.gradle.hdvl.SystemVerilogPlugin"
         }
+        create("svunit") {
+            id = "com.verificationgentleman.gradle.hdvl.svunit"
+            implementationClass = "com.verificationgentleman.gradle.hdvl.svunit.SvunitPlugin"
+        }
     }
 }
 
