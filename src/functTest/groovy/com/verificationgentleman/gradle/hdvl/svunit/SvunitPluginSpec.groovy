@@ -6,6 +6,8 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
+import java.nio.file.Files
+
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
 class SvunitPluginSpec extends Specification  {
@@ -67,5 +69,24 @@ class SvunitPluginSpec extends Specification  {
         then:
         result.task(":copy").outcome == SUCCESS
         new File(testProjectDir.root, 'build/dummy.sv').exists()
+    }
+
+    def "'test' task creates link in build directory to tests"() {
+        File sv = testProjectDir.newFolder('src', 'test', 'sv')
+        new File(sv, 'dummy.sv').createNewFile()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('test')
+            .build()
+
+        then:
+        result.task(":test").outcome == SUCCESS
+        def testsLink = new File(testProjectDir.root, 'build/svunit/tests')
+        testsLink.exists()
+        Files.isSymbolicLink(testsLink.toPath())
+        testsLink.toPath().toRealPath() == sv.toPath()
     }
 }
