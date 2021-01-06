@@ -23,7 +23,7 @@ import spock.lang.Specification
 import static org.gradle.testkit.runner.TaskOutcome.NO_SOURCE
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
-class SystemVerilogPluginFunctionalTest extends Specification {
+class SystemVerilogPluginSpec extends Specification {
     @Rule TemporaryFolder testProjectDir = new TemporaryFolder()
     File buildFile
 
