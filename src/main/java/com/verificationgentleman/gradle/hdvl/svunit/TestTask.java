@@ -39,19 +39,32 @@ public class TestTask extends SourceTask {
 
     @TaskAction
     protected void run() {
+        createWorkingDir();
+        createLinkToTests();
+        runTests();
+    }
+
+    private void createWorkingDir() {
+        getProject().mkdir(workingDir.get().getAsFile());
+    }
+
+    private void createLinkToTests() {
         try {
-            getProject().mkdir(workingDir.get().getAsFile());
             File testsLink = new File(workingDir.get().getAsFile(), "tests");
             Files.createSymbolicLink(testsLink.toPath(), getTestsRoot().toPath());
-            getProject().exec(new Action<ExecSpec>() {
-                @Override
-                public void execute(ExecSpec execSpec) {
-                    execSpec.executable("runSVUnit");
-                    execSpec.workingDir(workingDir.get().getAsFile());
-                }
-            });
         } catch (IOException e) {
             System.out.println("Could not create 'tests' link");
         }
+
+    }
+
+    private void runTests() {
+        getProject().exec(new Action<ExecSpec>() {
+            @Override
+            public void execute(ExecSpec execSpec) {
+                execSpec.executable("runSVUnit");
+                execSpec.workingDir(workingDir.get().getAsFile());
+            }
+        });
     }
 }
