@@ -16,11 +16,11 @@ import java.nio.file.Files;
 
 public class TestTask extends SourceTask {
     private File testsRoot;
-    private RegularFileProperty destination;
+    private RegularFileProperty workingDir;
 
     @Inject
     public TestTask(ObjectFactory objectFactory) {
-        destination = objectFactory.fileProperty();
+        workingDir = objectFactory.fileProperty();
     }
 
     @Input
@@ -33,21 +33,21 @@ public class TestTask extends SourceTask {
     }
 
     @OutputFile
-    public RegularFileProperty getDestination() {
-        return destination;
+    public RegularFileProperty getWorkingDir() {
+        return workingDir;
     }
 
     @TaskAction
     protected void run() {
         try {
-            getProject().mkdir(destination.get().getAsFile());
-            File testsLink = new File(destination.get().getAsFile(), "tests");
+            getProject().mkdir(workingDir.get().getAsFile());
+            File testsLink = new File(workingDir.get().getAsFile(), "tests");
             Files.createSymbolicLink(testsLink.toPath(), getTestsRoot().toPath());
             getProject().exec(new Action<ExecSpec>() {
                 @Override
                 public void execute(ExecSpec execSpec) {
                     execSpec.executable("runSVUnit");
-                    execSpec.workingDir(destination.get().getAsFile());
+                    execSpec.workingDir(workingDir.get().getAsFile());
                 }
             });
         } catch (IOException e) {

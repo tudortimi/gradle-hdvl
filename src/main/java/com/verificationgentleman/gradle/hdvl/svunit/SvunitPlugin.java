@@ -27,7 +27,7 @@ public class SvunitPlugin implements Plugin<Project> {
                 testTask.setDescription("Runs the unit tests using SVUnit.");
                 testTask.setSource(testSourceSet.getSv());
                 testTask.setTestsRoot(testSourceSet.getSv().getSourceDirectories().getSingleFile());
-                testTask.getDestination().set(new File(project.getBuildDir(), "svunit"));
+                testTask.getWorkingDir().set(new File(project.getBuildDir(), "svunit"));
             }
         });
     }
