@@ -1,0 +1,4 @@
+plugins {
+    id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+    id 'com.verificationgentleman.gradle.hdvl.svunit'
+}
