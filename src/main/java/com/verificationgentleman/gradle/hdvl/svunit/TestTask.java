@@ -1,10 +1,10 @@
 package com.verificationgentleman.gradle.hdvl.svunit;
 
 import org.gradle.api.Action;
-import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecSpec;
@@ -16,11 +16,11 @@ import java.nio.file.Files;
 
 public class TestTask extends SourceTask {
     private File testsRoot;
-    private RegularFileProperty workingDir;
+    private DirectoryProperty workingDir;
 
     @Inject
     public TestTask(ObjectFactory objectFactory) {
-        workingDir = objectFactory.fileProperty();
+        workingDir = objectFactory.directoryProperty();
     }
 
     @Input
@@ -32,20 +32,15 @@ public class TestTask extends SourceTask {
         this.testsRoot = testsRoot;
     }
 
-    @OutputFile
-    public RegularFileProperty getWorkingDir() {
+    @OutputDirectory
+    public DirectoryProperty getWorkingDir() {
         return workingDir;
     }
 
     @TaskAction
     protected void run() {
-        createWorkingDir();
         createLinkToTests();
         runTests();
-    }
-
-    private void createWorkingDir() {
-        getProject().mkdir(workingDir.get().getAsFile());
     }
 
     private void createLinkToTests() {
