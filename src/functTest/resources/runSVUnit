@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+echo "Dummy runSVUnit"
+
+touch runSVUnit.log
+
+echo 'args:' >> runSVUnit.log
+echo $@ >> runSVUnit.log
+
+echo 'cwd:' >> runSVUnit
+echo $PWD >> runSVUnit.log

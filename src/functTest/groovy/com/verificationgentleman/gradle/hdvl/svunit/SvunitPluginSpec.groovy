@@ -75,10 +75,14 @@ class SvunitPluginSpec extends Specification  {
         File sv = testProjectDir.newFolder('src', 'test', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
+        def runSVUnitFake = new File(getClass().getResource('/runSVUnit').toURI())
+        def env = System.getenv()
+
         when:
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
+            .withEnvironment(["PATH": [runSVUnitFake.parent, env.PATH].join(':')])
             .withArguments('test')
             .build()
 
@@ -88,5 +92,26 @@ class SvunitPluginSpec extends Specification  {
         testsLink.exists()
         Files.isSymbolicLink(testsLink.toPath())
         testsLink.toPath().toRealPath() == sv.toPath()
+    }
+
+    def "'test' task executes 'runSVUnit'"() {
+        File sv = testProjectDir.newFolder('src', 'test', 'sv')
+        new File(sv, 'dummy.sv').createNewFile()
+
+        def runSVUnitFake = new File(getClass().getResource('/runSVUnit').toURI())
+        def env = System.getenv()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withEnvironment(["PATH": [runSVUnitFake.parent, env.PATH].join(':')])
+            .withArguments('test')
+            .build()
+
+        then:
+        result.task(":test").outcome == SUCCESS
+        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
+        dummyLog.exists()
     }
 }
