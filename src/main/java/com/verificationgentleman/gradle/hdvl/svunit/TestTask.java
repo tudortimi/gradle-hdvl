@@ -40,12 +40,14 @@ public class TestTask extends SourceTask {
     @TaskAction
     protected void run() {
         try {
-            Files.createSymbolicLink(destination.get().getAsFile().toPath(), getTestsRoot().toPath());
+            getProject().mkdir(destination.get().getAsFile());
+            File testsLink = new File(destination.get().getAsFile(), "tests");
+            Files.createSymbolicLink(testsLink.toPath(), getTestsRoot().toPath());
             getProject().exec(new Action<ExecSpec>() {
                 @Override
                 public void execute(ExecSpec execSpec) {
                     execSpec.executable("runSVUnit");
-                    execSpec.workingDir(destination.get().getAsFile().getParent());
+                    execSpec.workingDir(destination.get().getAsFile());
                 }
             });
         } catch (IOException e) {
