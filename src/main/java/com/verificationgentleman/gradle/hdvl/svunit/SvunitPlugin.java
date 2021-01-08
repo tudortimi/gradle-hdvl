@@ -6,6 +6,7 @@ import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.reflect.TypeOf;
 
 import java.io.File;
@@ -17,16 +18,23 @@ public class SvunitPlugin implements Plugin<Project> {
         NamedDomainObjectContainer<SourceSet> sourceSets = project.getExtensions()
                 .getByType(new TypeOf<NamedDomainObjectContainer<SourceSet>>() {});
         final SourceSet testSourceSet = sourceSets.create("test");
+        configureConfiguration(project);
         configureTestTask(project, testSourceSet);
     }
 
+    private void configureConfiguration(Project project) {
+        Configuration testCompileConfiguration = project.getConfigurations().create("testCompile");
+    }
+
     private void configureTestTask(Project project, SourceSet testSourceSet) {
+        Configuration testCompileConfiguration = project.getConfigurations().getByName("testCompile");
         project.getTasks().register("test", TestTask.class, new Action<TestTask>() {
             @Override
             public void execute(TestTask testTask) {
                 testTask.setDescription("Runs the unit tests using SVUnit.");
                 testTask.setSource(testSourceSet.getSv());
                 testTask.setTestsRoot(testSourceSet.getSv().getSourceDirectories().getSingleFile());
+                testTask.setSvunitRoot(testCompileConfiguration);
                 testTask.getWorkingDir().set(new File(project.getBuildDir(), "svunit"));
             }
         });

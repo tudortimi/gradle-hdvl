@@ -2,6 +2,7 @@ package com.verificationgentleman.gradle.hdvl.svunit;
 
 import org.gradle.api.Action;
 import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputDirectory;
@@ -16,6 +17,7 @@ import java.nio.file.Files;
 
 public class TestTask extends SourceTask {
     private File testsRoot;
+    private FileCollection svunitRoot;
     private DirectoryProperty workingDir;
 
     @Inject
@@ -30,6 +32,15 @@ public class TestTask extends SourceTask {
 
     public void setTestsRoot(File testsRoot) {
         this.testsRoot = testsRoot;
+    }
+
+    @Input
+    public FileCollection getSvunitRoot() {
+        return svunitRoot;
+    }
+
+    public void setSvunitRoot(FileCollection svunitRoot) {
+        this.svunitRoot = svunitRoot;
     }
 
     @OutputDirectory
@@ -57,7 +68,13 @@ public class TestTask extends SourceTask {
         getProject().exec(new Action<ExecSpec>() {
             @Override
             public void execute(ExecSpec execSpec) {
-                execSpec.executable("runSVUnit");
+                execSpec.executable("bash");
+                String sourceCommands = String.join("; ",
+                        "cd " + svunitRoot.getSingleFile(),
+                        "source Setup.bsh",
+                        "cd -");
+                String cArg = String.join("; ", sourceCommands, "runSVUnit");
+                execSpec.args("-c", cArg);
                 execSpec.workingDir(workingDir.get().getAsFile());
             }
         });

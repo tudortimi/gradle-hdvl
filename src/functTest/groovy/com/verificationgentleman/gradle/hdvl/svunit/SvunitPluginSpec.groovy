@@ -72,6 +72,24 @@ class SvunitPluginSpec extends Specification  {
     }
 
     def "'test' task creates link in build directory to tests"() {
+        buildFile << """
+            dependencies {
+                testCompile "org.svunit:svunit:v3.34.2"
+            }
+        """
+
+        def settingsFile = testProjectDir.newFile('settings.gradle')
+        settingsFile << """
+            sourceControl {
+                gitRepository("https://github.com/tudortimi/svunit.git") {
+                producesModule("org.svunit:svunit")
+                plugins {
+                    id "com.verificationgentleman.gradle.hdvl.svunit-build"
+                }
+            }
+        }
+        """
+
         File sv = testProjectDir.newFolder('src', 'test', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
@@ -95,6 +113,24 @@ class SvunitPluginSpec extends Specification  {
     }
 
     def "'test' task executes 'runSVUnit'"() {
+        buildFile << """
+            dependencies {
+                testCompile "org.svunit:svunit:v3.34.2"
+            }
+        """
+
+        def settingsFile = testProjectDir.newFile('settings.gradle')
+        settingsFile << """
+            sourceControl {
+                gitRepository("https://github.com/tudortimi/svunit.git") {
+                producesModule("org.svunit:svunit")
+                plugins {
+                    id "com.verificationgentleman.gradle.hdvl.svunit-build"
+                }
+            }
+        }
+        """
+
         File sv = testProjectDir.newFolder('src', 'test', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
