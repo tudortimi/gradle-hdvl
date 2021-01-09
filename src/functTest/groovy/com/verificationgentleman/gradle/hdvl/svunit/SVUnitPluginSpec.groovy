@@ -26,7 +26,7 @@ import java.nio.file.Files
 
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
-class SvunitPluginSpec extends Specification  {
+class SVUnitPluginSpec extends Specification  {
     @Rule TemporaryFolder testProjectDir = new TemporaryFolder()
     File buildFile
 

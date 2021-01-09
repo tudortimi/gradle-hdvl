@@ -17,11 +17,11 @@ gradlePlugin {
         }
         create("svunit") {
             id = "com.verificationgentleman.gradle.hdvl.svunit"
-            implementationClass = "com.verificationgentleman.gradle.hdvl.svunit.SvunitPlugin"
+            implementationClass = "com.verificationgentleman.gradle.hdvl.svunit.SVUnitPlugin"
         }
         create("svunit-build") {
             id = "com.verificationgentleman.gradle.hdvl.svunit-build"
-            implementationClass = "com.verificationgentleman.gradle.hdvl.svunit.SvunitBuildPlugin"
+            implementationClass = "com.verificationgentleman.gradle.hdvl.svunit.SVUnitBuildPlugin"
         }
     }
 }

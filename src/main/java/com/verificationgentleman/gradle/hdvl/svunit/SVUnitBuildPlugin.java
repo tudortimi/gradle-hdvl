@@ -21,7 +21,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.initialization.Settings;
 
-public class SvunitBuildPlugin implements Plugin<Settings> {
+public class SVUnitBuildPlugin implements Plugin<Settings> {
     public void apply(Settings settings) {
         settings.getRootProject().setName("svunit");
         settings.getGradle().rootProject(new Action<Project>() {

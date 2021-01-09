@@ -28,7 +28,7 @@ import org.gradle.api.reflect.TypeOf;
 
 import java.io.File;
 
-public class SvunitPlugin implements Plugin<Project> {
+public class SVUnitPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         project.getPluginManager().apply(SystemVerilogPlugin.class);
