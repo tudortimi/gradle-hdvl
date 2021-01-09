@@ -17,11 +17,15 @@
 package com.verificationgentleman.gradle.hdvl.svunit;
 
 import org.gradle.api.Action;
+import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecSpec;
 
 import javax.inject.Inject;
@@ -29,7 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
-public class TestTask extends SourceTask {
+public class TestTask extends DefaultTask {
     private RegularFileProperty mainArgsFile;
     private File testsRoot;
     private FileCollection svunitRoot;

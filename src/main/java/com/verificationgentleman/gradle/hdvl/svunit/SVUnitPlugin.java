@@ -51,7 +51,6 @@ public class SVUnitPlugin implements Plugin<Project> {
             public void execute(TestTask testTask) {
                 testTask.setDescription("Runs the unit tests using SVUnit.");
                 testTask.getMainArgsFile().set(genFullArgsFile.getDestination());
-                testTask.setSource(testSourceSet.getSv());
                 testTask.setTestsRoot(testSourceSet.getSv().getSourceDirectories().getSingleFile());
                 testTask.setSvunitRoot(testCompileConfiguration);
                 testTask.getWorkingDir().set(new File(project.getBuildDir(), "svunit"));
