@@ -15,6 +15,14 @@ gradlePlugin {
             id = "com.verificationgentleman.gradle.hdvl.systemverilog"
             implementationClass = "com.verificationgentleman.gradle.hdvl.SystemVerilogPlugin"
         }
+        create("svunit") {
+            id = "com.verificationgentleman.gradle.hdvl.svunit"
+            implementationClass = "com.verificationgentleman.gradle.hdvl.svunit.SVUnitPlugin"
+        }
+        create("svunit-build") {
+            id = "com.verificationgentleman.gradle.hdvl.svunit-build"
+            implementationClass = "com.verificationgentleman.gradle.hdvl.svunit.SVUnitBuildPlugin"
+        }
     }
 }
 
