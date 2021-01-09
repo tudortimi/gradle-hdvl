@@ -1,5 +1,6 @@
 package com.verificationgentleman.gradle.hdvl.svunit;
 
+import com.verificationgentleman.gradle.hdvl.GenFullArgsFile;
 import com.verificationgentleman.gradle.hdvl.SourceSet;
 import com.verificationgentleman.gradle.hdvl.SystemVerilogPlugin;
 import org.gradle.api.Action;
@@ -27,11 +28,13 @@ public class SvunitPlugin implements Plugin<Project> {
     }
 
     private void configureTestTask(Project project, SourceSet testSourceSet) {
+        GenFullArgsFile genFullArgsFile = (GenFullArgsFile) project.getTasks().getByName("genFullArgsFile");
         Configuration testCompileConfiguration = project.getConfigurations().getByName("testCompile");
         project.getTasks().register("test", TestTask.class, new Action<TestTask>() {
             @Override
             public void execute(TestTask testTask) {
                 testTask.setDescription("Runs the unit tests using SVUnit.");
+                testTask.getMainArgsFile().set(genFullArgsFile.getDestination());
                 testTask.setSource(testSourceSet.getSv());
                 testTask.setTestsRoot(testSourceSet.getSv().getSourceDirectories().getSingleFile());
                 testTask.setSvunitRoot(testCompileConfiguration);

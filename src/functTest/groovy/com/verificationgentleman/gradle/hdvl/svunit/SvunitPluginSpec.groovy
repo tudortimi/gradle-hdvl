@@ -150,4 +150,47 @@ class SvunitPluginSpec extends Specification  {
         def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
         dummyLog.exists()
     }
+
+
+    def "'test' task passes args file to 'runSVUnit'"() {
+        buildFile << """
+            dependencies {
+                testCompile "org.svunit:svunit:v3.34.2"
+            }
+        """
+
+        def settingsFile = testProjectDir.newFile('settings.gradle')
+        settingsFile << """
+            sourceControl {
+                gitRepository("https://github.com/tudortimi/svunit.git") {
+                producesModule("org.svunit:svunit")
+                plugins {
+                    id "com.verificationgentleman.gradle.hdvl.svunit-build"
+                }
+            }
+        }
+        """
+
+        File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(mainSv, 'dummy_main.sv').createNewFile()
+
+        File testSv = testProjectDir.newFolder('src', 'test', 'sv')
+        new File(testSv, 'dummy_test.sv').createNewFile()
+
+        def runSVUnitFake = new File(getClass().getResource('/runSVUnit').toURI())
+        def env = System.getenv()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withEnvironment(["PATH": [runSVUnitFake.parent, env.PATH].join(':')])
+            .withArguments('test')
+            .build()
+
+        then:
+        result.task(":test").outcome == SUCCESS
+        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
+        dummyLog.text.contains "-f ${testProjectDir.root}/build/full_args.f"
+    }
 }

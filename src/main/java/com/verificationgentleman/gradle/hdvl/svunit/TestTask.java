@@ -3,11 +3,9 @@ package com.verificationgentleman.gradle.hdvl.svunit;
 import org.gradle.api.Action;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.OutputDirectory;
-import org.gradle.api.tasks.SourceTask;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 import org.gradle.process.ExecSpec;
 
 import javax.inject.Inject;
@@ -16,13 +14,20 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 public class TestTask extends SourceTask {
+    private RegularFileProperty mainArgsFile;
     private File testsRoot;
     private FileCollection svunitRoot;
     private DirectoryProperty workingDir;
 
     @Inject
     public TestTask(ObjectFactory objectFactory) {
+        mainArgsFile = objectFactory.fileProperty();
         workingDir = objectFactory.directoryProperty();
+    }
+
+    @InputFile
+    public RegularFileProperty getMainArgsFile() {
+        return mainArgsFile;
     }
 
     @Input
@@ -73,7 +78,10 @@ public class TestTask extends SourceTask {
                         "cd " + svunitRoot.getSingleFile(),
                         "source Setup.bsh",
                         "cd -");
-                String cArg = String.join("; ", sourceCommands, "runSVUnit");
+                String runSVUnitCommand = String.join(" ",
+                        "runSVUnit",
+                        "-f", mainArgsFile.getAsFile().get().getAbsolutePath());
+                String cArg = String.join("; ", sourceCommands, runSVUnitCommand);
                 execSpec.args("-c", cArg);
                 execSpec.workingDir(workingDir.get().getAsFile());
             }
