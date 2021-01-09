@@ -37,6 +37,9 @@ class SVUnitPluginSpec extends Specification  {
             plugins {
                 id 'com.verificationgentleman.gradle.hdvl.svunit'
             }
+            dependencies {
+                testCompile "org.svunit:svunit:v3.34.2"
+            }
         """
         settingsFile = testProjectDir.newFile('settings.gradle')
         settingsFile << """
@@ -100,12 +103,6 @@ class SVUnitPluginSpec extends Specification  {
     }
 
     def "'test' task creates link in build directory to tests"() {
-        buildFile << """
-            dependencies {
-                testCompile "org.svunit:svunit:v3.34.2"
-            }
-        """
-
         File sv = testProjectDir.newFolder('src', 'test', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
@@ -129,12 +126,6 @@ class SVUnitPluginSpec extends Specification  {
     }
 
     def "'test' task executes 'runSVUnit'"() {
-        buildFile << """
-            dependencies {
-                testCompile "org.svunit:svunit:v3.34.2"
-            }
-        """
-
         File sv = testProjectDir.newFolder('src', 'test', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
@@ -155,14 +146,7 @@ class SVUnitPluginSpec extends Specification  {
         dummyLog.exists()
     }
 
-
     def "'test' task passes args file to 'runSVUnit'"() {
-        buildFile << """
-            dependencies {
-                testCompile "org.svunit:svunit:v3.34.2"
-            }
-        """
-
         File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(mainSv, 'dummy_main.sv').createNewFile()
 
