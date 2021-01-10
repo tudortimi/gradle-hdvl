@@ -20,6 +20,7 @@ import com.verificationgentleman.gradle.hdvl.SystemVerilogPlugin
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import spock.lang.Ignore
 import spock.lang.Specification
 
 import java.nio.file.Files
@@ -156,6 +157,33 @@ class SVUnitPluginSpec extends Specification  {
         result.task(":test").outcome == SUCCESS
         def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
         dummyLog.text.contains "-f ${testProjectDir.root}/build/full_args.f"
+    }
+
+    // FIXME Re-add
+    @Ignore
+    def "'test' task passes custom args to 'runSVUnit'"() {
+        File testSv = testProjectDir.newFolder('src', 'test', 'sv')
+        new File(testSv, 'dummy_test.sv').createNewFile()
+
+        buildFile << """
+            toolChains {
+                runSVUnit {
+                    args '--uvm'
+                }
+            }
+        """
+
+        when:
+        def result = newGradleRunnerWithFakeRunSVunit()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('test')
+            .build()
+
+        then:
+        result.task(":test").outcome == SUCCESS
+        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
+        dummyLog.text.contains "--uvm"
     }
 
     def newGradleRunnerWithFakeRunSVunit() {
