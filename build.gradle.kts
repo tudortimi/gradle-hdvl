@@ -23,6 +23,10 @@ gradlePlugin {
             id = "com.verificationgentleman.gradle.hdvl.svunit-build"
             implementationClass = "com.verificationgentleman.gradle.hdvl.svunit.SVUnitBuildPlugin"
         }
+        create("svunit-build-injector") {
+            id = "com.verificationgentleman.gradle.hdvl.svunit-build-injector"
+            implementationClass = "com.verificationgentleman.gradle.hdvl.svunit.SVUnitBuildInjectorPlugin"
+        }
     }
 }
 

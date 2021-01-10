@@ -47,7 +47,7 @@ class SVUnitPluginSpec extends Specification  {
                 gitRepository("https://github.com/tudortimi/svunit.git") {
                     producesModule("org.svunit:svunit")
                     plugins {
-                        id "com.verificationgentleman.gradle.hdvl.svunit-build"
+                        id "com.verificationgentleman.gradle.hdvl.svunit-build-injector"
                     }
                 }
             }
