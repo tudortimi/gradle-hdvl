@@ -22,6 +22,7 @@ import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.ListProperty;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputDirectory;
@@ -38,11 +39,13 @@ public class TestTask extends DefaultTask {
     private File testsRoot;
     private FileCollection svunitRoot;
     private DirectoryProperty workingDir;
+    private ListProperty<String> extraArgs;
 
     @Inject
     public TestTask(ObjectFactory objectFactory) {
         mainArgsFile = objectFactory.fileProperty();
         workingDir = objectFactory.directoryProperty();
+        extraArgs = objectFactory.listProperty(String.class);
     }
 
     @InputFile
@@ -73,6 +76,11 @@ public class TestTask extends DefaultTask {
         return workingDir;
     }
 
+    @Input
+    public ListProperty<String> getExtraArgs() {
+        return extraArgs;
+    }
+
     @TaskAction
     protected void run() {
         createLinkToTests();
@@ -100,7 +108,8 @@ public class TestTask extends DefaultTask {
                         "cd -");
                 String runSVUnitCommand = String.join(" ",
                         "runSVUnit",
-                        "-f", mainArgsFile.getAsFile().get().getAbsolutePath());
+                        "-f", mainArgsFile.getAsFile().get().getAbsolutePath(),
+                        String.join(" ", extraArgs.get()));
                 String cArg = String.join("; ", sourceCommands, runSVUnitCommand);
                 execSpec.args("-c", cArg);
                 execSpec.workingDir(workingDir.get().getAsFile());

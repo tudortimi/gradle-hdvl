@@ -20,7 +20,6 @@ import com.verificationgentleman.gradle.hdvl.SystemVerilogPlugin
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-import spock.lang.Ignore
 import spock.lang.Specification
 
 import java.nio.file.Files
@@ -219,8 +218,6 @@ class SVUnitPluginSpec extends Specification  {
         result.output.contains 'some_other_arg'
     }
 
-    // FIXME Re-add
-    @Ignore
     def "'test' task passes custom args to 'runSVUnit'"() {
         File testSv = testProjectDir.newFolder('src', 'test', 'sv')
         new File(testSv, 'dummy_test.sv').createNewFile()
