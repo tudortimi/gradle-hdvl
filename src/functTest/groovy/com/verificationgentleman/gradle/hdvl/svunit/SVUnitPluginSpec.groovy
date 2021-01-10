@@ -176,6 +176,24 @@ class SVUnitPluginSpec extends Specification  {
         result.task(":help").outcome == SUCCESS
     }
 
+    def "'runSVUnit' tool chain is added by the plugin"() {
+        buildFile << """
+            toolChains {
+                runSVUnit
+            }
+        """
+
+        when:
+        def result = newGradleRunnerWithFakeRunSVunit()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('help')
+            .build()
+
+        then:
+        result.task(":help").outcome == SUCCESS
+    }
+
     // FIXME Re-add
     @Ignore
     def "'test' task passes custom args to 'runSVUnit'"() {
