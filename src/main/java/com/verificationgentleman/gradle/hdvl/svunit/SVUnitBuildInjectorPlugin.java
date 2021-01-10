@@ -16,13 +16,21 @@
 
 package com.verificationgentleman.gradle.hdvl.svunit;
 
+import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.initialization.Settings;
 
-public class SVUnitBuildPlugin implements Plugin<Project> {
-    public void apply(Project project) {
-        project.setGroup("org.svunit");
-        project.getConfigurations().create("default");
-        project.getArtifacts().add("default", project.getProjectDir());
+import java.util.Collections;
+
+public class SVUnitBuildInjectorPlugin implements Plugin<Settings> {
+    public void apply(Settings settings) {
+        settings.getRootProject().setName("svunit");
+        settings.getGradle().rootProject(new Action<Project>() {
+            @Override
+            public void execute(Project project) {
+                project.apply(Collections.singletonMap("plugin", SVUnitBuildPlugin.class));
+            }
+        });
     }
 }
