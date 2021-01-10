@@ -90,6 +90,6 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                 configurablePublishArtifact.builtBy(genArgsFile);
             }
         };
-        project.getArtifacts().add("compile", genArgsFile.getDestination(), configureAction);
+        project.getArtifacts().add("default", genArgsFile.getDestination(), configureAction);
     }
 }

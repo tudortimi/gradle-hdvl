@@ -158,6 +158,91 @@ class SVUnitPluginSpec extends Specification  {
         dummyLog.text.contains "-f ${testProjectDir.root}/build/full_args.f"
     }
 
+    def "'toolChains' are added by the plugin"() {
+        buildFile << """
+            toolChains {
+            }
+        """
+
+        when:
+        def result = newGradleRunnerWithFakeRunSVunit()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('help')
+            .build()
+
+        then:
+        result.task(":help").outcome == SUCCESS
+    }
+
+    def "'runSVUnit' tool chain is added by the plugin"() {
+        buildFile << """
+            toolChains {
+                runSVUnit
+            }
+        """
+
+        when:
+        def result = newGradleRunnerWithFakeRunSVunit()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('help')
+            .build()
+
+        then:
+        result.task(":help").outcome == SUCCESS
+    }
+
+    def "can add args to 'runSVUnit' tool chain"() {
+        buildFile << """
+            toolChains {
+                runSVUnit {
+                    args 'some_arg'
+                    args 'some_other_arg'
+                }
+            }
+            
+            println toolChains.runSVUnit.args
+        """
+
+        when:
+        def result = newGradleRunnerWithFakeRunSVunit()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('help')
+            .build()
+
+        then:
+        result.task(":help").outcome == SUCCESS
+        result.output.contains 'some_arg'
+        result.output.contains 'some_other_arg'
+    }
+
+    def "'test' task passes custom args to 'runSVUnit'"() {
+        File testSv = testProjectDir.newFolder('src', 'test', 'sv')
+        new File(testSv, 'dummy_test.sv').createNewFile()
+
+        buildFile << """
+            toolChains {
+                runSVUnit {
+                    args '--uvm'
+                }
+            }
+        """
+
+        when:
+        def result = newGradleRunnerWithFakeRunSVunit()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('test')
+            .build()
+
+        then:
+        result.task(":test").outcome == SUCCESS
+        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
+        dummyLog.text.contains "--uvm"
+    }
+
     def newGradleRunnerWithFakeRunSVunit() {
         def runSVUnitFake = new File(getClass().getResource('/runSVUnit').toURI())
         def env = System.getenv()
