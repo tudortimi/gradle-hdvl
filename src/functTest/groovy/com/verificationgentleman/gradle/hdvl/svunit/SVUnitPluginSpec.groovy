@@ -159,6 +159,23 @@ class SVUnitPluginSpec extends Specification  {
         dummyLog.text.contains "-f ${testProjectDir.root}/build/full_args.f"
     }
 
+    def "'toolChains' are added by the plugin"() {
+        buildFile << """
+            toolChains {
+            }
+        """
+
+        when:
+        def result = newGradleRunnerWithFakeRunSVunit()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('help')
+            .build()
+
+        then:
+        result.task(":help").outcome == SUCCESS
+    }
+
     // FIXME Re-add
     @Ignore
     def "'test' task passes custom args to 'runSVUnit'"() {

@@ -19,6 +19,7 @@ package com.verificationgentleman.gradle.hdvl.svunit;
 import com.verificationgentleman.gradle.hdvl.GenFullArgsFile;
 import com.verificationgentleman.gradle.hdvl.SourceSet;
 import com.verificationgentleman.gradle.hdvl.SystemVerilogPlugin;
+import com.verificationgentleman.gradle.hdvl.svunit.internal.DefaultToolChains;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
@@ -37,6 +38,7 @@ public class SVUnitPlugin implements Plugin<Project> {
         final SourceSet testSourceSet = sourceSets.create("test");
         configureConfiguration(project);
         configureTestTask(project, testSourceSet);
+        configureToolChain(project);
     }
 
     private void configureConfiguration(Project project) {
@@ -56,5 +58,10 @@ public class SVUnitPlugin implements Plugin<Project> {
                 testTask.getWorkingDir().set(new File(project.getBuildDir(), "svunit"));
             }
         });
+    }
+
+    private void configureToolChain(Project project) {
+        ToolChains toolChains = project.getExtensions().create(ToolChains.class, "toolChains",
+                DefaultToolChains.class);
     }
 }
