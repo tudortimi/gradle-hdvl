@@ -23,10 +23,7 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFile;
-import org.gradle.api.tasks.OutputDirectory;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 import org.gradle.process.ExecSpec;
 
 import javax.inject.Inject;
@@ -53,7 +50,7 @@ public class TestTask extends DefaultTask {
         return mainArgsFile;
     }
 
-    @Input
+    @InputDirectory
     public File getTestsRoot() {
         return testsRoot;
     }
@@ -62,7 +59,7 @@ public class TestTask extends DefaultTask {
         this.testsRoot = testsRoot;
     }
 
-    @Input
+    @InputFiles
     public FileCollection getSvunitRoot() {
         return svunitRoot;
     }
