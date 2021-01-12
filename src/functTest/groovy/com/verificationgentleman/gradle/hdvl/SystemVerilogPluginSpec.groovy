@@ -288,6 +288,7 @@ class SystemVerilogPluginSpec extends Specification {
                 // 'sourceSets.main' doesn't return an object of type 'SourceSet', but a
                 // 'NamedDomainObjectProvider<SourceSet'. The Java plugin has the same issue.
                 from(sourceSets.main.get().sv.files)
+                include("*")
                 into("build")
             }
         """
@@ -331,6 +332,7 @@ class SystemVerilogPluginSpec extends Specification {
                 // 'sourceSets.main' doesn't return an object of type 'SourceSet', but a
                 // 'NamedDomainObjectProvider<SourceSet'. The Java plugin has the same issue.
                 from(sourceSets.main.get().svHeaders.files)
+                include("*")
                 into("build")
             }
         """
@@ -374,6 +376,7 @@ class SystemVerilogPluginSpec extends Specification {
                 // 'sourceSets.main' doesn't return an object of type 'SourceSet', but a
                 // 'NamedDomainObjectProvider<SourceSet'. The Java plugin has the same issue.
                 from(sourceSets.main.get().c.files)
+                include("*")
                 into("build")
             }
         """
