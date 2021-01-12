@@ -59,7 +59,7 @@ public class TestTask extends DefaultTask {
         this.testsRoot = testsRoot;
     }
 
-    @Input
+    @InputFiles
     public FileCollection getSvunitRoot() {
         return svunitRoot;
     }
