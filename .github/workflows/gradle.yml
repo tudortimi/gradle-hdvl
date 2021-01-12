@@ -1,6 +1,9 @@
 name: Gradle
 
-on: [push]
+on:
+  push:
+  pull_request:
+    branches: [ $default-branch ]
 
 jobs:
   build:
