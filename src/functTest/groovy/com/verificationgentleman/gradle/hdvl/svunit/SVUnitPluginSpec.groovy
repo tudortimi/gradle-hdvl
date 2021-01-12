@@ -243,6 +243,29 @@ class SVUnitPluginSpec extends Specification  {
         dummyLog.text.contains "--uvm"
     }
 
+    def "dummy fail"() {
+        File testSv = testProjectDir.newFolder('src', 'test', 'sv')
+        new File(testSv, 'dummy_test.sv').createNewFile()
+
+        buildFile << """
+            toolChains {
+                runSVUnit {
+                    args '--uvm'
+                }
+            }
+        """
+
+        when:
+        def result = newGradleRunnerWithFakeRunSVunit()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('test')
+            .build()
+
+        then:
+        result.task(":test").outcome != SUCCESS
+    }
+
     def newGradleRunnerWithFakeRunSVunit() {
         def runSVUnitFake = new File(getClass().getResource('/runSVUnit').toURI())
         def env = System.getenv()
