@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.verificationgentleman.gradle.hdvl;
+package com.verificationgentleman.gradle.hdvl.systemverilog;
 
-import com.verificationgentleman.gradle.hdvl.internal.DefaultSourceSet;
+import com.verificationgentleman.gradle.hdvl.systemverilog.internal.DefaultSourceSet;
 import org.gradle.api.*;
 import org.gradle.api.artifacts.ConfigurablePublishArtifact;
 import org.gradle.api.artifacts.Configuration;

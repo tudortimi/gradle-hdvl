@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.verificationgentleman.gradle.hdvl
+package com.verificationgentleman.gradle.hdvl.systemverilog
 
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Rule

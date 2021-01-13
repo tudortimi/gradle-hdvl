@@ -1,4 +1,4 @@
-package com.verificationgentleman.gradle.hdvl;
+package com.verificationgentleman.gradle.hdvl.systemverilog;
 
 import groovy.lang.Closure;
 import org.gradle.api.Action;

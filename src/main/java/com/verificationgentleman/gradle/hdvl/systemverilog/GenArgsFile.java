@@ -1,4 +1,4 @@
-package com.verificationgentleman.gradle.hdvl;
+package com.verificationgentleman.gradle.hdvl.systemverilog;
 
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
