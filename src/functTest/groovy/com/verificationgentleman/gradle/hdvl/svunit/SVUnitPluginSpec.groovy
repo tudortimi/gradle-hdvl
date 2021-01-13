@@ -16,7 +16,7 @@
 
 package com.verificationgentleman.gradle.hdvl.svunit
 
-import com.verificationgentleman.gradle.hdvl.SystemVerilogPlugin
+import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogPlugin
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder

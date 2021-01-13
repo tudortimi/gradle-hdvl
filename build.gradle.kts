@@ -13,7 +13,7 @@ gradlePlugin {
     plugins {
         create("systemverilog") {
             id = "com.verificationgentleman.gradle.hdvl.systemverilog"
-            implementationClass = "com.verificationgentleman.gradle.hdvl.SystemVerilogPlugin"
+            implementationClass = "com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogPlugin"
         }
         create("svunit") {
             id = "com.verificationgentleman.gradle.hdvl.svunit"
