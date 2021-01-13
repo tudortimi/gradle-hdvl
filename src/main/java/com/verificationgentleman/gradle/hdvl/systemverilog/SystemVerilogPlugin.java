@@ -48,7 +48,7 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                 genArgsFile.setSource(mainSourceSet.getSv());
                 genArgsFile.setPrivateIncludeDirs(mainSourceSet.getSv().getSourceDirectories());
                 genArgsFile.setExportedIncludeDirs(mainSourceSet.getSvHeaders().getSourceDirectories());
-                genArgsFile.setCSource(mainSourceSet.getC());
+                genArgsFile.setCSource(project.files().getAsFileTree());
                 genArgsFile.getDestination().set(new File(project.getBuildDir(), "args.f"));
             }
         });
