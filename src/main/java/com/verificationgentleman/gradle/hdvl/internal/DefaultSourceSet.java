@@ -1,6 +1,6 @@
-package com.verificationgentleman.gradle.hdvl.systemverilog.internal;
+package com.verificationgentleman.gradle.hdvl.internal;
 
-import com.verificationgentleman.gradle.hdvl.systemverilog.SourceSet;
+import com.verificationgentleman.gradle.hdvl.SourceSet;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.file.SourceDirectorySet;

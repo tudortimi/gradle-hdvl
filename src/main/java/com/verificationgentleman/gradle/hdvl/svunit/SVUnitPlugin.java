@@ -16,9 +16,9 @@
 
 package com.verificationgentleman.gradle.hdvl.svunit;
 
+import com.verificationgentleman.gradle.hdvl.SourceSet;
 import com.verificationgentleman.gradle.hdvl.svunit.internal.DefaultToolChains;
 import com.verificationgentleman.gradle.hdvl.systemverilog.GenFullArgsFile;
-import com.verificationgentleman.gradle.hdvl.systemverilog.SourceSet;
 import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogPlugin;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;

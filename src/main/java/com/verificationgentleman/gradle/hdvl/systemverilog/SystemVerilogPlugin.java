@@ -15,37 +15,29 @@
  */
 package com.verificationgentleman.gradle.hdvl.systemverilog;
 
-import com.verificationgentleman.gradle.hdvl.systemverilog.internal.DefaultSourceSet;
-import org.gradle.api.*;
+import com.verificationgentleman.gradle.hdvl.HDVLBasePlugin;
+import com.verificationgentleman.gradle.hdvl.SourceSet;
+import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectContainer;
+import org.gradle.api.Plugin;
+import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurablePublishArtifact;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.model.ObjectFactory;
 
 import java.io.File;
 
 public class SystemVerilogPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
-        final ObjectFactory objectFactory = project.getObjects();
-        NamedDomainObjectFactory<SourceSet> sourceSetFactory = newSourceSetFactory(objectFactory);
+        project.getPluginManager().apply(HDVLBasePlugin.class);
         NamedDomainObjectContainer<SourceSet> sourceSets
-                = objectFactory.domainObjectContainer(SourceSet.class, sourceSetFactory);
-	    project.getExtensions().add("sourceSets", sourceSets);
-	    final SourceSet mainSourceSet = sourceSets.create("main");
+                = (NamedDomainObjectContainer<SourceSet>) project.getExtensions().getByName("sourceSets");
+	    final SourceSet mainSourceSet = sourceSets.getByName("main");
 	    configureGenArgsFile(project, mainSourceSet);
         configureGenFullArgsFile(project);
 	    configureConfigurations(project);
 	    configureCompileArtifact(project);
-    }
-
-    private NamedDomainObjectFactory<SourceSet> newSourceSetFactory(ObjectFactory objectFactory) {
-        return new NamedDomainObjectFactory<SourceSet>() {
-            @Override
-            public SourceSet create(String name) {
-                return objectFactory.newInstance(DefaultSourceSet.class, name);
-            }
-        };
     }
 
     private void configureGenArgsFile(Project project, SourceSet mainSourceSet) {
