@@ -35,15 +35,21 @@ public class SystemVerilogPlugin implements Plugin<Project> {
         project.getPluginManager().apply(HDVLBasePlugin.class);
         NamedDomainObjectContainer<SourceSet> sourceSets
                 = (NamedDomainObjectContainer<SourceSet>) project.getExtensions().getByName("sourceSets");
-	    final SourceSet mainSourceSet = sourceSets.getByName("main");
+        sourceSets.all(new Action<SourceSet>() {
+            @Override
+            public void execute(SourceSet sourceSet) {
+                final DefaultSystemVerilogSourceSet svSourceSet = new DefaultSystemVerilogSourceSet(
+                        sourceSet.getName(), project.getObjects());
 
-        final DefaultSystemVerilogSourceSet mainSvSourceSet = new DefaultSystemVerilogSourceSet(
-            mainSourceSet.getName(), project.getObjects());
+                // XXX WORKAROUND Not part of the public API
+                new DslObject(sourceSet).getConvention().getPlugins().put("sv", svSourceSet);
 
-        // XXX WORKAROUND Not part of the public API
-        new DslObject(mainSourceSet).getConvention().getPlugins().put("sv", mainSvSourceSet);
+                // TODO Need one 'genArgsFile' task per source set
+                if (sourceSet.getName() == "main")
+                    configureGenArgsFile(project, svSourceSet);
+            }
+        });
 
-	    configureGenArgsFile(project, mainSvSourceSet);
         configureGenFullArgsFile(project);
 	    configureConfigurations(project);
 	    configureCompileArtifact(project);
