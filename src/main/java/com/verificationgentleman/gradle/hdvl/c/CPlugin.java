@@ -17,9 +17,9 @@
 package com.verificationgentleman.gradle.hdvl.c;
 
 import com.verificationgentleman.gradle.hdvl.GenArgsFile;
+import com.verificationgentleman.gradle.hdvl.HDVLBasePlugin;
 import com.verificationgentleman.gradle.hdvl.SourceSet;
 import com.verificationgentleman.gradle.hdvl.c.internal.DefaultCSourceSet;
-import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogPlugin;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
@@ -29,7 +29,7 @@ import org.gradle.api.internal.plugins.DslObject;
 public class CPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
-        project.getPluginManager().apply(SystemVerilogPlugin.class);
+        project.getPluginManager().apply(HDVLBasePlugin.class);
         NamedDomainObjectContainer<SourceSet> sourceSets
                 = (NamedDomainObjectContainer<SourceSet>) project.getExtensions().getByName("sourceSets");
 	    sourceSets.all(new Action<SourceSet>() {
