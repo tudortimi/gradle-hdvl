@@ -16,9 +16,9 @@
 
 package com.verificationgentleman.gradle.hdvl.c;
 
+import com.verificationgentleman.gradle.hdvl.GenArgsFile;
 import com.verificationgentleman.gradle.hdvl.SourceSet;
 import com.verificationgentleman.gradle.hdvl.c.internal.DefaultCSourceSet;
-import com.verificationgentleman.gradle.hdvl.systemverilog.GenArgsFile;
 import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogPlugin;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;

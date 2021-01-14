@@ -16,11 +16,13 @@
 package com.verificationgentleman.gradle.hdvl;
 
 import com.verificationgentleman.gradle.hdvl.internal.DefaultSourceSet;
-import org.gradle.api.NamedDomainObjectContainer;
-import org.gradle.api.NamedDomainObjectFactory;
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
+import org.gradle.api.*;
+import org.gradle.api.artifacts.ConfigurablePublishArtifact;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.model.ObjectFactory;
+
+import java.io.File;
 
 public class HDVLBasePlugin implements Plugin<Project> {
     @Override
@@ -31,6 +33,11 @@ public class HDVLBasePlugin implements Plugin<Project> {
             = objectFactory.domainObjectContainer(SourceSet.class, sourceSetFactory);
         project.getExtensions().add("sourceSets", sourceSets);
         final SourceSet mainSourceSet = sourceSets.create("main");
+
+        configureGenArgsFile(project);
+        configureGenFullArgsFile(project);
+        configureConfigurations(project);
+        configureCompileArtifact(project);
     }
 
     private NamedDomainObjectFactory<SourceSet> newSourceSetFactory(ObjectFactory objectFactory) {
@@ -40,5 +47,50 @@ public class HDVLBasePlugin implements Plugin<Project> {
                 return objectFactory.newInstance(DefaultSourceSet.class, name);
             }
         };
+    }
+
+    private void configureGenArgsFile(Project project) {
+        project.getTasks().register("genArgsFile", GenArgsFile.class, new Action<GenArgsFile>() {
+            @Override
+            public void execute(GenArgsFile genArgsFile) {
+                genArgsFile.setDescription("Generates an argument file for the main source code.");
+                genArgsFile.setSource(project.files().getAsFileTree());
+                genArgsFile.setPrivateIncludeDirs(project.files().getAsFileTree());
+                genArgsFile.setExportedIncludeDirs(project.files().getAsFileTree());
+                genArgsFile.setCSource(project.files().getAsFileTree());
+                genArgsFile.getDestination().set(new File(project.getBuildDir(), "args.f"));
+            }
+        });
+    }
+
+    private void configureGenFullArgsFile(Project project) {
+        GenArgsFile genArgsFile = (GenArgsFile) project.getTasks().getByName("genArgsFile");
+        project.getTasks().register("genFullArgsFile", GenFullArgsFile.class, new Action<GenFullArgsFile>() {
+            @Override
+            public void execute(GenFullArgsFile genFullArgsFile) {
+                genFullArgsFile.setDescription("Generates an argument file for the main source code and its dependencies.");
+                genFullArgsFile.getSource().set(genArgsFile.getDestination());
+                genFullArgsFile.getDestination().set(new File(project.getBuildDir(), "full_args.f"));
+                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName("compile"));
+            }
+        });
+    }
+
+    private void configureConfigurations(Project project) {
+        Configuration compileConfiguration = project.getConfigurations().create("compile");
+
+        Configuration defaultConfiguration = project.getConfigurations().create(Dependency.DEFAULT_CONFIGURATION);
+        defaultConfiguration.extendsFrom(compileConfiguration);
+    }
+
+    private void configureCompileArtifact(Project project) {
+        GenArgsFile genArgsFile = (GenArgsFile) project.getTasks().getByName("genArgsFile");
+        Action<ConfigurablePublishArtifact> configureAction = new Action<>() {
+            @Override
+            public void execute(ConfigurablePublishArtifact configurablePublishArtifact) {
+                configurablePublishArtifact.builtBy(genArgsFile);
+            }
+        };
+        project.getArtifacts().add("default", genArgsFile.getDestination(), configureAction);
     }
 }

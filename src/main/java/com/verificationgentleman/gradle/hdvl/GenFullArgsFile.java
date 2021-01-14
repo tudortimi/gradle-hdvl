@@ -1,4 +1,4 @@
-package com.verificationgentleman.gradle.hdvl.systemverilog;
+package com.verificationgentleman.gradle.hdvl;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
