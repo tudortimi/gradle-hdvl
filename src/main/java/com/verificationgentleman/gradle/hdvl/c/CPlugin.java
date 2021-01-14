@@ -33,8 +33,7 @@ public class CPlugin implements Plugin<Project> {
                 = (NamedDomainObjectContainer<SourceSet>) project.getExtensions().getByName("sourceSets");
 	    final SourceSet mainSourceSet = sourceSets.getByName("main");
 
-	    final DefaultCSourceSet mainCSourceSet = new DefaultCSourceSet("c", project.getObjects());
-        mainCSourceSet.getC().srcDir("src/" + mainSourceSet.getName() + "/c");
+	    final DefaultCSourceSet mainCSourceSet = new DefaultCSourceSet(mainSourceSet.getName(), project.getObjects());
 
         // XXX WORKAROUND Not part of the public API
         new DslObject(mainSourceSet).getConvention().getPlugins().put("c", mainCSourceSet);
