@@ -20,11 +20,14 @@ import com.verificationgentleman.gradle.hdvl.SourceSet;
 import com.verificationgentleman.gradle.hdvl.svunit.internal.DefaultToolChains;
 import com.verificationgentleman.gradle.hdvl.systemverilog.GenFullArgsFile;
 import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogPlugin;
+import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogSourceSet;
+import com.verificationgentleman.gradle.hdvl.systemverilog.internal.DefaultSystemVerilogSourceSet;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.reflect.TypeOf;
 
 import java.io.File;
@@ -39,9 +42,16 @@ public class SVUnitPlugin implements Plugin<Project> {
         NamedDomainObjectContainer<SourceSet> sourceSets = project.getExtensions()
                 .getByType(new TypeOf<NamedDomainObjectContainer<SourceSet>>() {});
         final SourceSet testSourceSet = sourceSets.create("test");
+
+        final DefaultSystemVerilogSourceSet testSvSourceSet = new DefaultSystemVerilogSourceSet(
+            testSourceSet.getName(), project.getObjects());
+
+        // XXX WORKAROUND Not part of the public API
+        new DslObject(testSourceSet).getConvention().getPlugins().put("sv", testSvSourceSet);
+
         configureConfiguration(project);
         configureToolChain(project);
-        configureTestTask(project, testSourceSet);
+        configureTestTask(project, testSvSourceSet);
     }
 
     private void configureConfiguration(Project project) {
@@ -52,7 +62,7 @@ public class SVUnitPlugin implements Plugin<Project> {
         toolChains = project.getExtensions().create(ToolChains.class, "toolChains", DefaultToolChains.class);
     }
 
-    private void configureTestTask(Project project, SourceSet testSourceSet) {
+    private void configureTestTask(Project project, SystemVerilogSourceSet testSourceSet) {
         GenFullArgsFile genFullArgsFile = (GenFullArgsFile) project.getTasks().getByName("genFullArgsFile");
         Configuration testCompileConfiguration = project.getConfigurations().getByName("testCompile");
         project.getTasks().register("test", TestTask.class, new Action<TestTask>() {

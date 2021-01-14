@@ -17,6 +17,7 @@ package com.verificationgentleman.gradle.hdvl.systemverilog;
 
 import com.verificationgentleman.gradle.hdvl.HDVLBasePlugin;
 import com.verificationgentleman.gradle.hdvl.SourceSet;
+import com.verificationgentleman.gradle.hdvl.systemverilog.internal.DefaultSystemVerilogSourceSet;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
@@ -24,6 +25,7 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurablePublishArtifact;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.internal.plugins.DslObject;
 
 import java.io.File;
 
@@ -34,13 +36,20 @@ public class SystemVerilogPlugin implements Plugin<Project> {
         NamedDomainObjectContainer<SourceSet> sourceSets
                 = (NamedDomainObjectContainer<SourceSet>) project.getExtensions().getByName("sourceSets");
 	    final SourceSet mainSourceSet = sourceSets.getByName("main");
-	    configureGenArgsFile(project, mainSourceSet);
+
+        final DefaultSystemVerilogSourceSet mainSvSourceSet = new DefaultSystemVerilogSourceSet(
+            mainSourceSet.getName(), project.getObjects());
+
+        // XXX WORKAROUND Not part of the public API
+        new DslObject(mainSourceSet).getConvention().getPlugins().put("sv", mainSvSourceSet);
+
+	    configureGenArgsFile(project, mainSvSourceSet);
         configureGenFullArgsFile(project);
 	    configureConfigurations(project);
 	    configureCompileArtifact(project);
     }
 
-    private void configureGenArgsFile(Project project, SourceSet mainSourceSet) {
+    private void configureGenArgsFile(Project project, SystemVerilogSourceSet mainSourceSet) {
         project.getTasks().register("genArgsFile", GenArgsFile.class, new Action<GenArgsFile>() {
             @Override
             public void execute(GenArgsFile genArgsFile) {
