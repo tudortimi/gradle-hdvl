@@ -17,11 +17,13 @@
 package com.verificationgentleman.gradle.hdvl.c;
 
 import com.verificationgentleman.gradle.hdvl.SourceSet;
+import com.verificationgentleman.gradle.hdvl.c.internal.DefaultCSourceSet;
 import com.verificationgentleman.gradle.hdvl.systemverilog.GenArgsFile;
 import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogPlugin;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.internal.plugins.DslObject;
 
 public class CPlugin implements Plugin<Project> {
     @Override
@@ -30,10 +32,17 @@ public class CPlugin implements Plugin<Project> {
         NamedDomainObjectContainer<SourceSet> sourceSets
                 = (NamedDomainObjectContainer<SourceSet>) project.getExtensions().getByName("sourceSets");
 	    final SourceSet mainSourceSet = sourceSets.getByName("main");
-	    configureGenArgsFile(project, mainSourceSet);
+
+	    final DefaultCSourceSet mainCSourceSet = new DefaultCSourceSet("c", project.getObjects());
+        mainCSourceSet.getC().srcDir("src/" + mainSourceSet.getName() + "/c");
+
+        // XXX WORKAROUND Not part of the public API
+        new DslObject(mainSourceSet).getConvention().getPlugins().put("c", mainCSourceSet);
+
+        configureGenArgsFile(project, mainCSourceSet);
     }
 
-    private void configureGenArgsFile(Project project, SourceSet mainSourceSet) {
+    private void configureGenArgsFile(Project project, CSourceSet mainSourceSet) {
         GenArgsFile genArgsFile = (GenArgsFile) project.getTasks().getByName("genArgsFile");
         genArgsFile.setCSource(mainSourceSet.getC());
     }

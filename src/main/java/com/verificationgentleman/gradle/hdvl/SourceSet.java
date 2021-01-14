@@ -4,10 +4,11 @@ import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.plugins.ExtensionAware;
 
 import javax.annotation.Nullable;
 
-public interface SourceSet extends Named {
+public interface SourceSet extends Named, ExtensionAware {
 
     SourceDirectorySet getSv();
 
@@ -21,9 +22,4 @@ public interface SourceSet extends Named {
 
     SourceSet svHeaders(Action<? super SourceDirectorySet> configureAction);
 
-    SourceDirectorySet getC();
-
-    SourceSet c(@Nullable Closure configureClosure);
-
-    SourceSet c(Action<? super SourceDirectorySet> configureAction);
 }

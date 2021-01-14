@@ -11,11 +11,10 @@ import javax.inject.Inject;
 
 import static org.gradle.util.ConfigureUtil.configure;
 
-public class DefaultSourceSet implements SourceSet {
+public abstract class DefaultSourceSet implements SourceSet {
     private final String name;
     private final SourceDirectorySet sv;
     private final SourceDirectorySet svHeaders;
-    private final SourceDirectorySet c;
 
     @Inject
     public DefaultSourceSet(String name, ObjectFactory objectFactory) {
@@ -26,10 +25,6 @@ public class DefaultSourceSet implements SourceSet {
 
         svHeaders = objectFactory.sourceDirectorySet("sv", "SystemVerilog exported headers");
         svHeaders.srcDir("src/" + name + "/sv_headers");
-
-        c = objectFactory.sourceDirectorySet("c", "C source");
-        c.srcDir("src/" + name + "/c");
-        c.getFilter().include("**/*.c");
     }
 
     @Override
@@ -70,24 +65,6 @@ public class DefaultSourceSet implements SourceSet {
     @Override
     public DefaultSourceSet svHeaders(Action<? super SourceDirectorySet> configureAction) {
         configureAction.execute(getSvHeaders());
-        return this;
-    }
-
-    @Override
-    public SourceDirectorySet getC() {
-        return c;
-    }
-
-    @Override
-    public DefaultSourceSet c(@Nullable Closure configureClosure) {
-        // XXX This is not part of the public Gradle API
-        configure(configureClosure, getC());
-        return this;
-    }
-
-    @Override
-    public DefaultSourceSet c(Action<? super SourceDirectorySet> configureAction) {
-        configureAction.execute(getC());
         return this;
     }
 }
