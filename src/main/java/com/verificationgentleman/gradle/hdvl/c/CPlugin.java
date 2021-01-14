@@ -20,6 +20,7 @@ import com.verificationgentleman.gradle.hdvl.SourceSet;
 import com.verificationgentleman.gradle.hdvl.c.internal.DefaultCSourceSet;
 import com.verificationgentleman.gradle.hdvl.systemverilog.GenArgsFile;
 import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogPlugin;
+import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -31,14 +32,20 @@ public class CPlugin implements Plugin<Project> {
         project.getPluginManager().apply(SystemVerilogPlugin.class);
         NamedDomainObjectContainer<SourceSet> sourceSets
                 = (NamedDomainObjectContainer<SourceSet>) project.getExtensions().getByName("sourceSets");
-	    final SourceSet mainSourceSet = sourceSets.getByName("main");
+	    sourceSets.all(new Action<SourceSet>() {
+            @Override
+            public void execute(SourceSet sourceSet) {
+                final DefaultCSourceSet cSourceSet = new DefaultCSourceSet(sourceSet.getName(), project.getObjects());
 
-	    final DefaultCSourceSet mainCSourceSet = new DefaultCSourceSet(mainSourceSet.getName(), project.getObjects());
+                // XXX WORKAROUND Not part of the public API
+                new DslObject(sourceSet).getConvention().getPlugins().put("c", cSourceSet);
 
-        // XXX WORKAROUND Not part of the public API
-        new DslObject(mainSourceSet).getConvention().getPlugins().put("c", mainCSourceSet);
-
-        configureGenArgsFile(project, mainCSourceSet);
+                // TODO Need one 'genArgsFile' task per source set
+                if (sourceSet.getName() == "main") {
+                    configureGenArgsFile(project, cSourceSet);
+                }
+            }
+        });
     }
 
     private void configureGenArgsFile(Project project, CSourceSet mainSourceSet) {
