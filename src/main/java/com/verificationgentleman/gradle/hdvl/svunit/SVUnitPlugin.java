@@ -16,15 +16,17 @@
 
 package com.verificationgentleman.gradle.hdvl.svunit;
 
+import com.verificationgentleman.gradle.hdvl.GenFullArgsFile;
+import com.verificationgentleman.gradle.hdvl.SourceSet;
 import com.verificationgentleman.gradle.hdvl.svunit.internal.DefaultToolChains;
-import com.verificationgentleman.gradle.hdvl.systemverilog.GenFullArgsFile;
-import com.verificationgentleman.gradle.hdvl.systemverilog.SourceSet;
 import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogPlugin;
+import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogSourceSet;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.internal.HasConvention;
 import org.gradle.api.reflect.TypeOf;
 
 import java.io.File;
@@ -39,9 +41,19 @@ public class SVUnitPlugin implements Plugin<Project> {
         NamedDomainObjectContainer<SourceSet> sourceSets = project.getExtensions()
                 .getByType(new TypeOf<NamedDomainObjectContainer<SourceSet>>() {});
         final SourceSet testSourceSet = sourceSets.create("test");
+
         configureConfiguration(project);
         configureToolChain(project);
-        configureTestTask(project, testSourceSet);
+
+        sourceSets.named("test", new Action<SourceSet>() {
+            @Override
+            public void execute(SourceSet sourceSet) {
+                HasConvention sourceSetWithConvention = (HasConvention) sourceSet;
+                SystemVerilogSourceSet svSourceSet
+                        = (SystemVerilogSourceSet) sourceSetWithConvention.getConvention().getPlugins().get("sv");
+                configureTestTask(project, svSourceSet);
+            }
+        });
     }
 
     private void configureConfiguration(Project project) {
@@ -52,7 +64,7 @@ public class SVUnitPlugin implements Plugin<Project> {
         toolChains = project.getExtensions().create(ToolChains.class, "toolChains", DefaultToolChains.class);
     }
 
-    private void configureTestTask(Project project, SourceSet testSourceSet) {
+    private void configureTestTask(Project project, SystemVerilogSourceSet testSourceSet) {
         GenFullArgsFile genFullArgsFile = (GenFullArgsFile) project.getTasks().getByName("genFullArgsFile");
         Configuration testCompileConfiguration = project.getConfigurations().getByName("testCompile");
         project.getTasks().register("test", TestTask.class, new Action<TestTask>() {

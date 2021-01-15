@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,44 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.verificationgentleman.gradle.hdvl.systemverilog;
+
+package com.verificationgentleman.gradle.hdvl.c;
 
 import com.verificationgentleman.gradle.hdvl.GenArgsFile;
 import com.verificationgentleman.gradle.hdvl.HDVLBasePlugin;
 import com.verificationgentleman.gradle.hdvl.SourceSet;
-import com.verificationgentleman.gradle.hdvl.systemverilog.internal.DefaultSystemVerilogSourceSet;
+import com.verificationgentleman.gradle.hdvl.c.internal.DefaultCSourceSet;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.internal.plugins.DslObject;
 
-public class SystemVerilogPlugin implements Plugin<Project> {
+public class CPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         project.getPluginManager().apply(HDVLBasePlugin.class);
         NamedDomainObjectContainer<SourceSet> sourceSets
                 = (NamedDomainObjectContainer<SourceSet>) project.getExtensions().getByName("sourceSets");
-        sourceSets.all(new Action<SourceSet>() {
+	    sourceSets.all(new Action<SourceSet>() {
             @Override
             public void execute(SourceSet sourceSet) {
-                final DefaultSystemVerilogSourceSet svSourceSet = new DefaultSystemVerilogSourceSet(
-                        sourceSet.getName(), project.getObjects());
+                final DefaultCSourceSet cSourceSet = new DefaultCSourceSet(sourceSet.getName(), project.getObjects());
 
                 // XXX WORKAROUND Not part of the public API
-                new DslObject(sourceSet).getConvention().getPlugins().put("sv", svSourceSet);
+                new DslObject(sourceSet).getConvention().getPlugins().put("c", cSourceSet);
 
                 // TODO Need one 'genArgsFile' task per source set
-                if (sourceSet.getName() == "main")
-                    configureGenArgsFile(project, svSourceSet);
+                if (sourceSet.getName() == "main") {
+                    configureGenArgsFile(project, cSourceSet);
+                }
             }
         });
     }
 
-    private void configureGenArgsFile(Project project, SystemVerilogSourceSet mainSourceSet) {
+    private void configureGenArgsFile(Project project, CSourceSet mainSourceSet) {
         GenArgsFile genArgsFile = (GenArgsFile) project.getTasks().getByName("genArgsFile");
-        genArgsFile.setSource(mainSourceSet.getSv());
-        genArgsFile.setPrivateIncludeDirs(mainSourceSet.getSv().getSourceDirectories());
-        genArgsFile.setExportedIncludeDirs(mainSourceSet.getSvHeaders().getSourceDirectories());
+        genArgsFile.setCSource(mainSourceSet.getC());
     }
 }

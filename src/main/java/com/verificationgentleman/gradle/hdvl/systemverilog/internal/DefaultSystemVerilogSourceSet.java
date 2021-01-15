@@ -1,6 +1,22 @@
+/*
+ * Copyright 2021 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.verificationgentleman.gradle.hdvl.systemverilog.internal;
 
-import com.verificationgentleman.gradle.hdvl.systemverilog.SourceSet;
+import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogSourceSet;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.file.SourceDirectorySet;
@@ -11,30 +27,18 @@ import javax.inject.Inject;
 
 import static org.gradle.util.ConfigureUtil.configure;
 
-public class DefaultSourceSet implements SourceSet {
-    private final String name;
+public class DefaultSystemVerilogSourceSet implements SystemVerilogSourceSet {
     private final SourceDirectorySet sv;
     private final SourceDirectorySet svHeaders;
-    private final SourceDirectorySet c;
 
     @Inject
-    public DefaultSourceSet(String name, ObjectFactory objectFactory) {
-        this.name = name;
+    public DefaultSystemVerilogSourceSet(String name, ObjectFactory objectFactory) {
         sv = objectFactory.sourceDirectorySet("sv", "SystemVerilog source");
         sv.srcDir("src/" + name + "/sv");
         sv.getFilter().include("**/*.sv");
 
         svHeaders = objectFactory.sourceDirectorySet("sv", "SystemVerilog exported headers");
         svHeaders.srcDir("src/" + name + "/sv_headers");
-
-        c = objectFactory.sourceDirectorySet("c", "C source");
-        c.srcDir("src/" + name + "/c");
-        c.getFilter().include("**/*.c");
-    }
-
-    @Override
-    public String getName() {
-        return name;
     }
 
     @Override
@@ -43,14 +47,14 @@ public class DefaultSourceSet implements SourceSet {
     }
 
     @Override
-    public DefaultSourceSet sv(@Nullable Closure configureClosure) {
+    public DefaultSystemVerilogSourceSet sv(@Nullable Closure configureClosure) {
         // XXX This is not part of the public Gradle API
         configure(configureClosure, getSv());
         return this;
     }
 
     @Override
-    public DefaultSourceSet sv(Action<? super SourceDirectorySet> configureAction) {
+    public DefaultSystemVerilogSourceSet sv(Action<? super SourceDirectorySet> configureAction) {
         configureAction.execute(getSv());
         return this;
     }
@@ -61,33 +65,15 @@ public class DefaultSourceSet implements SourceSet {
     }
 
     @Override
-    public DefaultSourceSet svHeaders(@Nullable Closure configureClosure) {
+    public DefaultSystemVerilogSourceSet svHeaders(@Nullable Closure configureClosure) {
         // XXX This is not part of the public Gradle API
         configure(configureClosure, getSvHeaders());
         return this;
     }
 
     @Override
-    public DefaultSourceSet svHeaders(Action<? super SourceDirectorySet> configureAction) {
+    public DefaultSystemVerilogSourceSet svHeaders(Action<? super SourceDirectorySet> configureAction) {
         configureAction.execute(getSvHeaders());
-        return this;
-    }
-
-    @Override
-    public SourceDirectorySet getC() {
-        return c;
-    }
-
-    @Override
-    public DefaultSourceSet c(@Nullable Closure configureClosure) {
-        // XXX This is not part of the public Gradle API
-        configure(configureClosure, getC());
-        return this;
-    }
-
-    @Override
-    public DefaultSourceSet c(Action<? super SourceDirectorySet> configureAction) {
-        configureAction.execute(getC());
         return this;
     }
 }

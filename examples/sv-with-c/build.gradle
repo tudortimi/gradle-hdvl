@@ -1,0 +1,12 @@
+plugins {
+    id("com.verificationgentleman.gradle.hdvl.systemverilog")
+    id("com.verificationgentleman.gradle.hdvl.c")
+}
+
+sourceSets {
+    main {
+        c {
+            exclude("**/bad.c")
+        }
+    }
+}
