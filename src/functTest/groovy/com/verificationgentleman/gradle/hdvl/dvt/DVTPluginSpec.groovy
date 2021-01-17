@@ -78,4 +78,105 @@ class DVTPluginSpec extends Specification {
         dummyLog.exists()
         dummyLog.text.contains('createProject')
     }
+
+    def "'dvt' task adds '-lang vlog' when 'systemverilog' plugin is imported"() {
+        def dvtCliFake = new File(getClass().getResource('/dvt_cli.sh').toURI())
+        def env = System.getenv()
+
+        buildFile << """
+            plugins {
+                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withEnvironment(["PATH": [dvtCliFake.parent, env.PATH].join(':')])
+            .withArguments(':dvt')
+            .build()
+
+        then:
+        result.task(":dvt").outcome == SUCCESS
+        def dummyLog = new File(testProjectDir.root, 'dvt_cli.sh.log')
+        dummyLog.exists()
+        dummyLog.text.contains('-lang vlog')
+    }
+
+    def "'dvt' task adds single '-lang' when only 'systemverilog' plugin is imported"() {
+        def dvtCliFake = new File(getClass().getResource('/dvt_cli.sh').toURI())
+        def env = System.getenv()
+
+        buildFile << """
+            plugins {
+                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withEnvironment(["PATH": [dvtCliFake.parent, env.PATH].join(':')])
+            .withArguments(':dvt')
+            .build()
+
+        then:
+        result.task(":dvt").outcome == SUCCESS
+        def dummyLog = new File(testProjectDir.root, 'dvt_cli.sh.log')
+        dummyLog.exists()
+        dummyLog.text.count('-lang') == 1
+    }
+
+    def "'dvt' task adds '-lang cpp' when 'c' plugin is imported"() {
+        def dvtCliFake = new File(getClass().getResource('/dvt_cli.sh').toURI())
+        def env = System.getenv()
+
+        buildFile << """
+            plugins {
+                id 'com.verificationgentleman.gradle.hdvl.c'
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withEnvironment(["PATH": [dvtCliFake.parent, env.PATH].join(':')])
+            .withArguments(':dvt')
+            .build()
+
+        then:
+        result.task(":dvt").outcome == SUCCESS
+        def dummyLog = new File(testProjectDir.root, 'dvt_cli.sh.log')
+        dummyLog.exists()
+        dummyLog.text.contains('-lang c')
+    }
+
+    def "'dvt' task adds two '-lang' options when both 'systemverilog' and 'c' plugins are imported"() {
+        def dvtCliFake = new File(getClass().getResource('/dvt_cli.sh').toURI())
+        def env = System.getenv()
+
+        buildFile << """
+            plugins {
+                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+                id 'com.verificationgentleman.gradle.hdvl.c'
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withEnvironment(["PATH": [dvtCliFake.parent, env.PATH].join(':')])
+            .withArguments(':dvt')
+            .build()
+
+        then:
+        result.task(":dvt").outcome == SUCCESS
+        def dummyLog = new File(testProjectDir.root, 'dvt_cli.sh.log')
+        dummyLog.exists()
+        dummyLog.text.count('-lang') == 2
+    }
 }
