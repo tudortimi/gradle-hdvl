@@ -43,3 +43,7 @@ dependencies {
 repositories {
     jcenter()
 }
+
+tasks.withType(JavaCompile::class) {
+  options.compilerArgs.addAll(listOf("-Xlint:unchecked", "-Werror"))
+}
