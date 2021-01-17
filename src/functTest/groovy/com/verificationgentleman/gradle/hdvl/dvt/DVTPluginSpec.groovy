@@ -182,4 +182,19 @@ class DVTPluginSpec extends Specification {
         return GradleRunner.create()
             .withEnvironment(["PATH": [dvtCliFake.parent, env.PATH].join(':')])
     }
+
+    def "'dvt' task passes '-force' option"() {
+        when:
+        def result = newGradleRunnerWithFakeDvtCli()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':dvt')
+            .build()
+
+        then:
+        result.task(":dvt").outcome == SUCCESS
+        def dummyLog = new File(testProjectDir.root, 'dvt_cli.sh.log')
+        dummyLog.exists()
+        dummyLog.text.contains('-force')
+    }
 }

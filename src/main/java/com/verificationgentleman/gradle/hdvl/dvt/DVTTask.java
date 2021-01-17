@@ -22,6 +22,7 @@ public class DVTTask extends DefaultTask {
                 if (getProject().getPlugins().hasPlugin(CPlugin.class)) {
                     execSpec.args("-lang", "c");
                 }
+                execSpec.args("-force");
             }
         });
     }
