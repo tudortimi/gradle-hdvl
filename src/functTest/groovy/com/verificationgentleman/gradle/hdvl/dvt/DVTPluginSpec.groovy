@@ -61,14 +61,10 @@ class DVTPluginSpec extends Specification {
     }
 
     def "'dvt' task calls 'dvt_cli.sh createProject'"() {
-        def dvtCliFake = new File(getClass().getResource('/dvt_cli.sh').toURI())
-        def env = System.getenv()
-
         when:
-        def result = GradleRunner.create()
+        def result = newGradleRunnerWithFakeDvtCli()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withEnvironment(["PATH": [dvtCliFake.parent, env.PATH].join(':')])
             .withArguments(':dvt')
             .build()
 
@@ -80,9 +76,6 @@ class DVTPluginSpec extends Specification {
     }
 
     def "'dvt' task adds '-lang vlog' when 'systemverilog' plugin is imported"() {
-        def dvtCliFake = new File(getClass().getResource('/dvt_cli.sh').toURI())
-        def env = System.getenv()
-
         buildFile << """
             plugins {
                 id 'com.verificationgentleman.gradle.hdvl.systemverilog'
@@ -90,10 +83,9 @@ class DVTPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = newGradleRunnerWithFakeDvtCli()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withEnvironment(["PATH": [dvtCliFake.parent, env.PATH].join(':')])
             .withArguments(':dvt')
             .build()
 
@@ -105,9 +97,6 @@ class DVTPluginSpec extends Specification {
     }
 
     def "'dvt' task adds single '-lang' when only 'systemverilog' plugin is imported"() {
-        def dvtCliFake = new File(getClass().getResource('/dvt_cli.sh').toURI())
-        def env = System.getenv()
-
         buildFile << """
             plugins {
                 id 'com.verificationgentleman.gradle.hdvl.systemverilog'
@@ -115,10 +104,9 @@ class DVTPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = newGradleRunnerWithFakeDvtCli()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withEnvironment(["PATH": [dvtCliFake.parent, env.PATH].join(':')])
             .withArguments(':dvt')
             .build()
 
@@ -130,9 +118,6 @@ class DVTPluginSpec extends Specification {
     }
 
     def "'dvt' task adds '-lang cpp' when 'c' plugin is imported"() {
-        def dvtCliFake = new File(getClass().getResource('/dvt_cli.sh').toURI())
-        def env = System.getenv()
-
         buildFile << """
             plugins {
                 id 'com.verificationgentleman.gradle.hdvl.c'
@@ -140,10 +125,9 @@ class DVTPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = newGradleRunnerWithFakeDvtCli()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withEnvironment(["PATH": [dvtCliFake.parent, env.PATH].join(':')])
             .withArguments(':dvt')
             .build()
 
@@ -155,9 +139,6 @@ class DVTPluginSpec extends Specification {
     }
 
     def "'dvt' task adds two '-lang' options when both 'systemverilog' and 'c' plugins are imported"() {
-        def dvtCliFake = new File(getClass().getResource('/dvt_cli.sh').toURI())
-        def env = System.getenv()
-
         buildFile << """
             plugins {
                 id 'com.verificationgentleman.gradle.hdvl.systemverilog'
@@ -166,10 +147,9 @@ class DVTPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = newGradleRunnerWithFakeDvtCli()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withEnvironment(["PATH": [dvtCliFake.parent, env.PATH].join(':')])
             .withArguments(':dvt')
             .build()
 
@@ -178,5 +158,13 @@ class DVTPluginSpec extends Specification {
         def dummyLog = new File(testProjectDir.root, 'dvt_cli.sh.log')
         dummyLog.exists()
         dummyLog.text.count('-lang') == 2
+    }
+
+    def newGradleRunnerWithFakeDvtCli() {
+        def dvtCliFake = new File(getClass().getResource('/dvt_cli.sh').toURI())
+        def env = System.getenv()
+
+        return GradleRunner.create()
+            .withEnvironment(["PATH": [dvtCliFake.parent, env.PATH].join(':')])
     }
 }
