@@ -17,6 +17,7 @@ package com.verificationgentleman.gradle.hdvl.systemverilog;
 
 import com.verificationgentleman.gradle.hdvl.GenArgsFile;
 import com.verificationgentleman.gradle.hdvl.HDVLBasePlugin;
+import com.verificationgentleman.gradle.hdvl.HDVLPluginExtension;
 import com.verificationgentleman.gradle.hdvl.SourceSet;
 import com.verificationgentleman.gradle.hdvl.systemverilog.internal.DefaultSystemVerilogSourceSet;
 import org.gradle.api.Action;
@@ -30,7 +31,7 @@ public class SystemVerilogPlugin implements Plugin<Project> {
     public void apply(Project project) {
         project.getPluginManager().apply(HDVLBasePlugin.class);
         NamedDomainObjectContainer<SourceSet> sourceSets
-                = (NamedDomainObjectContainer<SourceSet>) project.getExtensions().getByName("sourceSets");
+                = project.getExtensions().getByType(HDVLPluginExtension.class).getSourceSets();
         sourceSets.all(new Action<SourceSet>() {
             @Override
             public void execute(SourceSet sourceSet) {
