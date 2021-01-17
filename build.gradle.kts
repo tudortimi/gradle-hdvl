@@ -7,7 +7,7 @@ plugins {
 apply(from = "$rootDir/gradle/functional-test.gradle")
 
 group = "com.verificationgentleman.gradle"
-version = "0.1.0-SNAPSHOT"
+version = "0.1.0"
 
 gradlePlugin {
     plugins {
