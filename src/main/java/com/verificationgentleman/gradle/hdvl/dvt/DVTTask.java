@@ -15,6 +15,7 @@ public class DVTTask extends DefaultTask {
             public void execute(ExecSpec execSpec) {
                 execSpec.executable("dvt_cli.sh");
                 execSpec.args("createProject");
+                execSpec.args(getProject().getRootDir().getAbsolutePath());
                 if (getProject().getPlugins().hasPlugin(SystemVerilogPlugin.class)) {
                     execSpec.args("-lang", "vlog");
                 }

@@ -75,6 +75,21 @@ class DVTPluginSpec extends Specification {
         dummyLog.text.contains('createProject')
     }
 
+    def "'dvt' task passes project path"() {
+        when:
+        def result = newGradleRunnerWithFakeDvtCli()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':dvt')
+            .build()
+
+        then:
+        result.task(":dvt").outcome == SUCCESS
+        def dummyLog = new File(testProjectDir.root, 'dvt_cli.sh.log')
+        dummyLog.exists()
+        dummyLog.text.contains(testProjectDir.root.absolutePath)
+    }
+
     def "'dvt' task adds '-lang vlog' when 'systemverilog' plugin is imported"() {
         buildFile << """
             plugins {
