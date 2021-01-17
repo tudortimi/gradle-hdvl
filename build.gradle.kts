@@ -31,6 +31,10 @@ gradlePlugin {
             id = "com.verificationgentleman.gradle.hdvl.svunit-build-injector"
             implementationClass = "com.verificationgentleman.gradle.hdvl.svunit.SVUnitBuildInjectorPlugin"
         }
+        create("dvt") {
+            id = "com.verificationgentleman.gradle.hdvl.dvt"
+            implementationClass = "com.verificationgentleman.gradle.hdvl.dvt.DVTPlugin"
+        }
     }
 }
 
