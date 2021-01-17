@@ -9,3 +9,10 @@
 !/.idea
 .idea/*
 **/.idea/*
+
+# DVT
+#----
+.project
+.dvt
+
+*.log
