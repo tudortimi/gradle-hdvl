@@ -59,4 +59,23 @@ class DVTPluginSpec extends Specification {
         result.task(":tasks").outcome == SUCCESS
         result.output.contains('dvt')
     }
+
+    def "'dvt' task calls 'dvt_cli.sh createProject'"() {
+        def dvtCliFake = new File(getClass().getResource('/dvt_cli.sh').toURI())
+        def env = System.getenv()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withEnvironment(["PATH": [dvtCliFake.parent, env.PATH].join(':')])
+            .withArguments(':dvt')
+            .build()
+
+        then:
+        result.task(":dvt").outcome == SUCCESS
+        def dummyLog = new File(testProjectDir.root, 'dvt_cli.sh.log')
+        dummyLog.exists()
+        dummyLog.text.contains('createProject')
+    }
 }
