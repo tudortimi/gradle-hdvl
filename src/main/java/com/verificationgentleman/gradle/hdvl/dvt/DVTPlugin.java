@@ -17,6 +17,7 @@
 package com.verificationgentleman.gradle.hdvl.dvt;
 
 import com.verificationgentleman.gradle.hdvl.HDVLBasePlugin;
+import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
@@ -24,5 +25,12 @@ public class DVTPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         project.getPluginManager().apply(HDVLBasePlugin.class);
+
+        project.getTasks().register("dvt", DVTTask.class, new Action<DVTTask>() {
+            @Override
+            public void execute(DVTTask dvt) {
+                dvt.setDescription("Generates a DVT project.");
+            }
+        });
     }
 }

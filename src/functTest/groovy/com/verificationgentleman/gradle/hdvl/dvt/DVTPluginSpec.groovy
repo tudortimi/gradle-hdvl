@@ -46,4 +46,17 @@ class DVTPluginSpec extends Specification {
         then:
         result.task(":help").outcome == SUCCESS
     }
+
+    def "adds a 'dvt' task"() {
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':tasks', '--all')
+            .build()
+
+        then:
+        result.task(":tasks").outcome == SUCCESS
+        result.output.contains('dvt')
+    }
 }
