@@ -61,6 +61,12 @@ class DVTPluginSpec extends Specification {
     }
 
     def "'dvt' task calls 'dvt_cli.sh createProject'"() {
+        buildFile << """
+            plugins {
+                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+            }
+        """
+
         when:
         def result = newGradleRunnerWithFakeDvtCli()
             .withProjectDir(testProjectDir.root)
@@ -76,6 +82,12 @@ class DVTPluginSpec extends Specification {
     }
 
     def "'dvt' task passes project path"() {
+        buildFile << """
+            plugins {
+                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+            }
+        """
+
         when:
         def result = newGradleRunnerWithFakeDvtCli()
             .withProjectDir(testProjectDir.root)
@@ -133,6 +145,9 @@ class DVTPluginSpec extends Specification {
     }
 
     def "'dvt' task adds '-lang cpp' when 'c' plugin is imported"() {
+        File sv = testProjectDir.newFolder('src', 'main', 'c')
+        new File(sv, "dummy.c").createNewFile()
+
         buildFile << """
             plugins {
                 id 'com.verificationgentleman.gradle.hdvl.c'
@@ -176,6 +191,12 @@ class DVTPluginSpec extends Specification {
     }
 
     def "'dvt' task passes '-force' option"() {
+        buildFile << """
+            plugins {
+                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+            }
+        """
+
         when:
         def result = newGradleRunnerWithFakeDvtCli()
             .withProjectDir(testProjectDir.root)
