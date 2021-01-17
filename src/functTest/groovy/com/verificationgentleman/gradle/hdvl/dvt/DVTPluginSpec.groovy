@@ -175,14 +175,6 @@ class DVTPluginSpec extends Specification {
         dummyLog.text.count('-lang') == 2
     }
 
-    def newGradleRunnerWithFakeDvtCli() {
-        def dvtCliFake = new File(getClass().getResource('/dvt_cli.sh').toURI())
-        def env = System.getenv()
-
-        return GradleRunner.create()
-            .withEnvironment(["PATH": [dvtCliFake.parent, env.PATH].join(':')])
-    }
-
     def "'dvt' task passes '-force' option"() {
         when:
         def result = newGradleRunnerWithFakeDvtCli()
@@ -196,5 +188,36 @@ class DVTPluginSpec extends Specification {
         def dummyLog = new File(testProjectDir.root, 'dvt_cli.sh.log')
         dummyLog.exists()
         dummyLog.text.contains('-force')
+    }
+
+    def "'dvt' task includes args file"() {
+        buildFile << """
+            plugins {
+                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+            }
+        """
+
+        when:
+        def result = newGradleRunnerWithFakeDvtCli()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':dvt')
+            .build()
+
+        then:
+        result.task(":dvt").outcome == SUCCESS
+        result.task(":genFullArgsFile").outcome == SUCCESS
+        def dummyLog = new File(testProjectDir.root, 'dvt_cli.sh.log')
+        dummyLog.text.contains('-default.build')
+        dummyLog.text.contains('+dvt_init+ius.irun')
+        dummyLog.text.contains("-f ${testProjectDir.root}/build/full_args.f")
+    }
+
+    def newGradleRunnerWithFakeDvtCli() {
+        def dvtCliFake = new File(getClass().getResource('/dvt_cli.sh').toURI())
+        def env = System.getenv()
+
+        return GradleRunner.create()
+            .withEnvironment(["PATH": [dvtCliFake.parent, env.PATH].join(':')])
     }
 }

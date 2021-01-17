@@ -16,6 +16,7 @@
 
 package com.verificationgentleman.gradle.hdvl.dvt;
 
+import com.verificationgentleman.gradle.hdvl.GenFullArgsFile;
 import com.verificationgentleman.gradle.hdvl.HDVLBasePlugin;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
@@ -30,6 +31,13 @@ public class DVTPlugin implements Plugin<Project> {
             @Override
             public void execute(DVTTask dvt) {
                 dvt.setDescription("Generates a DVT project.");
+                setArgsFile(dvt);
+            }
+
+            private void setArgsFile(DVTTask dvt) {
+                GenFullArgsFile genFullArgsFile
+                        = dvt.getProject().getTasks().withType(GenFullArgsFile.class).getByName("genFullArgsFile");
+                dvt.getArgsFile().set(genFullArgsFile.getDestination());
             }
         });
     }
