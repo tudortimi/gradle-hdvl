@@ -10,4 +10,11 @@ public interface SourceSet extends Named, ExtensionAware {
      * @return The task name. Never returns null.
      */
     String getGenArgsFileTaskName();
+
+    /**
+     * Returns the name of the args file for this source set.
+     *
+     * @return The task name. Never returns null.
+     */
+    String getArgsFileName();
 }

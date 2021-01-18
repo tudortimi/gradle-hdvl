@@ -25,4 +25,11 @@ public abstract class DefaultSourceSet implements SourceSet {
                 ? "genArgsFile"
                 : GUtil.toLowerCamelCase("gen" + " " + name + "" + "ArgsFile");
     }
+
+    @Override
+    public String getArgsFileName() {
+        return name == "main"
+            ? "args.f"
+            : name + "_" + "args.f";
+    }
 }
