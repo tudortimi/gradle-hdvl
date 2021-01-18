@@ -22,7 +22,6 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurablePublishArtifact;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
-import org.gradle.util.GUtil;
 
 import java.io.File;
 
@@ -47,8 +46,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
     }
 
     private void configureGenArgsFile(Project project, SourceSet sourceSet) {
-        String taskName = sourceSet.getName() == "main" ? "genArgsFile"
-                : GUtil.toLowerCamelCase("gen" + " " + sourceSet.getName() + "" + "ArgsFile");
+        String taskName = sourceSet.getGenArgsFileTaskName();
         project.getTasks().register(taskName, GenArgsFile.class, new Action<GenArgsFile>() {
             @Override
             public void execute(GenArgsFile genArgsFile) {
