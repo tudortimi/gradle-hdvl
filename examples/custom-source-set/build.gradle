@@ -1,0 +1,15 @@
+plugins {
+    id("com.verificationgentleman.gradle.hdvl.systemverilog")
+}
+
+sourceSets {
+    utils {
+        sv {
+            srcDir 'src/utils/sv'
+        }
+    }
+}
+
+dependencies {
+    compile files(genUtilsArgsFile.destination)
+}
