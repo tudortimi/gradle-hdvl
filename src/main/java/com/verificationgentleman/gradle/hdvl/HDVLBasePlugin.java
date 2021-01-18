@@ -22,6 +22,7 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurablePublishArtifact;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.util.GUtil;
 
 import java.io.File;
 
@@ -33,17 +34,26 @@ public class HDVLBasePlugin implements Plugin<Project> {
         project.getExtensions().add("sourceSets", extension.getSourceSets());
         extension.getSourceSets().create("main");
 
-        configureGenArgsFile(project);
+        extension.getSourceSets().all(new Action<SourceSet>() {
+            @Override
+            public void execute(SourceSet sourceSet) {
+                configureGenArgsFile(project, sourceSet);
+            }
+        });
+
         configureGenFullArgsFile(project);
         configureConfigurations(project);
         configureCompileArtifact(project);
     }
 
-    private void configureGenArgsFile(Project project) {
-        project.getTasks().register("genArgsFile", GenArgsFile.class, new Action<GenArgsFile>() {
+    private void configureGenArgsFile(Project project, SourceSet sourceSet) {
+        String taskName = sourceSet.getName() == "main" ? "genArgsFile"
+                : GUtil.toLowerCamelCase("gen" + " " + sourceSet.getName() + "" + "ArgsFile");
+        project.getTasks().register(taskName, GenArgsFile.class, new Action<GenArgsFile>() {
             @Override
             public void execute(GenArgsFile genArgsFile) {
-                genArgsFile.setDescription("Generates an argument file for the main source code.");
+                genArgsFile.setDescription("Generates an argument file for the " + sourceSet.getName()
+                        + " source code.");
                 genArgsFile.setSource(project.files().getAsFileTree());
                 genArgsFile.setPrivateIncludeDirs(project.files().getAsFileTree());
                 genArgsFile.setExportedIncludeDirs(project.files().getAsFileTree());

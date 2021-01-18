@@ -600,4 +600,23 @@ class SystemVerilogPluginSpec extends Specification {
         }
         mainProjectIdx != -1
     }
+
+    def "custom source set has own 'genArgsFile' task"() {
+        buildFile << """
+            sourceSets {
+                dummy
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('tasks', '--all')
+            .build()
+
+        then:
+        result.task(":tasks").outcome == SUCCESS
+        result.output.contains('genDummyArgsFile')
+    }
 }
