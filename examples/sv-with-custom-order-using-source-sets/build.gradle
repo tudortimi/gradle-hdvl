@@ -1,0 +1,21 @@
+plugins {
+    id("com.verificationgentleman.gradle.hdvl.systemverilog")
+}
+
+sourceSets {
+    preMain {
+        sv {
+            srcDir 'src/main/sv'
+            include 'dummy1.sv'
+        }
+    }
+    main {
+        sv {
+            exclude 'dummy1.sv'
+        }
+    }
+}
+
+dependencies {
+    compile files(genPreMainArgsFile.destination)
+}
