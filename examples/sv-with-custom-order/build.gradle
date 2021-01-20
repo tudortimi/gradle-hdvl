@@ -1,0 +1,24 @@
+plugins {
+    id("com.verificationgentleman.gradle.hdvl.systemverilog")
+    id("com.verificationgentleman.gradle.hdvl.c")
+}
+
+// Can't specify source file ordering using the DSL (yet).
+
+// As a workaround, it's possible to manually sort the files of a source set
+def sortedFiles = sourceSets.main.sv.files.sort { it.path.contains 'dummy1' }.reverse()
+
+// Pass the sorted files to the 'genArgsFile' task
+tasks {
+    genArgsFile {
+        source = sortedFiles
+    }
+}
+
+// Since Gradle doesn't consider the order of input files, changes to the sorted files would be ignored and the task
+// would be considered up-to-date. Currently we have to force the task to always re-run.
+tasks {
+    genArgsFile {
+        outputs.upToDateWhen { false }
+    }
+}
