@@ -41,16 +41,10 @@ public class CPlugin implements Plugin<Project> {
                 // XXX WORKAROUND Not part of the public API
                 new DslObject(sourceSet).getConvention().getPlugins().put("c", cSourceSet);
 
-                // TODO Need one 'genArgsFile' task per source set
-                if (sourceSet.getName() == "main") {
-                    configureGenArgsFile(project, cSourceSet);
-                }
+                GenArgsFile genArgsFile = (GenArgsFile) project.getTasks().getByName(sourceSet.getGenArgsFileTaskName());
+                genArgsFile.setCSource(cSourceSet.getC());
             }
         });
     }
 
-    private void configureGenArgsFile(Project project, CSourceSet mainSourceSet) {
-        GenArgsFile genArgsFile = (GenArgsFile) project.getTasks().getByName("genArgsFile");
-        genArgsFile.setCSource(mainSourceSet.getC());
-    }
 }

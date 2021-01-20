@@ -600,4 +600,50 @@ class SystemVerilogPluginSpec extends Specification {
         }
         mainProjectIdx != -1
     }
+
+    def "custom source set has own 'genArgsFile' task"() {
+        buildFile << """
+            sourceSets {
+                dummy
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('tasks', '--all')
+            .build()
+
+        then:
+        result.task(":tasks").outcome == SUCCESS
+        result.output.contains('genDummyArgsFile')
+    }
+
+    def "'genArgsFileTask' for custom source set produces args file"() {
+        File sv = testProjectDir.newFolder('src', 'dummy', 'sv')
+        new File(sv, "dummy.sv").createNewFile()
+
+        buildFile << """
+            sourceSets {
+                dummy {
+                   sv {
+                       srcDir 'src/dummy/sv'
+                   }
+                }
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genDummyArgsFile')
+            .build()
+
+        then:
+        result.task(":genDummyArgsFile").outcome == SUCCESS
+        new File(testProjectDir.root, "build/dummy_args.f").exists()
+        new File(testProjectDir.root, "build/dummy_args.f").text.contains('dummy.sv')
+    }
 }

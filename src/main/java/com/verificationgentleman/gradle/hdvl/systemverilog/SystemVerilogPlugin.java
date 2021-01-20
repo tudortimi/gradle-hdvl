@@ -41,17 +41,11 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                 // XXX WORKAROUND Not part of the public API
                 new DslObject(sourceSet).getConvention().getPlugins().put("sv", svSourceSet);
 
-                // TODO Need one 'genArgsFile' task per source set
-                if (sourceSet.getName() == "main")
-                    configureGenArgsFile(project, svSourceSet);
+                GenArgsFile genArgsFile = (GenArgsFile) project.getTasks().getByName(sourceSet.getGenArgsFileTaskName());
+                genArgsFile.setSource(svSourceSet.getSv());
+                genArgsFile.setPrivateIncludeDirs(svSourceSet.getSv().getSourceDirectories());
+                genArgsFile.setExportedIncludeDirs(svSourceSet.getSvHeaders().getSourceDirectories());
             }
         });
-    }
-
-    private void configureGenArgsFile(Project project, SystemVerilogSourceSet mainSourceSet) {
-        GenArgsFile genArgsFile = (GenArgsFile) project.getTasks().getByName("genArgsFile");
-        genArgsFile.setSource(mainSourceSet.getSv());
-        genArgsFile.setPrivateIncludeDirs(mainSourceSet.getSv().getSourceDirectories());
-        genArgsFile.setExportedIncludeDirs(mainSourceSet.getSvHeaders().getSourceDirectories());
     }
 }

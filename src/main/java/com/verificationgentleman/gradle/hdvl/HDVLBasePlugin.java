@@ -33,22 +33,30 @@ public class HDVLBasePlugin implements Plugin<Project> {
         project.getExtensions().add("sourceSets", extension.getSourceSets());
         extension.getSourceSets().create("main");
 
-        configureGenArgsFile(project);
+        extension.getSourceSets().all(new Action<SourceSet>() {
+            @Override
+            public void execute(SourceSet sourceSet) {
+                configureGenArgsFile(project, sourceSet);
+            }
+        });
+
         configureGenFullArgsFile(project);
         configureConfigurations(project);
         configureCompileArtifact(project);
     }
 
-    private void configureGenArgsFile(Project project) {
-        project.getTasks().register("genArgsFile", GenArgsFile.class, new Action<GenArgsFile>() {
+    private void configureGenArgsFile(Project project, SourceSet sourceSet) {
+        String taskName = sourceSet.getGenArgsFileTaskName();
+        project.getTasks().register(taskName, GenArgsFile.class, new Action<GenArgsFile>() {
             @Override
             public void execute(GenArgsFile genArgsFile) {
-                genArgsFile.setDescription("Generates an argument file for the main source code.");
+                genArgsFile.setDescription("Generates an argument file for the " + sourceSet.getName()
+                        + " source code.");
                 genArgsFile.setSource(project.files().getAsFileTree());
                 genArgsFile.setPrivateIncludeDirs(project.files().getAsFileTree());
                 genArgsFile.setExportedIncludeDirs(project.files().getAsFileTree());
                 genArgsFile.setCSource(project.files().getAsFileTree());
-                genArgsFile.getDestination().set(new File(project.getBuildDir(), "args.f"));
+                genArgsFile.getDestination().set(new File(project.getBuildDir(), sourceSet.getArgsFileName()));
             }
         });
     }
