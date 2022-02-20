@@ -694,7 +694,7 @@ class SystemVerilogPluginSpec extends Specification {
         def lineWithIncdir = lines.find { it.contains('+incdir+') }
         lineWithIncdir != null
         lineWithIncdir.endsWith("src/main/sv")
-        !lineWithIncdir.contains('+ ')
+        !lineWithIncdir.any { it.contains('+ ') }
     }
 
     def "'genQrunArgsFile' task writes exported header directories to args file"() {
