@@ -677,4 +677,23 @@ class SystemVerilogPluginSpec extends Specification {
         then:
         new File(testProjectDir.root, 'build/qrun_args.f').text.contains('-makelib work\n')
     }
+
+    def "'genQrunArgsFile' task writes private include directories to args file"() {
+        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(sv, 'dummy.sv').createNewFile()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genQrunArgsFile')
+            .build()
+
+        then:
+        def lines = new File(testProjectDir.root, 'build/qrun_args.f').text.split("\n")
+        def lineWithIncdir = lines.find { it.contains('+incdir+') }
+        lineWithIncdir != null
+        lineWithIncdir.endsWith("src/main/sv")
+        !lineWithIncdir.contains('+ ')
+    }
 }

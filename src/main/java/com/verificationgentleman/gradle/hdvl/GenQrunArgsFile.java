@@ -95,7 +95,7 @@ public class GenQrunArgsFile extends SourceTask {
         writeExportedHeaders(writer);
         writer.write("-makelib work\n");
         for (File f: getPrivateIncludeDirs())
-            writer.write("  " + "-incdir " + f.getAbsolutePath() + "\n");
+            writer.write("  " + "+incdir+" + f.getAbsolutePath() + "\n");
         for (File f: getSource())
             writer.write("  " + f.getAbsolutePath() + "\n");
         for (File f: getCSource())

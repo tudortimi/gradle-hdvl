@@ -45,6 +45,7 @@ public class SystemVerilogPlugin implements Plugin<Project> {
 
                 GenQrunArgsFile genQrunArgsFile = (GenQrunArgsFile) project.getTasks().getByName(sourceSet.getGenQrunArgsFileTaskName());
                 genQrunArgsFile.setSource(svSourceSet.getSv());
+                genQrunArgsFile.setPrivateIncludeDirs(svSourceSet.getSv().getSourceDirectories());
             }
         });
     }
