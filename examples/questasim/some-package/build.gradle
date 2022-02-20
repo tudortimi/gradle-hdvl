@@ -1,0 +1,20 @@
+plugins {
+    id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+}
+
+group 'com.verificationgentleman'
+
+extensions.qrunDir = file("$buildDir/qrun")
+
+task run(type: Exec) {
+    dependsOn genQrunArgsFile
+    commandLine 'qrun', '-compile', '-f', genQrunArgsFile.destination.get().asFile
+    workingDir qrunDir
+    mkdir workingDir
+}
+
+task clean {
+    doLast {
+        delete qrunDir
+    }
+}
