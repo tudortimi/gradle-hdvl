@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2020-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,7 @@
  */
 package com.verificationgentleman.gradle.hdvl.systemverilog;
 
-import com.verificationgentleman.gradle.hdvl.GenArgsFile;
-import com.verificationgentleman.gradle.hdvl.HDVLBasePlugin;
-import com.verificationgentleman.gradle.hdvl.HDVLPluginExtension;
-import com.verificationgentleman.gradle.hdvl.SourceSet;
+import com.verificationgentleman.gradle.hdvl.*;
 import com.verificationgentleman.gradle.hdvl.systemverilog.internal.DefaultSystemVerilogSourceSet;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
@@ -45,6 +42,9 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                 genArgsFile.setSource(svSourceSet.getSv());
                 genArgsFile.setPrivateIncludeDirs(svSourceSet.getSv().getSourceDirectories());
                 genArgsFile.setExportedIncludeDirs(svSourceSet.getSvHeaders().getSourceDirectories());
+
+                GenQrunArgsFile genQrunArgsFile = (GenQrunArgsFile) project.getTasks().getByName(sourceSet.getGenQrunArgsFileTaskName());
+                genQrunArgsFile.setSource(svSourceSet.getSv());
             }
         });
     }
