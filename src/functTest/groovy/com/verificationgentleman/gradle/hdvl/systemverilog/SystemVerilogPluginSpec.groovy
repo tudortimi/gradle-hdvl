@@ -98,7 +98,7 @@ class SystemVerilogPluginSpec extends Specification {
             sourceSets {
                 main
             }
-            
+
             task copy(type: Copy) {
                 from sourceSets.main.sv.files
                 into 'build'
@@ -126,7 +126,7 @@ class SystemVerilogPluginSpec extends Specification {
             sourceSets {
                 main
             }
-            
+
             task copy(type: Copy) {
                 from sourceSets.main.sv.files
                 into 'build'
@@ -157,7 +157,7 @@ class SystemVerilogPluginSpec extends Specification {
                     }
                 }
             }
-            
+
             task copy(type: Copy) {
                 from sourceSets.main.sv.files
                 into 'build'
@@ -188,7 +188,7 @@ class SystemVerilogPluginSpec extends Specification {
                     }
                 }
             }
-            
+
             task copy(type: Copy) {
                 from sourceSets.main.svHeaders.files
                 into 'build'
@@ -211,7 +211,7 @@ class SystemVerilogPluginSpec extends Specification {
         File sv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
-        buildFile << """            
+        buildFile << """
             task copy(type: Copy) {
                 from sourceSets.main.sv.files
                 into 'build'
@@ -243,11 +243,11 @@ class SystemVerilogPluginSpec extends Specification {
         File buildFile = testProjectDir.newFile('build.gradle.kts')
         buildFile << """
             import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogSourceSet
-            
+
             plugins {
                 id("com.verificationgentleman.gradle.hdvl.systemverilog")
             }
-            
+
             sourceSets {
                 main {
                     withConvention(SystemVerilogSourceSet::class) {
@@ -255,7 +255,7 @@ class SystemVerilogPluginSpec extends Specification {
                     }
                 }
             }
-            
+
             tasks.register<Copy>("copy") {
                 // XXX Not clear why we can't just do 'sourceSets.main.sv'.
                 // 'sourceSets.main' doesn't return an object of type 'SourceSet', but a
@@ -290,11 +290,11 @@ class SystemVerilogPluginSpec extends Specification {
         File buildFile = testProjectDir.newFile('build.gradle.kts')
         buildFile << """
             import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogSourceSet
-            
+
             plugins {
                 id("com.verificationgentleman.gradle.hdvl.systemverilog")
             }
-            
+
             sourceSets {
                 main {
                     withConvention(SystemVerilogSourceSet::class) {
@@ -302,7 +302,7 @@ class SystemVerilogPluginSpec extends Specification {
                     }
                 }
             }
-            
+
             tasks.register<Copy>("copy") {
                 // XXX Not clear why we can't just do 'sourceSets.main.sv'.
                 // 'sourceSets.main' doesn't return an object of type 'SourceSet', but a
@@ -661,5 +661,20 @@ class SystemVerilogPluginSpec extends Specification {
         then:
         result.task(":genQrunArgsFile").outcome == SUCCESS
         new File(testProjectDir.root, 'build/qrun_args.f').exists()
+    }
+
+    def "'genQrunArgsFile' task uses 'work' as name for library"() {
+        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(sv, 'dummy.sv').createNewFile()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genQrunArgsFile')
+            .build()
+
+        then:
+        new File(testProjectDir.root, 'build/qrun_args.f').text.contains('-makelib work\n')
     }
 }

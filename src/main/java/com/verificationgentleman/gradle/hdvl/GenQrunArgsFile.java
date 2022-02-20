@@ -93,7 +93,7 @@ public class GenQrunArgsFile extends SourceTask {
     private void writeArgsFile() throws IOException {
         FileWriter writer = new FileWriter(destination.get().getAsFile());
         writeExportedHeaders(writer);
-        writer.write("-makelib worklib\n");
+        writer.write("-makelib work\n");
         for (File f: getPrivateIncludeDirs())
             writer.write("  " + "-incdir " + f.getAbsolutePath() + "\n");
         for (File f: getSource())
