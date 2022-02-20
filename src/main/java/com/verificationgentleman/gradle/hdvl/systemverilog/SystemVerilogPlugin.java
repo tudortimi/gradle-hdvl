@@ -24,6 +24,7 @@ import org.gradle.api.Project;
 import org.gradle.api.internal.plugins.DslObject;
 
 public class SystemVerilogPlugin implements Plugin<Project> {
+
     @Override
     public void apply(Project project) {
         project.getPluginManager().apply(HDVLBasePlugin.class);
@@ -38,16 +39,17 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                 // XXX WORKAROUND Not part of the public API
                 new DslObject(sourceSet).getConvention().getPlugins().put("sv", svSourceSet);
 
-                GenArgsFile genArgsFile = (GenArgsFile) project.getTasks().getByName(sourceSet.getGenArgsFileTaskName());
-                genArgsFile.setSource(svSourceSet.getSv());
-                genArgsFile.setPrivateIncludeDirs(svSourceSet.getSv().getSourceDirectories());
-                genArgsFile.setExportedIncludeDirs(svSourceSet.getSvHeaders().getSourceDirectories());
-
-                GenQrunArgsFile genQrunArgsFile = (GenQrunArgsFile) project.getTasks().getByName(sourceSet.getGenQrunArgsFileTaskName());
-                genQrunArgsFile.setSource(svSourceSet.getSv());
-                genQrunArgsFile.setPrivateIncludeDirs(svSourceSet.getSv().getSourceDirectories());
-                genQrunArgsFile.setExportedIncludeDirs(svSourceSet.getSvHeaders().getSourceDirectories());
+                for (AbstractGenArgsFile task: project.getTasks().withType(AbstractGenArgsFile.class)) {
+                    configureSources(task, svSourceSet);
+                }
             }
         });
     }
+
+    private void configureSources(AbstractGenArgsFile genArgsFile, SystemVerilogSourceSet svSourceSet) {
+        genArgsFile.setSource(svSourceSet.getSv());
+        genArgsFile.setPrivateIncludeDirs(svSourceSet.getSv().getSourceDirectories());
+        genArgsFile.setExportedIncludeDirs(svSourceSet.getSvHeaders().getSourceDirectories());
+    }
+
 }
