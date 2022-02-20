@@ -696,4 +696,22 @@ class SystemVerilogPluginSpec extends Specification {
         lineWithIncdir.endsWith("src/main/sv")
         !lineWithIncdir.contains('+ ')
     }
+
+    def "'genQrunArgsFile' task writes exported header directories to args file"() {
+        File svHeaders = testProjectDir.newFolder('src', 'main', 'sv_headers')
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genQrunArgsFile')
+            .build()
+
+        then:
+        def lines = new File(testProjectDir.root, 'build/qrun_args.f').text.split("\n")
+        def linesWithIncdir = lines.findAll { it.contains('+incdir+') }
+        !linesWithIncdir.isEmpty()
+        linesWithIncdir.any { it.endsWith("src/main/sv_headers") }
+        !linesWithIncdir.any { it.contains('+ ') }
+    }
 }

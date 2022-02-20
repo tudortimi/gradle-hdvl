@@ -111,7 +111,7 @@ public class GenQrunArgsFile extends SourceTask {
     // This isn't consistent with what would happen in a multi-step compilation flow, where an error would be issued.
     private void writeExportedHeaders(FileWriter writer) throws IOException {
         for (File f: getExportedIncludeDirs().filter(File::exists))
-            writer.write("-incdir " + f.getAbsolutePath() + "\n");
+            writer.write("+incdir+" + f.getAbsolutePath() + "\n");
     }
 
 }
