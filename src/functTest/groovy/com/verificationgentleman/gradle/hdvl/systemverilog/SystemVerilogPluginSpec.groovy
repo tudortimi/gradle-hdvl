@@ -714,4 +714,96 @@ class SystemVerilogPluginSpec extends Specification {
         linesWithIncdir.any { it.endsWith("src/main/sv_headers") }
         !linesWithIncdir.any { it.contains('+ ') }
     }
+
+    def "'genFullQrunArgsFile' task consumes output of 'genQrunArgsFile"() {
+        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(sv, 'dummy.sv').createNewFile()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genFullQrunArgsFile')
+            .build()
+
+        then:
+        result.task(":genQrunArgsFile").outcome == SUCCESS
+        result.task(":genFullQrunArgsFile").outcome == SUCCESS
+        new File(testProjectDir.root, 'build/full_qrun_args.f').exists()
+        new File(testProjectDir.root, 'build/full_qrun_args.f').text.contains('build/qrun_args.f')
+    }
+
+    def "'argsFiles' artifacts produced by direct dependencies are consumed by main project in 'genFullQrunArgsFile'"() {
+        setup:
+        buildFile.delete()
+
+        File settingsFile = testProjectDir.newFile('settings.gradle')
+        settingsFile << """
+            include 'directDependency'
+            include 'mainProject'
+        """
+
+        File directDependencyBuildFile = newStandardProject('directDependency')
+
+        File mainProjectBuildFile = newStandardProject('mainProject')
+        mainProjectBuildFile << """
+            dependencies {
+                compile project(':directDependency')
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':mainProject:genFullQrunArgsFile')
+            .build()
+
+        then:
+        result.task(":directDependency:genQrunArgsFile").outcome == SUCCESS
+        result.task(":mainProject:genQrunArgsFile").outcome == SUCCESS
+        result.task(":mainProject:genFullQrunArgsFile").outcome == SUCCESS
+        new File(testProjectDir.root, 'mainProject/build/full_qrun_args.f').text
+                .contains('directDependency/build/qrun_args.f')
+        new File(testProjectDir.root, 'mainProject/build/full_qrun_args.f').text
+                .contains('mainProject/build/qrun_args.f')
+    }
+
+    def "only qrun 'argsFiles' artifacts are consumed by main project in 'genFullQrunArgsFile'"() {
+        setup:
+        buildFile.delete()
+
+        File settingsFile = testProjectDir.newFile('settings.gradle')
+        settingsFile << """
+            include 'directDependency'
+            include 'mainProject'
+        """
+
+        File directDependencyBuildFile = newStandardProject('directDependency')
+
+        File mainProjectBuildFile = newStandardProject('mainProject')
+        mainProjectBuildFile << """
+            dependencies {
+                compile project(':directDependency')
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':mainProject:genFullQrunArgsFile')
+            .build()
+
+        then:
+        result.task(":directDependency:genQrunArgsFile").outcome == SUCCESS
+        result.task(":mainProject:genQrunArgsFile").outcome == SUCCESS
+        result.task(":mainProject:genFullQrunArgsFile").outcome == SUCCESS
+        new File(testProjectDir.root, 'mainProject/build/full_qrun_args.f').readLines().each { String line ->
+            if (line.contains('args.f')) {
+                assert line.contains('qrun_args.f')
+            }
+        }
+    }
+
 }

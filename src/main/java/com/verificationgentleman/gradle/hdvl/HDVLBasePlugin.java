@@ -22,6 +22,7 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurablePublishArtifact;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.attributes.Attribute;
 
 import java.io.File;
 
@@ -42,8 +43,10 @@ public class HDVLBasePlugin implements Plugin<Project> {
         });
 
         configureGenFullArgsFile(project);
+        configureGenFullQrunArgsFile(project);
         configureConfigurations(project);
         configureCompileArtifact(project);
+        configureQrunCompileArtifact(project);
     }
 
     private void configureGenArgsFile(Project project, SourceSet sourceSet) {
@@ -91,11 +94,38 @@ public class HDVLBasePlugin implements Plugin<Project> {
         });
     }
 
+    private void configureGenFullQrunArgsFile(Project project) {
+        AbstractGenArgsFile genQrunArgsFile = (AbstractGenArgsFile) project.getTasks().getByName("genQrunArgsFile");
+        project.getTasks().register("genFullQrunArgsFile", GenFullArgsFile.class, new Action<GenFullArgsFile>() {
+            @Override
+            public void execute(GenFullArgsFile genFullArgsFile) {
+                genFullArgsFile.setDescription("Generates a qrun argument file for the main source code and its dependencies.");
+                genFullArgsFile.getSource().set(genQrunArgsFile.getDestination());
+                genFullArgsFile.getDestination().set(new File(project.getBuildDir(), "full_qrun_args.f"));
+                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName("qrunCompile"));
+            }
+        });
+    }
+
     private void configureConfigurations(Project project) {
         Configuration compileConfiguration = project.getConfigurations().create("compile");
 
         Configuration defaultConfiguration = project.getConfigurations().create(Dependency.DEFAULT_CONFIGURATION);
         defaultConfiguration.extendsFrom(compileConfiguration);
+
+        Attribute<String> tool = Attribute.of("com.verificationgentlenan.gradle.hdvl.tool", String.class);
+        project.getDependencies().getAttributesSchema().attribute(tool);
+
+        Configuration qrunArgsFiles = project.getConfigurations().create("qrunArgsFiles");
+        qrunArgsFiles.setCanBeConsumed(true);
+        qrunArgsFiles.setCanBeResolved(false);
+        qrunArgsFiles.getAttributes().attribute(tool, "Qrun");
+
+        Configuration qrunCompile = project.getConfigurations().create("qrunCompile");
+        qrunCompile.extendsFrom(compileConfiguration);
+        qrunCompile.setCanBeConsumed(false);
+        qrunCompile.setCanBeResolved(true);
+        qrunCompile.getAttributes().attribute(tool, "Qrun");
     }
 
     private void configureCompileArtifact(Project project) {
@@ -107,5 +137,16 @@ public class HDVLBasePlugin implements Plugin<Project> {
             }
         };
         project.getArtifacts().add("default", genArgsFile.getDestination(), configureAction);
+    }
+
+    private void configureQrunCompileArtifact(Project project) {
+        AbstractGenArgsFile genArgsFile = (AbstractGenArgsFile) project.getTasks().getByName("genQrunArgsFile");
+        Action<ConfigurablePublishArtifact> configureAction = new Action<ConfigurablePublishArtifact>() {
+            @Override
+            public void execute(ConfigurablePublishArtifact configurablePublishArtifact) {
+                configurablePublishArtifact.builtBy(genArgsFile);
+            }
+        };
+        project.getArtifacts().add("qrunArgsFiles", genArgsFile.getDestination(), configureAction);
     }
 }
