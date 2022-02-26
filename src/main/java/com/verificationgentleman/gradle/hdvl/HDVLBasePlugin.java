@@ -112,9 +112,6 @@ public class HDVLBasePlugin implements Plugin<Project> {
         compileConfiguration.setCanBeConsumed(false);
         compileConfiguration.setCanBeResolved(false);
 
-        Configuration defaultConfiguration = project.getConfigurations().create(Dependency.DEFAULT_CONFIGURATION);
-        defaultConfiguration.extendsFrom(compileConfiguration);
-
         Attribute<String> tool = Attribute.of("com.verificationgentlenan.gradle.hdvl.tool", String.class);
         project.getDependencies().getAttributesSchema().attribute(tool);
 
