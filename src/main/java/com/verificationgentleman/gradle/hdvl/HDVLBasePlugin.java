@@ -73,7 +73,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
                 genFullArgsFile.setDescription("Generates an argument file for the main source code and its dependencies.");
                 genFullArgsFile.getSource().set(genArgsFile.getDestination());
                 genFullArgsFile.getDestination().set(new File(project.getBuildDir(), "full_args.f"));
-                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName("compile"));
+                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName("xrunCompile"));
             }
         });
     }
@@ -116,6 +116,17 @@ public class HDVLBasePlugin implements Plugin<Project> {
         Attribute<String> tool = Attribute.of("com.verificationgentlenan.gradle.hdvl.tool", String.class);
         project.getDependencies().getAttributesSchema().attribute(tool);
 
+        Configuration xrunArgsFiles = project.getConfigurations().create("xrunArgsFiles");
+        xrunArgsFiles.setCanBeConsumed(true);
+        xrunArgsFiles.setCanBeResolved(false);
+        xrunArgsFiles.getAttributes().attribute(tool, "Xrun");
+
+        Configuration xrunCompile = project.getConfigurations().create("xrunCompile");
+        xrunCompile.extendsFrom(compileConfiguration);
+        xrunCompile.setCanBeConsumed(false);
+        xrunCompile.setCanBeResolved(true);
+        xrunCompile.getAttributes().attribute(tool, "Xrun");
+
         Configuration qrunArgsFiles = project.getConfigurations().create("qrunArgsFiles");
         qrunArgsFiles.setCanBeConsumed(true);
         qrunArgsFiles.setCanBeResolved(false);
@@ -136,7 +147,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
                 configurablePublishArtifact.builtBy(genArgsFile);
             }
         };
-        project.getArtifacts().add("default", genArgsFile.getDestination(), configureAction);
+        project.getArtifacts().add("xrunArgsFiles", genArgsFile.getDestination(), configureAction);
     }
 
     private void configureQrunCompileArtifact(Project project) {
