@@ -7,8 +7,8 @@ group 'com.verificationgentleman'
 extensions.qrunDir = file("$buildDir/qrun")
 
 task run(type: Exec) {
-    dependsOn genQrunArgsFile
-    commandLine 'qrun', '-compile', '-f', genQrunArgsFile.destination.get().asFile
+    dependsOn genFullQrunArgsFile
+    commandLine 'qrun', '-compile', '-f', genFullQrunArgsFile.destination.get().asFile
     workingDir qrunDir
     mkdir workingDir
 }
