@@ -73,7 +73,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
                 genFullArgsFile.setDescription("Generates an argument file for the main source code and its dependencies.");
                 genFullArgsFile.getSource().set(genArgsFile.getDestination());
                 genFullArgsFile.getDestination().set(new File(project.getBuildDir(), "full_args.f"));
-                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName("xrunCompile"));
+                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName("xrunArgsFiles"));
             }
         });
     }
@@ -102,7 +102,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
                 genFullArgsFile.setDescription("Generates a qrun argument file for the main source code and its dependencies.");
                 genFullArgsFile.getSource().set(genQrunArgsFile.getDestination());
                 genFullArgsFile.getDestination().set(new File(project.getBuildDir(), "full_qrun_args.f"));
-                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName("qrunCompile"));
+                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName("qrunArgsFiles"));
             }
         });
     }
@@ -116,26 +116,16 @@ public class HDVLBasePlugin implements Plugin<Project> {
         project.getDependencies().getAttributesSchema().attribute(tool);
 
         Configuration xrunArgsFiles = project.getConfigurations().create("xrunArgsFiles");
+        xrunArgsFiles.extendsFrom(compileConfiguration);
         xrunArgsFiles.setCanBeConsumed(true);
-        xrunArgsFiles.setCanBeResolved(false);
+        xrunArgsFiles.setCanBeResolved(true);
         xrunArgsFiles.getAttributes().attribute(tool, "Xrun");
 
-        Configuration xrunCompile = project.getConfigurations().create("xrunCompile");
-        xrunCompile.extendsFrom(compileConfiguration);
-        xrunCompile.setCanBeConsumed(false);
-        xrunCompile.setCanBeResolved(true);
-        xrunCompile.getAttributes().attribute(tool, "Xrun");
-
         Configuration qrunArgsFiles = project.getConfigurations().create("qrunArgsFiles");
+        qrunArgsFiles.extendsFrom(compileConfiguration);
         qrunArgsFiles.setCanBeConsumed(true);
-        qrunArgsFiles.setCanBeResolved(false);
+        qrunArgsFiles.setCanBeResolved(true);
         qrunArgsFiles.getAttributes().attribute(tool, "Qrun");
-
-        Configuration qrunCompile = project.getConfigurations().create("qrunCompile");
-        qrunCompile.extendsFrom(compileConfiguration);
-        qrunCompile.setCanBeConsumed(false);
-        qrunCompile.setCanBeResolved(true);
-        qrunCompile.getAttributes().attribute(tool, "Qrun");
     }
 
     private void configureCompileArtifact(Project project) {
