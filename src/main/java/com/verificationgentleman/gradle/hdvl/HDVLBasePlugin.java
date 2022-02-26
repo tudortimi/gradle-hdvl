@@ -109,6 +109,8 @@ public class HDVLBasePlugin implements Plugin<Project> {
 
     private void configureConfigurations(Project project) {
         Configuration compileConfiguration = project.getConfigurations().create("compile");
+        compileConfiguration.setCanBeConsumed(false);
+        compileConfiguration.setCanBeResolved(false);
 
         Configuration defaultConfiguration = project.getConfigurations().create(Dependency.DEFAULT_CONFIGURATION);
         defaultConfiguration.extendsFrom(compileConfiguration);
