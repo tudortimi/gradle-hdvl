@@ -61,7 +61,7 @@ class CPluginSpec extends Specification {
                     }
                 }
             }
-            
+
             task copy(type: Copy) {
                 from sourceSets.main.c.files
                 into 'build'
@@ -93,11 +93,11 @@ class CPluginSpec extends Specification {
         File buildFile = testProjectDir.newFile('build.gradle.kts')
         buildFile << """
             import com.verificationgentleman.gradle.hdvl.c.CSourceSet
-            
+
             plugins {
                 id("com.verificationgentleman.gradle.hdvl.c")
             }
-            
+
             sourceSets {
                 main {
                     withConvention(CSourceSet::class) {
@@ -105,7 +105,7 @@ class CPluginSpec extends Specification {
                     }
                 }
             }
-            
+
             tasks.register<Copy>("copy") {
                 // XXX Not clear why we can't just do 'sourceSets.main.sv'.
                 // 'sourceSets.main' doesn't return an object of type 'SourceSet', but a
@@ -127,7 +127,7 @@ class CPluginSpec extends Specification {
         result.task(":copy").outcome == NO_SOURCE
     }
 
-    def "'genArgsFile' task writes C files to args file"() {
+    def "'genXrunArgsFile' task writes C files to args file"() {
         File c = testProjectDir.newFolder('src', 'main', 'c')
         new File(c, 'dummy.c').createNewFile()
 
@@ -135,14 +135,14 @@ class CPluginSpec extends Specification {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments('genArgsFile')
+            .withArguments('genXrunArgsFile')
             .build()
 
         then:
-        new File(testProjectDir.root, 'build/args.f').text.contains('src/main/c/dummy.c')
+        new File(testProjectDir.root, 'build/xrun_args.f').text.contains('src/main/c/dummy.c')
     }
 
-    def "'genArgsFile' task indents entries in makelib block"() {
+    def "'genXrunArgsFile' task indents entries in makelib block"() {
         File c = testProjectDir.newFolder('src', 'main', 'c')
         new File(c, 'dummy.c').createNewFile()
 
@@ -150,17 +150,17 @@ class CPluginSpec extends Specification {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments('genArgsFile')
+            .withArguments('genXrunArgsFile')
             .build()
 
         then:
-        def lines = new File(testProjectDir.root, 'build/args.f').text.split('\n')
+        def lines = new File(testProjectDir.root, 'build/xrun_args.f').text.split('\n')
         lines.findAll { !it.contains('-makelib') && !it.contains('-endlib') }.each {
             assert it.startsWith('  ')
         }
     }
 
-    def "'genArgsFileTask' for custom source set produces args file"() {
+    def "'genXrunArgsFile' task for custom source set produces args file"() {
         File sv = testProjectDir.newFolder('src', 'dummy', 'c')
         new File(sv, "dummy.c").createNewFile()
 
@@ -178,12 +178,12 @@ class CPluginSpec extends Specification {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments('genDummyArgsFile')
+            .withArguments('genDummyXrunArgsFile')
             .build()
 
         then:
-        result.task(":genDummyArgsFile").outcome == SUCCESS
-        new File(testProjectDir.root, "build/dummy_args.f").exists()
-        new File(testProjectDir.root, "build/dummy_args.f").text.contains('dummy.c')
+        result.task(":genDummyXrunArgsFile").outcome == SUCCESS
+        new File(testProjectDir.root, "build/dummy_xrun_args.f").exists()
+        new File(testProjectDir.root, "build/dummy_xrun_args.f").text.contains('dummy.c')
     }
 }

@@ -21,7 +21,6 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurablePublishArtifact;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.attributes.Attribute;
 
 import java.io.File;
@@ -37,42 +36,42 @@ public class HDVLBasePlugin implements Plugin<Project> {
         extension.getSourceSets().all(new Action<SourceSet>() {
             @Override
             public void execute(SourceSet sourceSet) {
-                configureGenArgsFile(project, sourceSet);
+                configureGenXrunArgsFile(project, sourceSet);
                 configureGenQrunArgsFile(project, sourceSet);
             }
         });
 
-        configureGenFullArgsFile(project);
+        configureGenFullXrunArgsFile(project);
         configureGenFullQrunArgsFile(project);
         configureConfigurations(project);
-        configureCompileArtifact(project);
+        configureXrunCompileArtifact(project);
         configureQrunCompileArtifact(project);
     }
 
-    private void configureGenArgsFile(Project project, SourceSet sourceSet) {
-        String taskName = sourceSet.getGenArgsFileTaskName();
-        project.getTasks().register(taskName, GenArgsFile.class, new Action<GenArgsFile>() {
+    private void configureGenXrunArgsFile(Project project, SourceSet sourceSet) {
+        String taskName = sourceSet.getGenXrunArgsFileTaskName();
+        project.getTasks().register(taskName, GenXrunArgsFile.class, new Action<GenXrunArgsFile>() {
             @Override
-            public void execute(GenArgsFile genArgsFile) {
-                genArgsFile.setDescription("Generates an argument file for the " + sourceSet.getName()
+            public void execute(GenXrunArgsFile genXrunArgsFile) {
+                genXrunArgsFile.setDescription("Generates an argument file for the " + sourceSet.getName()
                         + " source code.");
-                genArgsFile.setSource(project.files().getAsFileTree());
-                genArgsFile.setPrivateIncludeDirs(project.files().getAsFileTree());
-                genArgsFile.setExportedIncludeDirs(project.files().getAsFileTree());
-                genArgsFile.setCSource(project.files().getAsFileTree());
-                genArgsFile.getDestination().set(new File(project.getBuildDir(), sourceSet.getArgsFileName()));
+                genXrunArgsFile.setSource(project.files().getAsFileTree());
+                genXrunArgsFile.setPrivateIncludeDirs(project.files().getAsFileTree());
+                genXrunArgsFile.setExportedIncludeDirs(project.files().getAsFileTree());
+                genXrunArgsFile.setCSource(project.files().getAsFileTree());
+                genXrunArgsFile.getDestination().set(new File(project.getBuildDir(), sourceSet.getXrunArgsFileName()));
             }
         });
     }
 
-    private void configureGenFullArgsFile(Project project) {
-        GenArgsFile genArgsFile = (GenArgsFile) project.getTasks().getByName("genArgsFile");
-        project.getTasks().register("genFullArgsFile", GenFullArgsFile.class, new Action<GenFullArgsFile>() {
+    private void configureGenFullXrunArgsFile(Project project) {
+        AbstractGenArgsFile genXrunArgsFile = (AbstractGenArgsFile) project.getTasks().getByName("genXrunArgsFile");
+        project.getTasks().register("genFullXrunArgsFile", GenFullArgsFile.class, new Action<GenFullArgsFile>() {
             @Override
             public void execute(GenFullArgsFile genFullArgsFile) {
                 genFullArgsFile.setDescription("Generates an argument file for the main source code and its dependencies.");
-                genFullArgsFile.getSource().set(genArgsFile.getDestination());
-                genFullArgsFile.getDestination().set(new File(project.getBuildDir(), "full_args.f"));
+                genFullArgsFile.getSource().set(genXrunArgsFile.getDestination());
+                genFullArgsFile.getDestination().set(new File(project.getBuildDir(), "full_xrun_args.f"));
                 genFullArgsFile.setArgsFiles(project.getConfigurations().getByName("xrunArgsFiles"));
             }
         });
@@ -128,15 +127,15 @@ public class HDVLBasePlugin implements Plugin<Project> {
         qrunArgsFiles.getAttributes().attribute(tool, "Qrun");
     }
 
-    private void configureCompileArtifact(Project project) {
-        GenArgsFile genArgsFile = (GenArgsFile) project.getTasks().getByName("genArgsFile");
+    private void configureXrunCompileArtifact(Project project) {
+        AbstractGenArgsFile genXrunArgsFile = (AbstractGenArgsFile) project.getTasks().getByName("genXrunArgsFile");
         Action<ConfigurablePublishArtifact> configureAction = new Action<ConfigurablePublishArtifact>() {
             @Override
             public void execute(ConfigurablePublishArtifact configurablePublishArtifact) {
-                configurablePublishArtifact.builtBy(genArgsFile);
+                configurablePublishArtifact.builtBy(genXrunArgsFile);
             }
         };
-        project.getArtifacts().add("xrunArgsFiles", genArgsFile.getDestination(), configureAction);
+        project.getArtifacts().add("xrunArgsFiles", genXrunArgsFile.getDestination(), configureAction);
     }
 
     private void configureQrunCompileArtifact(Project project) {

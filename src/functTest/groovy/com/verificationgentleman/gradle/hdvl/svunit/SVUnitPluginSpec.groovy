@@ -155,7 +155,27 @@ class SVUnitPluginSpec extends Specification  {
         then:
         result.task(":test").outcome == SUCCESS
         def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
-        dummyLog.text.contains "-f ${testProjectDir.root}/build/full_args.f"
+        dummyLog.text.contains "-f ${testProjectDir.root}/build/full_xrun_args.f"
+    }
+
+    def "'test' task passes simulator option to 'runSVUnit'"() {
+        File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(mainSv, 'dummy_main.sv').createNewFile()
+
+        File testSv = testProjectDir.newFolder('src', 'test', 'sv')
+        new File(testSv, 'dummy_test.sv').createNewFile()
+
+        when:
+        def result = newGradleRunnerWithFakeRunSVunit()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('test')
+            .build()
+
+        then:
+        result.task(":test").outcome == SUCCESS
+        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
+        dummyLog.text.contains "-sim xrun"
     }
 
     def "'toolChains' are added by the plugin"() {
@@ -201,7 +221,7 @@ class SVUnitPluginSpec extends Specification  {
                     args 'some_other_arg'
                 }
             }
-            
+
             println toolChains.runSVUnit.args
         """
 

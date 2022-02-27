@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2021-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ public class SVUnitPlugin implements Plugin<Project> {
     }
 
     private void configureTestTask(Project project, SystemVerilogSourceSet testSourceSet) {
-        GenFullArgsFile genFullArgsFile = (GenFullArgsFile) project.getTasks().getByName("genFullArgsFile");
+        GenFullArgsFile genFullArgsFile = (GenFullArgsFile) project.getTasks().getByName("genFullXrunArgsFile");
         Configuration testCompileConfiguration = project.getConfigurations().getByName("testCompile");
         project.getTasks().register("test", TestTask.class, new Action<TestTask>() {
             @Override
