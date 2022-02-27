@@ -38,7 +38,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
         project.getExtensions().add("sourceSets", extension.getSourceSets());
         extension.getSourceSets().create("main");
 
-        configureConfigurations(project);
+        configureCompileConfiguration(project);
 
         extension.getSourceSets().all(new Action<SourceSet>() {
             @Override
@@ -50,6 +50,8 @@ public class HDVLBasePlugin implements Plugin<Project> {
 
         configureGenFullArgsFile(project, "Xrun");
         configureGenFullArgsFile(project, "Qrun");
+        configureArgsFilesConfiguration(project, "Xrun");
+        configureArgsFilesConfiguration(project, "Qrun");
         configureCompileArtifact(project, "Xrun");
         configureCompileArtifact(project, "Qrun");
     }
@@ -95,15 +97,12 @@ public class HDVLBasePlugin implements Plugin<Project> {
         });
     }
 
-    private void configureConfigurations(Project project) {
+    private void configureCompileConfiguration(Project project) {
         Configuration compileConfiguration = project.getConfigurations().create("compile");
         compileConfiguration.setCanBeConsumed(false);
         compileConfiguration.setCanBeResolved(false);
 
         project.getDependencies().getAttributesSchema().attribute(TOOL_ATTRIBUTE);
-
-        configureArgsFilesConfiguration(project, "Xrun");
-        configureArgsFilesConfiguration(project, "Qrun");
     }
 
     private void configureArgsFilesConfiguration(Project project, String toolName) {
