@@ -42,7 +42,7 @@ public class CPlugin implements Plugin<Project> {
                 new DslObject(sourceSet).getConvention().getPlugins().put("c", cSourceSet);
 
                 GenXrunArgsFile genXrunArgsFile
-                        = (GenXrunArgsFile) project.getTasks().getByName(sourceSet.getGenXrunArgsFileTaskName());
+                        = (GenXrunArgsFile) project.getTasks().getByName(sourceSet.getGenArgsFileTaskName("Xrun"));
                 genXrunArgsFile.setCSource(cSourceSet.getC());
             }
         });

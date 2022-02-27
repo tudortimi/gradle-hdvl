@@ -36,10 +36,10 @@ public abstract class DefaultSourceSet implements SourceSet {
     }
 
     @Override
-    public String getGenXrunArgsFileTaskName() {
+    public String getGenArgsFileTaskName(String toolName) {
         return name == "main"
-                ? "genXrunArgsFile"
-                : GUtil.toLowerCamelCase("gen" + " " + name + "" + "XrunArgsFile");
+                ? "gen" + toolName + "ArgsFile"
+                : GUtil.toLowerCamelCase("gen" + " " + name + "" + toolName + "ArgsFile");
     }
 
     @Override
@@ -47,13 +47,6 @@ public abstract class DefaultSourceSet implements SourceSet {
         return name == "main"
             ? "xrun_args.f"
             : name + "_" + "xrun_args.f";
-    }
-
-    @Override
-    public String getGenQrunArgsFileTaskName() {
-        return name == "main"
-            ? "genQrunArgsFile"
-            : GUtil.toLowerCamelCase("gen" + " " + name + "" + "QrunArgsFile");
     }
 
     @Override

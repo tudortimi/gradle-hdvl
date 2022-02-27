@@ -49,7 +49,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
     }
 
     private void configureGenXrunArgsFile(Project project, SourceSet sourceSet) {
-        String taskName = sourceSet.getGenXrunArgsFileTaskName();
+        String taskName = sourceSet.getGenArgsFileTaskName("Xrun");
         project.getTasks().register(taskName, GenXrunArgsFile.class, new Action<GenXrunArgsFile>() {
             @Override
             public void execute(GenXrunArgsFile genXrunArgsFile) {
@@ -78,7 +78,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
     }
 
     private void configureGenQrunArgsFile(Project project, SourceSet sourceSet) {
-        String taskName = sourceSet.getGenQrunArgsFileTaskName();
+        String taskName = sourceSet.getGenArgsFileTaskName("Qrun");
         project.getTasks().register(taskName, GenQrunArgsFile.class, new Action<GenQrunArgsFile>() {
             @Override
             public void execute(GenQrunArgsFile genQrunArgsFile) {

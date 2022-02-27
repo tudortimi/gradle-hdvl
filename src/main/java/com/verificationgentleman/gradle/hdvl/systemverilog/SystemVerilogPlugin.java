@@ -40,11 +40,11 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                 new DslObject(sourceSet).getConvention().getPlugins().put("sv", svSourceSet);
 
                 AbstractGenArgsFile genXrunArgsFile
-                        = (AbstractGenArgsFile) project.getTasks().getByName(sourceSet.getGenXrunArgsFileTaskName());
+                        = (AbstractGenArgsFile) project.getTasks().getByName(sourceSet.getGenArgsFileTaskName("Xrun"));
                 configureSources(genXrunArgsFile, svSourceSet);
 
                 AbstractGenArgsFile genQrunArgsFile
-                        = (AbstractGenArgsFile) project.getTasks().getByName(sourceSet.getGenQrunArgsFileTaskName());
+                        = (AbstractGenArgsFile) project.getTasks().getByName(sourceSet.getGenArgsFileTaskName("Qrun"));
                 configureSources(genQrunArgsFile, svSourceSet);
             }
         });
