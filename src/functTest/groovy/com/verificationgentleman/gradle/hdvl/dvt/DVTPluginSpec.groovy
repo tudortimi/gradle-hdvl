@@ -227,7 +227,7 @@ class DVTPluginSpec extends Specification {
 
         then:
         result.task(":dvt").outcome == SUCCESS
-        result.task(":genFullArgsFile").outcome == SUCCESS
+        result.task(":genFullXrunArgsFile").outcome == SUCCESS
         def dummyLog = new File(testProjectDir.root, 'dvt_cli.sh.log')
         dummyLog.text.contains('-default.build')
         dummyLog.text.contains('+dvt_init+ius.irun')

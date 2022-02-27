@@ -455,7 +455,7 @@ class SystemVerilogPluginSpec extends Specification {
         }
     }
 
-    def "'genFullArgsFile' task consumes output of 'genXrunArgsFile"() {
+    def "'genFullXrunArgsFile' task consumes output of 'genXrunArgsFile"() {
         File sv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
@@ -463,17 +463,17 @@ class SystemVerilogPluginSpec extends Specification {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments('genFullArgsFile')
+            .withArguments('genFullXrunArgsFile')
             .build()
 
         then:
         result.task(":genXrunArgsFile").outcome == SUCCESS
-        result.task(":genFullArgsFile").outcome == SUCCESS
+        result.task(":genFullXrunArgsFile").outcome == SUCCESS
         new File(testProjectDir.root, 'build/full_args.f').exists()
         new File(testProjectDir.root, 'build/full_args.f').text.contains('build/xrun_args.f')
     }
 
-    def "'argsFiles' artifacts produced by direct dependencies are consumed by main project in 'genFullArgsFile'"() {
+    def "'argsFiles' artifacts produced by direct dependencies are consumed by main project in 'genFullXrunArgsFile'"() {
         setup:
         buildFile.delete()
 
@@ -496,18 +496,18 @@ class SystemVerilogPluginSpec extends Specification {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments(':mainProject:genFullArgsFile')
+            .withArguments(':mainProject:genFullXrunArgsFile')
             .build()
 
         then:
         result.task(":directDependency:genXrunArgsFile").outcome == SUCCESS
         result.task(":mainProject:genXrunArgsFile").outcome == SUCCESS
-        result.task(":mainProject:genFullArgsFile").outcome == SUCCESS
+        result.task(":mainProject:genFullXrunArgsFile").outcome == SUCCESS
         new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('directDependency/build/xrun_args.f')
         new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('mainProject/build/xrun_args.f')
     }
 
-    def "'argsFiles' artifacts produced by transitive dependencies are consumed in 'genFullArgsFile'"() {
+    def "'argsFiles' artifacts produced by transitive dependencies are consumed in 'genFullXrunArgsFile'"() {
         setup:
         buildFile.delete()
 
@@ -538,14 +538,14 @@ class SystemVerilogPluginSpec extends Specification {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments(':mainProject:genFullArgsFile')
+            .withArguments(':mainProject:genFullXrunArgsFile')
             .build()
 
         then:
         result.task(":transitiveDependency:genXrunArgsFile").outcome == SUCCESS
         result.task(":directDependency:genXrunArgsFile").outcome == SUCCESS
         result.task(":mainProject:genXrunArgsFile").outcome == SUCCESS
-        result.task(":mainProject:genFullArgsFile").outcome == SUCCESS
+        result.task(":mainProject:genFullXrunArgsFile").outcome == SUCCESS
         new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('transitiveDependency/build/xrun_args.f')
         new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('directDependency/build/xrun_args.f')
         new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('mainProject/build/xrun_args.f')
@@ -582,7 +582,7 @@ class SystemVerilogPluginSpec extends Specification {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments(':mainProject:genFullArgsFile')
+            .withArguments(':mainProject:genFullXrunArgsFile')
             .build()
 
         then:

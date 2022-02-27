@@ -41,7 +41,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
             }
         });
 
-        configureGenFullArgsFile(project);
+        configureGenFullXrunArgsFile(project);
         configureGenFullQrunArgsFile(project);
         configureConfigurations(project);
         configureXrunCompileArtifact(project);
@@ -64,9 +64,9 @@ public class HDVLBasePlugin implements Plugin<Project> {
         });
     }
 
-    private void configureGenFullArgsFile(Project project) {
+    private void configureGenFullXrunArgsFile(Project project) {
         AbstractGenArgsFile genXrunArgsFile = (AbstractGenArgsFile) project.getTasks().getByName("genXrunArgsFile");
-        project.getTasks().register("genFullArgsFile", GenFullArgsFile.class, new Action<GenFullArgsFile>() {
+        project.getTasks().register("genFullXrunArgsFile", GenFullArgsFile.class, new Action<GenFullArgsFile>() {
             @Override
             public void execute(GenFullArgsFile genFullArgsFile) {
                 genFullArgsFile.setDescription("Generates an argument file for the main source code and its dependencies.");
