@@ -59,7 +59,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
                 genXrunArgsFile.setPrivateIncludeDirs(project.files().getAsFileTree());
                 genXrunArgsFile.setExportedIncludeDirs(project.files().getAsFileTree());
                 genXrunArgsFile.setCSource(project.files().getAsFileTree());
-                genXrunArgsFile.getDestination().set(new File(project.getBuildDir(), sourceSet.getArgsFileName()));
+                genXrunArgsFile.getDestination().set(new File(project.getBuildDir(), sourceSet.getXrunArgsFileName()));
             }
         });
     }

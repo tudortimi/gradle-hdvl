@@ -139,7 +139,7 @@ class CPluginSpec extends Specification {
             .build()
 
         then:
-        new File(testProjectDir.root, 'build/args.f').text.contains('src/main/c/dummy.c')
+        new File(testProjectDir.root, 'build/xrun_args.f').text.contains('src/main/c/dummy.c')
     }
 
     def "'genXrunArgsFile' task indents entries in makelib block"() {
@@ -154,7 +154,7 @@ class CPluginSpec extends Specification {
             .build()
 
         then:
-        def lines = new File(testProjectDir.root, 'build/args.f').text.split('\n')
+        def lines = new File(testProjectDir.root, 'build/xrun_args.f').text.split('\n')
         lines.findAll { !it.contains('-makelib') && !it.contains('-endlib') }.each {
             assert it.startsWith('  ')
         }
@@ -183,7 +183,7 @@ class CPluginSpec extends Specification {
 
         then:
         result.task(":genDummyXrunArgsFile").outcome == SUCCESS
-        new File(testProjectDir.root, "build/dummy_args.f").exists()
-        new File(testProjectDir.root, "build/dummy_args.f").text.contains('dummy.c')
+        new File(testProjectDir.root, "build/dummy_xrun_args.f").exists()
+        new File(testProjectDir.root, "build/dummy_xrun_args.f").text.contains('dummy.c')
     }
 }

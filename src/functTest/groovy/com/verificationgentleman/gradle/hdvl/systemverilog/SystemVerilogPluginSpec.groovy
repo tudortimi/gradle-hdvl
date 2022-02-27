@@ -337,7 +337,7 @@ class SystemVerilogPluginSpec extends Specification {
 
         then:
         result.task(":genXrunArgsFile").outcome == SUCCESS
-        new File(testProjectDir.root, 'build/args.f').exists()
+        new File(testProjectDir.root, 'build/xrun_args.f').exists()
     }
 
     def "'genXrunArgsFile' task writes compile files to args file"() {
@@ -352,7 +352,7 @@ class SystemVerilogPluginSpec extends Specification {
             .build()
 
         then:
-        new File(testProjectDir.root, 'build/args.f').text.contains('src/main/sv/dummy.sv')
+        new File(testProjectDir.root, 'build/xrun_args.f').text.contains('src/main/sv/dummy.sv')
     }
 
     def "'genXrunArgsFile' task writes private include directories to args file"() {
@@ -367,7 +367,7 @@ class SystemVerilogPluginSpec extends Specification {
             .build()
 
         then:
-        def lines = new File(testProjectDir.root, 'build/args.f').text.split("\n")
+        def lines = new File(testProjectDir.root, 'build/xrun_args.f').text.split("\n")
         def lineWithIncdir = lines.find { it.contains('-incdir') }
         lineWithIncdir != null
         lineWithIncdir.endsWith("src/main/sv")
@@ -395,7 +395,7 @@ class SystemVerilogPluginSpec extends Specification {
             .build()
 
         then:
-        def lines = new File(testProjectDir.root, 'build/args.f').text.split("\n")
+        def lines = new File(testProjectDir.root, 'build/xrun_args.f').text.split("\n")
         def lineWithIncdir = lines.find { it.contains('-incdir') }
         lineWithIncdir != null
         !lineWithIncdir.contains("src")
@@ -414,7 +414,7 @@ class SystemVerilogPluginSpec extends Specification {
             .build()
 
         then:
-        def lines = new File(testProjectDir.root, 'build/args.f').text.split("\n")
+        def lines = new File(testProjectDir.root, 'build/xrun_args.f').text.split("\n")
         def linesWithIncdir = lines.findAll { it.contains('-incdir') }
         !linesWithIncdir.isEmpty()
         linesWithIncdir.any { it.endsWith("src/main/sv_headers") }
@@ -431,7 +431,7 @@ class SystemVerilogPluginSpec extends Specification {
             .build()
 
         then:
-        def lines = new File(testProjectDir.root, 'build/args.f').text.split("\n")
+        def lines = new File(testProjectDir.root, 'build/xrun_args.f').text.split("\n")
         def linesWithIncdir = lines.findAll { it.contains('-incdir') }
         !linesWithIncdir.isEmpty()
         linesWithIncdir.each { assert !it.endsWith("src/main/sv_headers") }
@@ -449,7 +449,7 @@ class SystemVerilogPluginSpec extends Specification {
             .build()
 
         then:
-        def lines = new File(testProjectDir.root, 'build/args.f').text.split('\n')
+        def lines = new File(testProjectDir.root, 'build/xrun_args.f').text.split('\n')
         lines.findAll { !it.contains('-makelib') && !it.contains('-endlib') }.each {
             assert it.startsWith('  ')
         }
@@ -470,7 +470,7 @@ class SystemVerilogPluginSpec extends Specification {
         result.task(":genXrunArgsFile").outcome == SUCCESS
         result.task(":genFullArgsFile").outcome == SUCCESS
         new File(testProjectDir.root, 'build/full_args.f').exists()
-        new File(testProjectDir.root, 'build/full_args.f').text.contains('build/args.f')
+        new File(testProjectDir.root, 'build/full_args.f').text.contains('build/xrun_args.f')
     }
 
     def "'argsFiles' artifacts produced by direct dependencies are consumed by main project in 'genFullArgsFile'"() {
@@ -503,8 +503,8 @@ class SystemVerilogPluginSpec extends Specification {
         result.task(":directDependency:genXrunArgsFile").outcome == SUCCESS
         result.task(":mainProject:genXrunArgsFile").outcome == SUCCESS
         result.task(":mainProject:genFullArgsFile").outcome == SUCCESS
-        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('directDependency/build/args.f')
-        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('mainProject/build/args.f')
+        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('directDependency/build/xrun_args.f')
+        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('mainProject/build/xrun_args.f')
     }
 
     def "'argsFiles' artifacts produced by transitive dependencies are consumed in 'genFullArgsFile'"() {
@@ -546,9 +546,9 @@ class SystemVerilogPluginSpec extends Specification {
         result.task(":directDependency:genXrunArgsFile").outcome == SUCCESS
         result.task(":mainProject:genXrunArgsFile").outcome == SUCCESS
         result.task(":mainProject:genFullArgsFile").outcome == SUCCESS
-        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('transitiveDependency/build/args.f')
-        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('directDependency/build/args.f')
-        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('mainProject/build/args.f')
+        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('transitiveDependency/build/xrun_args.f')
+        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('directDependency/build/xrun_args.f')
+        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('mainProject/build/xrun_args.f')
     }
 
     def "'argsFiles' are consumed in dependency order"() {
@@ -588,15 +588,15 @@ class SystemVerilogPluginSpec extends Specification {
         then:
         def lines = new File(testProjectDir.root, 'mainProject/build/full_args.f').text.split('\n')
         def transitiveDependencyIdx = lines.findIndexOf {
-            it.contains('transitiveDependency/build/args.f')
+            it.contains('transitiveDependency/build/xrun_args.f')
         }
         transitiveDependencyIdx != -1
         def directDependencyIdx = lines.findIndexOf(transitiveDependencyIdx) {
-            it.contains('directDependency/build/args.f')
+            it.contains('directDependency/build/xrun_args.f')
         }
         directDependencyIdx != -1
         def mainProjectIdx = lines.findIndexOf(transitiveDependencyIdx) {
-            it.contains('mainProject/build/args.f')
+            it.contains('mainProject/build/xrun_args.f')
         }
         mainProjectIdx != -1
     }
@@ -643,8 +643,8 @@ class SystemVerilogPluginSpec extends Specification {
 
         then:
         result.task(":genDummyXrunArgsFile").outcome == SUCCESS
-        new File(testProjectDir.root, "build/dummy_args.f").exists()
-        new File(testProjectDir.root, "build/dummy_args.f").text.contains('dummy.sv')
+        new File(testProjectDir.root, "build/dummy_xrun_args.f").exists()
+        new File(testProjectDir.root, "build/dummy_xrun_args.f").text.contains('dummy.sv')
     }
 
     def "'genXrunArgsFile' tasks when custom source set present produce correct args file"() {
@@ -671,8 +671,8 @@ class SystemVerilogPluginSpec extends Specification {
             .build()
 
         then:
-        new File(testProjectDir.root, "build/args.f").text.contains('main.sv')
-        new File(testProjectDir.root, "build/dummy_args.f").text.contains('dummy.sv')
+        new File(testProjectDir.root, "build/xrun_args.f").text.contains('main.sv')
+        new File(testProjectDir.root, "build/dummy_xrun_args.f").text.contains('dummy.sv')
     }
 
     def "'genQrunArgsFile' task produces output"() {
