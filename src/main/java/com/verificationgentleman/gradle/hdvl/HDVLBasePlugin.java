@@ -36,8 +36,8 @@ public class HDVLBasePlugin implements Plugin<Project> {
         extension.getSourceSets().all(new Action<SourceSet>() {
             @Override
             public void execute(SourceSet sourceSet) {
-                configureGenXrunArgsFile(project, sourceSet);
-                configureGenQrunArgsFile(project, sourceSet);
+                configureGenArgsFile(project, sourceSet, "Xrun");
+                configureGenArgsFile(project, sourceSet, "Qrun");
             }
         });
 
@@ -48,20 +48,31 @@ public class HDVLBasePlugin implements Plugin<Project> {
         configureQrunCompileArtifact(project);
     }
 
-    private void configureGenXrunArgsFile(Project project, SourceSet sourceSet) {
-        String taskName = sourceSet.getGenArgsFileTaskName("Xrun");
-        project.getTasks().register(taskName, GenXrunArgsFile.class, new Action<GenXrunArgsFile>() {
+    private void configureGenArgsFile(Project project, SourceSet sourceSet, String toolName) {
+        String taskName = sourceSet.getGenArgsFileTaskName(toolName);
+        project.getTasks().register(taskName, getGenArgsFileClass(toolName), new Action<AbstractGenArgsFile>() {
             @Override
-            public void execute(GenXrunArgsFile genXrunArgsFile) {
-                genXrunArgsFile.setDescription("Generates an argument file for the " + sourceSet.getName()
+            public void execute(AbstractGenArgsFile genArgsFile) {
+                genArgsFile.setDescription("Generates an argument file for the " + sourceSet.getName()
                         + " source code.");
-                genXrunArgsFile.setSource(project.files().getAsFileTree());
-                genXrunArgsFile.setPrivateIncludeDirs(project.files().getAsFileTree());
-                genXrunArgsFile.setExportedIncludeDirs(project.files().getAsFileTree());
-                genXrunArgsFile.setCSource(project.files().getAsFileTree());
-                genXrunArgsFile.getDestination().set(new File(project.getBuildDir(), sourceSet.getArgsFileName("xrun")));
+                genArgsFile.setSource(project.files().getAsFileTree());
+                genArgsFile.setPrivateIncludeDirs(project.files().getAsFileTree());
+                genArgsFile.setExportedIncludeDirs(project.files().getAsFileTree());
+                genArgsFile.setCSource(project.files().getAsFileTree());
+                genArgsFile.getDestination().set(new File(project.getBuildDir(), sourceSet.getArgsFileName(toolName)));
             }
         });
+    }
+
+    // TODO Handle in a generic way eventually
+    private Class<? extends AbstractGenArgsFile> getGenArgsFileClass(String toolName) {
+        switch (toolName) {
+            case "Xrun":
+                return GenXrunArgsFile.class;
+            case "Qrun":
+                return GenQrunArgsFile.class;
+        }
+        throw new IllegalArgumentException("Unexpected tool name: " + toolName);
     }
 
     private void configureGenFullXrunArgsFile(Project project) {
@@ -73,22 +84,6 @@ public class HDVLBasePlugin implements Plugin<Project> {
                 genFullArgsFile.getSource().set(genXrunArgsFile.getDestination());
                 genFullArgsFile.getDestination().set(new File(project.getBuildDir(), "full_xrun_args.f"));
                 genFullArgsFile.setArgsFiles(project.getConfigurations().getByName("xrunArgsFiles"));
-            }
-        });
-    }
-
-    private void configureGenQrunArgsFile(Project project, SourceSet sourceSet) {
-        String taskName = sourceSet.getGenArgsFileTaskName("Qrun");
-        project.getTasks().register(taskName, GenQrunArgsFile.class, new Action<GenQrunArgsFile>() {
-            @Override
-            public void execute(GenQrunArgsFile genQrunArgsFile) {
-                genQrunArgsFile.setDescription("Generates a 'qrun' argument file for the " + sourceSet.getName()
-                        + " source code.");
-                genQrunArgsFile.setSource(project.files().getAsFileTree());
-                genQrunArgsFile.setPrivateIncludeDirs(project.files().getAsFileTree());
-                genQrunArgsFile.setExportedIncludeDirs(project.files().getAsFileTree());
-                genQrunArgsFile.setCSource(project.files().getAsFileTree());
-                genQrunArgsFile.getDestination().set(new File(project.getBuildDir(), sourceSet.getArgsFileName("qrun")));
             }
         });
     }

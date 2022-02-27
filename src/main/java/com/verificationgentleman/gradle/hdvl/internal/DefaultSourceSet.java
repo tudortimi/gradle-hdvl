@@ -44,8 +44,9 @@ public abstract class DefaultSourceSet implements SourceSet {
 
     @Override
     public String getArgsFileName(String toolName) {
+        String toolNameLower = toolName.toLowerCase();
         return name == "main"
-            ? toolName + "_" + "args.f"
-            : name + "_" + toolName + "_" + "args.f";
+            ? toolNameLower + "_" + "args.f"
+            : name + "_" + toolNameLower + "_" + "args.f";
     }
 }
