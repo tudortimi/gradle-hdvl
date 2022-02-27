@@ -40,20 +40,18 @@ public class HDVLBasePlugin implements Plugin<Project> {
 
         configureCompileConfiguration(project);
 
-        extension.getSourceSets().all(new Action<SourceSet>() {
-            @Override
-            public void execute(SourceSet sourceSet) {
-                configureGenArgsFile(project, sourceSet, "Xrun");
-                configureGenArgsFile(project, sourceSet, "Qrun");
-            }
-        });
-
-        configureGenFullArgsFile(project, "Xrun");
-        configureGenFullArgsFile(project, "Qrun");
-        configureArgsFilesConfiguration(project, "Xrun");
-        configureArgsFilesConfiguration(project, "Qrun");
-        configureCompileArtifact(project, "Xrun");
-        configureCompileArtifact(project, "Qrun");
+        String[] toolNames = {"Xrun", "Qrun"};
+        for (String toolName: toolNames) {
+            extension.getSourceSets().all(new Action<SourceSet>() {
+                @Override
+                public void execute(SourceSet sourceSet) {
+                    configureGenArgsFile(project, sourceSet, toolName);
+                }
+            });
+            configureGenFullArgsFile(project, toolName);
+            configureArgsFilesConfiguration(project, toolName);
+            configureCompileArtifact(project, toolName);
+        }
     }
 
     private void configureGenArgsFile(Project project, SourceSet sourceSet, String toolName) {
