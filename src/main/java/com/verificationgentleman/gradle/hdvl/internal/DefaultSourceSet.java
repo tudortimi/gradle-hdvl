@@ -43,16 +43,9 @@ public abstract class DefaultSourceSet implements SourceSet {
     }
 
     @Override
-    public String getXrunArgsFileName() {
+    public String getArgsFileName(String toolName) {
         return name == "main"
-            ? "xrun_args.f"
-            : name + "_" + "xrun_args.f";
-    }
-
-    @Override
-    public String getQrunArgsFileName() {
-        return name == "main"
-            ? "qrun_args.f"
-            : name + "_" + "qrun_args.f";
+            ? toolName + "_" + "args.f"
+            : name + "_" + toolName + "_" + "args.f";
     }
 }
