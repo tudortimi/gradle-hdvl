@@ -46,8 +46,8 @@ public class HDVLBasePlugin implements Plugin<Project> {
             }
         });
 
-        configureGenFullXrunArgsFile(project);
-        configureGenFullQrunArgsFile(project);
+        configureGenFullArgsFile(project, "Xrun");
+        configureGenFullArgsFile(project, "Qrun");
         configureConfigurations(project);
         configureXrunCompileArtifact(project);
         configureQrunCompileArtifact(project);
@@ -80,28 +80,16 @@ public class HDVLBasePlugin implements Plugin<Project> {
         throw new IllegalArgumentException("Unexpected tool name: " + toolName);
     }
 
-    private void configureGenFullXrunArgsFile(Project project) {
-        AbstractGenArgsFile genXrunArgsFile = (AbstractGenArgsFile) project.getTasks().getByName("genXrunArgsFile");
-        project.getTasks().register("genFullXrunArgsFile", GenFullArgsFile.class, new Action<GenFullArgsFile>() {
+    private void configureGenFullArgsFile(Project project, String toolName) {
+        AbstractGenArgsFile genXrunArgsFile = (AbstractGenArgsFile) project.getTasks()
+                .getByName(Names.getMainGenArgsFileTaskName(toolName));
+        project.getTasks().register(Names.getGenFullArgsFileTaskName(toolName), GenFullArgsFile.class, new Action<GenFullArgsFile>() {
             @Override
             public void execute(GenFullArgsFile genFullArgsFile) {
                 genFullArgsFile.setDescription("Generates an argument file for the main source code and its dependencies.");
                 genFullArgsFile.getSource().set(genXrunArgsFile.getDestination());
-                genFullArgsFile.getDestination().set(new File(project.getBuildDir(), "full_xrun_args.f"));
-                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName("xrunArgsFiles"));
-            }
-        });
-    }
-
-    private void configureGenFullQrunArgsFile(Project project) {
-        AbstractGenArgsFile genQrunArgsFile = (AbstractGenArgsFile) project.getTasks().getByName("genQrunArgsFile");
-        project.getTasks().register("genFullQrunArgsFile", GenFullArgsFile.class, new Action<GenFullArgsFile>() {
-            @Override
-            public void execute(GenFullArgsFile genFullArgsFile) {
-                genFullArgsFile.setDescription("Generates a qrun argument file for the main source code and its dependencies.");
-                genFullArgsFile.getSource().set(genQrunArgsFile.getDestination());
-                genFullArgsFile.getDestination().set(new File(project.getBuildDir(), "full_qrun_args.f"));
-                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName("qrunArgsFiles"));
+                genFullArgsFile.getDestination().set(new File(project.getBuildDir(), Names.getFullArgsFileName(toolName)));
+                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName(Names.getArgsFilesConfigurationName(toolName)));
             }
         });
     }
