@@ -27,6 +27,10 @@ import org.gradle.api.attributes.Attribute;
 import java.io.File;
 
 public class HDVLBasePlugin implements Plugin<Project> {
+
+    public static final Attribute<String> TOOL_ATTRIBUTE
+            = Attribute.of("com.verificationgentlenan.gradle.hdvl.tool", String.class);
+
     @Override
     public void apply(Project project) {
         final DefaultHDVLPluginExtension extension = new DefaultHDVLPluginExtension(project);
@@ -107,19 +111,18 @@ public class HDVLBasePlugin implements Plugin<Project> {
         compileConfiguration.setCanBeConsumed(false);
         compileConfiguration.setCanBeResolved(false);
 
-        Attribute<String> tool = Attribute.of("com.verificationgentlenan.gradle.hdvl.tool", String.class);
-        project.getDependencies().getAttributesSchema().attribute(tool);
+        project.getDependencies().getAttributesSchema().attribute(TOOL_ATTRIBUTE);
 
-        configureArgsFilesConfiguration(project, compileConfiguration, tool, "Xrun");
-        configureArgsFilesConfiguration(project, compileConfiguration, tool, "Qrun");
+        configureArgsFilesConfiguration(project, compileConfiguration, "Xrun");
+        configureArgsFilesConfiguration(project, compileConfiguration, "Qrun");
     }
 
-    private void configureArgsFilesConfiguration(Project project, Configuration compileConfiguration, Attribute<String> toolAttribute, String toolName) {
+    private void configureArgsFilesConfiguration(Project project, Configuration compileConfiguration, String toolName) {
         Configuration argsFiles = project.getConfigurations().create(Names.getArgsFilesConfigurationName(toolName));
         argsFiles.extendsFrom(compileConfiguration);
         argsFiles.setCanBeConsumed(true);
         argsFiles.setCanBeResolved(true);
-        argsFiles.getAttributes().attribute(toolAttribute, toolName);
+        argsFiles.getAttributes().attribute(HDVLBasePlugin.TOOL_ATTRIBUTE, toolName);
     }
 
     private void configureXrunCompileArtifact(Project project) {
@@ -143,4 +146,5 @@ public class HDVLBasePlugin implements Plugin<Project> {
         };
         project.getArtifacts().add("qrunArgsFiles", genArgsFile.getDestination(), configureAction);
     }
+
 }
