@@ -52,6 +52,7 @@ public class SVUnitPlugin implements Plugin<Project> {
                 SystemVerilogSourceSet svSourceSet
                         = (SystemVerilogSourceSet) sourceSetWithConvention.getConvention().getPlugins().get("sv");
                 configureTestWithXrunTask(project, svSourceSet);
+                configureTestWithQrunTask(project, svSourceSet);
             }
         });
     }
@@ -68,6 +69,22 @@ public class SVUnitPlugin implements Plugin<Project> {
         GenFullArgsFile genFullArgsFile = (GenFullArgsFile) project.getTasks().getByName("genFullXrunArgsFile");
         Configuration testCompileConfiguration = project.getConfigurations().getByName("testCompile");
         project.getTasks().register("testWithXrun", TestTask.class, new Action<TestTask>() {
+            @Override
+            public void execute(TestTask testTask) {
+                testTask.setDescription("Runs the unit tests using SVUnit.");
+                testTask.getMainArgsFile().set(genFullArgsFile.getDestination());
+                testTask.setTestsRoot(testSourceSet.getSv().getSourceDirectories().getSingleFile());
+                testTask.setSvunitRoot(testCompileConfiguration);
+                testTask.getWorkingDir().set(new File(project.getBuildDir(), "svunit"));
+                testTask.getExtraArgs().set(toolChains.getRunSVUnit().getArgs());
+            }
+        });
+    }
+
+    private void configureTestWithQrunTask(Project project, SystemVerilogSourceSet testSourceSet) {
+        GenFullArgsFile genFullArgsFile = (GenFullArgsFile) project.getTasks().getByName("genFullQrunArgsFile");
+        Configuration testCompileConfiguration = project.getConfigurations().getByName("testCompile");
+        project.getTasks().register("testWithQrun", TestTask.class, new Action<TestTask>() {
             @Override
             public void execute(TestTask testTask) {
                 testTask.setDescription("Runs the unit tests using SVUnit.");

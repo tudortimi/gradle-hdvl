@@ -158,6 +158,26 @@ class SVUnitPluginSpec extends Specification  {
         dummyLog.text.contains "-f ${testProjectDir.root}/build/full_xrun_args.f"
     }
 
+    def "'testWithQrun' task passes args file to 'runSVUnit'"() {
+        File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(mainSv, 'dummy_main.sv').createNewFile()
+
+        File testSv = testProjectDir.newFolder('src', 'test', 'sv')
+        new File(testSv, 'dummy_test.sv').createNewFile()
+
+        when:
+        def result = newGradleRunnerWithFakeRunSVunit()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('testWithQrun')
+            .build()
+
+        then:
+        result.task(":testWithQrun").outcome == SUCCESS
+        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
+        dummyLog.text.contains "-f ${testProjectDir.root}/build/full_qrun_args.f"
+    }
+
     def "'testWithXrun' task passes simulator option to 'runSVUnit'"() {
         File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(mainSv, 'dummy_main.sv').createNewFile()
