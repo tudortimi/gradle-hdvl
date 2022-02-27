@@ -647,6 +647,34 @@ class SystemVerilogPluginSpec extends Specification {
         new File(testProjectDir.root, "build/dummy_args.f").text.contains('dummy.sv')
     }
 
+    def "'genArgsFile' tasks when custom source set present produce correct args file"() {
+        File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(mainSv, "main.sv").createNewFile()
+        File dummySv = testProjectDir.newFolder('src', 'dummy', 'sv')
+        new File(dummySv, "dummy.sv").createNewFile()
+
+        buildFile << """
+            sourceSets {
+                dummy {
+                   sv {
+                       srcDir 'src/dummy/sv'
+                   }
+                }
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genDummyArgsFile', 'genArgsFile')
+            .build()
+
+        then:
+        new File(testProjectDir.root, "build/args.f").text.contains('main.sv')
+        new File(testProjectDir.root, "build/dummy_args.f").text.contains('dummy.sv')
+    }
+
     def "'genQrunArgsFile' task produces output"() {
         File sv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
