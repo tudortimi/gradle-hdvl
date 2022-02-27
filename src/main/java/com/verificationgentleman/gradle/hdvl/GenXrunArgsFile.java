@@ -20,10 +20,10 @@ import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
 
-public class GenArgsFile extends AbstractGenArgsFile {
+public class GenXrunArgsFile extends AbstractGenArgsFile {
 
     @Inject
-    public GenArgsFile(ObjectFactory objectFactory) {
+    public GenXrunArgsFile(ObjectFactory objectFactory) {
         super(objectFactory);
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2021-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package com.verificationgentleman.gradle.hdvl.c;
 
-import com.verificationgentleman.gradle.hdvl.GenArgsFile;
+import com.verificationgentleman.gradle.hdvl.GenXrunArgsFile;
 import com.verificationgentleman.gradle.hdvl.HDVLBasePlugin;
 import com.verificationgentleman.gradle.hdvl.HDVLPluginExtension;
 import com.verificationgentleman.gradle.hdvl.SourceSet;
@@ -41,8 +41,9 @@ public class CPlugin implements Plugin<Project> {
                 // XXX WORKAROUND Not part of the public API
                 new DslObject(sourceSet).getConvention().getPlugins().put("c", cSourceSet);
 
-                GenArgsFile genArgsFile = (GenArgsFile) project.getTasks().getByName(sourceSet.getGenArgsFileTaskName());
-                genArgsFile.setCSource(cSourceSet.getC());
+                GenXrunArgsFile genXrunArgsFile
+                        = (GenXrunArgsFile) project.getTasks().getByName(sourceSet.getGenXrunArgsFileTaskName());
+                genXrunArgsFile.setCSource(cSourceSet.getC());
             }
         });
     }

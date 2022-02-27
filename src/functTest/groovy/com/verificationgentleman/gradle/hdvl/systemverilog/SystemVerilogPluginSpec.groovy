@@ -324,7 +324,7 @@ class SystemVerilogPluginSpec extends Specification {
         result.task(":copy").outcome == NO_SOURCE
     }
 
-    def "'genArgsFile' task produces output"() {
+    def "'genXrunArgsFile' task produces output"() {
         File sv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
@@ -332,15 +332,15 @@ class SystemVerilogPluginSpec extends Specification {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments('genArgsFile')
+            .withArguments('genXrunArgsFile')
             .build()
 
         then:
-        result.task(":genArgsFile").outcome == SUCCESS
+        result.task(":genXrunArgsFile").outcome == SUCCESS
         new File(testProjectDir.root, 'build/args.f').exists()
     }
 
-    def "'genArgsFile' task writes compile files to args file"() {
+    def "'genXrunArgsFile' task writes compile files to args file"() {
         File sv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
@@ -348,14 +348,14 @@ class SystemVerilogPluginSpec extends Specification {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments('genArgsFile')
+            .withArguments('genXrunArgsFile')
             .build()
 
         then:
         new File(testProjectDir.root, 'build/args.f').text.contains('src/main/sv/dummy.sv')
     }
 
-    def "'genArgsFile' task writes private include directories to args file"() {
+    def "'genXrunArgsFile' task writes private include directories to args file"() {
         File sv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
@@ -363,7 +363,7 @@ class SystemVerilogPluginSpec extends Specification {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments('genArgsFile')
+            .withArguments('genXrunArgsFile')
             .build()
 
         then:
@@ -373,7 +373,7 @@ class SystemVerilogPluginSpec extends Specification {
         lineWithIncdir.endsWith("src/main/sv")
     }
 
-    def "'genArgsFile' task writes private include directories to args file after re-configure of source dirs"() {
+    def "'genXrunArgsFile' task writes private include directories to args file after re-configure of source dirs"() {
         File sv = testProjectDir.newFolder('sv')
         new File(sv, 'dummy.sv').createNewFile()
 
@@ -391,7 +391,7 @@ class SystemVerilogPluginSpec extends Specification {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments('genArgsFile')
+            .withArguments('genXrunArgsFile')
             .build()
 
         then:
@@ -403,14 +403,14 @@ class SystemVerilogPluginSpec extends Specification {
         lineWithIncdir.endsWith("sv")
     }
 
-    def "'genArgsFile' task writes exported header directories to args file"() {
+    def "'genXrunArgsFile' task writes exported header directories to args file"() {
         File svHeaders = testProjectDir.newFolder('src', 'main', 'sv_headers')
 
         when:
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments('genArgsFile')
+            .withArguments('genXrunArgsFile')
             .build()
 
         then:
@@ -420,14 +420,14 @@ class SystemVerilogPluginSpec extends Specification {
         linesWithIncdir.any { it.endsWith("src/main/sv_headers") }
     }
 
-    def "'genArgsFile' task doesn't write exported header directories to args file if none exist"() {
+    def "'genXrunArgsFile' task doesn't write exported header directories to args file if none exist"() {
         // No 'sv_headers' directory
 
         when:
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments('genArgsFile')
+            .withArguments('genXrunArgsFile')
             .build()
 
         then:
@@ -437,7 +437,7 @@ class SystemVerilogPluginSpec extends Specification {
         linesWithIncdir.each { assert !it.endsWith("src/main/sv_headers") }
     }
 
-    def "'genArgsFile' task indents entries in makelib block"() {
+    def "'genXrunArgsFile' task indents entries in makelib block"() {
         File sv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
@@ -445,7 +445,7 @@ class SystemVerilogPluginSpec extends Specification {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments('genArgsFile')
+            .withArguments('genXrunArgsFile')
             .build()
 
         then:
@@ -455,7 +455,7 @@ class SystemVerilogPluginSpec extends Specification {
         }
     }
 
-    def "'genFullArgsFile' task consumes output of 'genArgsFile"() {
+    def "'genFullArgsFile' task consumes output of 'genXrunArgsFile"() {
         File sv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
@@ -467,7 +467,7 @@ class SystemVerilogPluginSpec extends Specification {
             .build()
 
         then:
-        result.task(":genArgsFile").outcome == SUCCESS
+        result.task(":genXrunArgsFile").outcome == SUCCESS
         result.task(":genFullArgsFile").outcome == SUCCESS
         new File(testProjectDir.root, 'build/full_args.f').exists()
         new File(testProjectDir.root, 'build/full_args.f').text.contains('build/args.f')
@@ -500,8 +500,8 @@ class SystemVerilogPluginSpec extends Specification {
             .build()
 
         then:
-        result.task(":directDependency:genArgsFile").outcome == SUCCESS
-        result.task(":mainProject:genArgsFile").outcome == SUCCESS
+        result.task(":directDependency:genXrunArgsFile").outcome == SUCCESS
+        result.task(":mainProject:genXrunArgsFile").outcome == SUCCESS
         result.task(":mainProject:genFullArgsFile").outcome == SUCCESS
         new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('directDependency/build/args.f')
         new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('mainProject/build/args.f')
@@ -542,9 +542,9 @@ class SystemVerilogPluginSpec extends Specification {
             .build()
 
         then:
-        result.task(":transitiveDependency:genArgsFile").outcome == SUCCESS
-        result.task(":directDependency:genArgsFile").outcome == SUCCESS
-        result.task(":mainProject:genArgsFile").outcome == SUCCESS
+        result.task(":transitiveDependency:genXrunArgsFile").outcome == SUCCESS
+        result.task(":directDependency:genXrunArgsFile").outcome == SUCCESS
+        result.task(":mainProject:genXrunArgsFile").outcome == SUCCESS
         result.task(":mainProject:genFullArgsFile").outcome == SUCCESS
         new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('transitiveDependency/build/args.f')
         new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('directDependency/build/args.f')
@@ -601,7 +601,7 @@ class SystemVerilogPluginSpec extends Specification {
         mainProjectIdx != -1
     }
 
-    def "custom source set has own 'genArgsFile' task"() {
+    def "custom source set has own 'genXrunArgsFile' task"() {
         buildFile << """
             sourceSets {
                 dummy
@@ -617,10 +617,10 @@ class SystemVerilogPluginSpec extends Specification {
 
         then:
         result.task(":tasks").outcome == SUCCESS
-        result.output.contains('genDummyArgsFile')
+        result.output.contains('genDummyXrunArgsFile')
     }
 
-    def "'genArgsFileTask' for custom source set produces args file"() {
+    def "'genXrunArgsFile' task for custom source set produces args file"() {
         File sv = testProjectDir.newFolder('src', 'dummy', 'sv')
         new File(sv, "dummy.sv").createNewFile()
 
@@ -638,16 +638,16 @@ class SystemVerilogPluginSpec extends Specification {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments('genDummyArgsFile')
+            .withArguments('genDummyXrunArgsFile')
             .build()
 
         then:
-        result.task(":genDummyArgsFile").outcome == SUCCESS
+        result.task(":genDummyXrunArgsFile").outcome == SUCCESS
         new File(testProjectDir.root, "build/dummy_args.f").exists()
         new File(testProjectDir.root, "build/dummy_args.f").text.contains('dummy.sv')
     }
 
-    def "'genArgsFile' tasks when custom source set present produce correct args file"() {
+    def "'genXrunArgsFile' tasks when custom source set present produce correct args file"() {
         File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(mainSv, "main.sv").createNewFile()
         File dummySv = testProjectDir.newFolder('src', 'dummy', 'sv')
@@ -667,7 +667,7 @@ class SystemVerilogPluginSpec extends Specification {
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments('genDummyArgsFile', 'genArgsFile')
+            .withArguments('genDummyXrunArgsFile', 'genXrunArgsFile')
             .build()
 
         then:
