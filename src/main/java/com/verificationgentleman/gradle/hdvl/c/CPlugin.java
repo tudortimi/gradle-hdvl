@@ -16,10 +16,7 @@
 
 package com.verificationgentleman.gradle.hdvl.c;
 
-import com.verificationgentleman.gradle.hdvl.GenXrunArgsFile;
-import com.verificationgentleman.gradle.hdvl.HDVLBasePlugin;
-import com.verificationgentleman.gradle.hdvl.HDVLPluginExtension;
-import com.verificationgentleman.gradle.hdvl.SourceSet;
+import com.verificationgentleman.gradle.hdvl.*;
 import com.verificationgentleman.gradle.hdvl.c.internal.DefaultCSourceSet;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
@@ -44,6 +41,10 @@ public class CPlugin implements Plugin<Project> {
                 GenXrunArgsFile genXrunArgsFile
                         = (GenXrunArgsFile) project.getTasks().getByName(sourceSet.getGenArgsFileTaskName("Xrun"));
                 genXrunArgsFile.setCSource(cSourceSet.getC());
+
+                GenQrunArgsFile genQrunArgsFile
+                        = (GenQrunArgsFile) project.getTasks().getByName(sourceSet.getGenArgsFileTaskName("Qrun"));
+                genQrunArgsFile.setCSource(cSourceSet.getC());
             }
         });
     }
