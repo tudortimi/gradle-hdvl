@@ -65,7 +65,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
     }
 
     private void configureGenFullArgsFile(Project project) {
-        GenXrunArgsFile genXrunArgsFile = (GenXrunArgsFile) project.getTasks().getByName("genXrunArgsFile");
+        AbstractGenArgsFile genXrunArgsFile = (AbstractGenArgsFile) project.getTasks().getByName("genXrunArgsFile");
         project.getTasks().register("genFullArgsFile", GenFullArgsFile.class, new Action<GenFullArgsFile>() {
             @Override
             public void execute(GenFullArgsFile genFullArgsFile) {
@@ -128,7 +128,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
     }
 
     private void configureXrunCompileArtifact(Project project) {
-        GenXrunArgsFile genXrunArgsFile = (GenXrunArgsFile) project.getTasks().getByName("genXrunArgsFile");
+        AbstractGenArgsFile genXrunArgsFile = (AbstractGenArgsFile) project.getTasks().getByName("genXrunArgsFile");
         Action<ConfigurablePublishArtifact> configureAction = new Action<ConfigurablePublishArtifact>() {
             @Override
             public void execute(ConfigurablePublishArtifact configurablePublishArtifact) {
