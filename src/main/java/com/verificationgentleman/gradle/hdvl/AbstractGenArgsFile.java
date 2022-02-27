@@ -114,6 +114,7 @@ public abstract class AbstractGenArgsFile extends SourceTask {
             writer.write(getIncdirOpt(f.getAbsolutePath()) + "\n");
     }
 
+    @Internal
     protected abstract String getLibName();
 
     protected abstract String getIncdirOpt(String incdirPath);
