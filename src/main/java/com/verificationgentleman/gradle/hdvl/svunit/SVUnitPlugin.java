@@ -18,6 +18,7 @@ package com.verificationgentleman.gradle.hdvl.svunit;
 
 import com.verificationgentleman.gradle.hdvl.GenFullArgsFile;
 import com.verificationgentleman.gradle.hdvl.SourceSet;
+import com.verificationgentleman.gradle.hdvl.internal.Names;
 import com.verificationgentleman.gradle.hdvl.svunit.internal.DefaultToolChains;
 import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogPlugin;
 import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogSourceSet;
@@ -51,8 +52,8 @@ public class SVUnitPlugin implements Plugin<Project> {
                 HasConvention sourceSetWithConvention = (HasConvention) sourceSet;
                 SystemVerilogSourceSet svSourceSet
                         = (SystemVerilogSourceSet) sourceSetWithConvention.getConvention().getPlugins().get("sv");
-                configureTestWithXrunTask(project, svSourceSet);
-                configureTestWithQrunTask(project, svSourceSet);
+                configureTestTask(project, svSourceSet, "Xrun");
+                configureTestTask(project, svSourceSet, "Qrun");
             }
         });
     }
@@ -65,14 +66,15 @@ public class SVUnitPlugin implements Plugin<Project> {
         toolChains = project.getExtensions().create(ToolChains.class, "toolChains", DefaultToolChains.class);
     }
 
-    private void configureTestWithXrunTask(Project project, SystemVerilogSourceSet testSourceSet) {
-        GenFullArgsFile genFullArgsFile = (GenFullArgsFile) project.getTasks().getByName("genFullXrunArgsFile");
+    private void configureTestTask(Project project, SystemVerilogSourceSet testSourceSet, String toolName) {
+        GenFullArgsFile genFullArgsFile
+                = (GenFullArgsFile) project.getTasks().getByName(Names.getGenFullArgsFileTaskName(toolName));
         Configuration testCompileConfiguration = project.getConfigurations().getByName("testCompile");
-        project.getTasks().register("testWithXrun", TestTask.class, new Action<TestTask>() {
+        project.getTasks().register(Names.getTestTaskName(toolName), TestTask.class, new Action<TestTask>() {
             @Override
             public void execute(TestTask testTask) {
                 testTask.setDescription("Runs the unit tests using SVUnit.");
-                testTask.getToolName().set("xrun");
+                testTask.getToolName().set(toolName.toLowerCase());
                 testTask.getMainArgsFile().set(genFullArgsFile.getDestination());
                 testTask.setTestsRoot(testSourceSet.getSv().getSourceDirectories().getSingleFile());
                 testTask.setSvunitRoot(testCompileConfiguration);
@@ -82,20 +84,4 @@ public class SVUnitPlugin implements Plugin<Project> {
         });
     }
 
-    private void configureTestWithQrunTask(Project project, SystemVerilogSourceSet testSourceSet) {
-        GenFullArgsFile genFullArgsFile = (GenFullArgsFile) project.getTasks().getByName("genFullQrunArgsFile");
-        Configuration testCompileConfiguration = project.getConfigurations().getByName("testCompile");
-        project.getTasks().register("testWithQrun", TestTask.class, new Action<TestTask>() {
-            @Override
-            public void execute(TestTask testTask) {
-                testTask.setDescription("Runs the unit tests using SVUnit.");
-                testTask.getToolName().set("qrun");
-                testTask.getMainArgsFile().set(genFullArgsFile.getDestination());
-                testTask.setTestsRoot(testSourceSet.getSv().getSourceDirectories().getSingleFile());
-                testTask.setSvunitRoot(testCompileConfiguration);
-                testTask.getWorkingDir().set(new File(project.getBuildDir(), "svunit"));
-                testTask.getExtraArgs().set(toolChains.getRunSVUnit().getArgs());
-            }
-        });
-    }
 }

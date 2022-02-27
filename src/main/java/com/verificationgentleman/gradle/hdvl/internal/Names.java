@@ -21,4 +21,8 @@ public class Names {
         return GUtil.toLowerCamelCase(toolName + "ArgsFiles");
     }
 
+    public static String getTestTaskName(String toolName) {
+        return GUtil.toLowerCamelCase("testWith" + " " + toolName);
+    }
+
 }
