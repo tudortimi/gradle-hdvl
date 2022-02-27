@@ -469,8 +469,8 @@ class SystemVerilogPluginSpec extends Specification {
         then:
         result.task(":genXrunArgsFile").outcome == SUCCESS
         result.task(":genFullXrunArgsFile").outcome == SUCCESS
-        new File(testProjectDir.root, 'build/full_args.f').exists()
-        new File(testProjectDir.root, 'build/full_args.f').text.contains('build/xrun_args.f')
+        new File(testProjectDir.root, 'build/full_xrun_args.f').exists()
+        new File(testProjectDir.root, 'build/full_xrun_args.f').text.contains('build/xrun_args.f')
     }
 
     def "'argsFiles' artifacts produced by direct dependencies are consumed by main project in 'genFullXrunArgsFile'"() {
@@ -503,8 +503,8 @@ class SystemVerilogPluginSpec extends Specification {
         result.task(":directDependency:genXrunArgsFile").outcome == SUCCESS
         result.task(":mainProject:genXrunArgsFile").outcome == SUCCESS
         result.task(":mainProject:genFullXrunArgsFile").outcome == SUCCESS
-        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('directDependency/build/xrun_args.f')
-        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('mainProject/build/xrun_args.f')
+        new File(testProjectDir.root, 'mainProject/build/full_xrun_args.f').text.contains('directDependency/build/xrun_args.f')
+        new File(testProjectDir.root, 'mainProject/build/full_xrun_args.f').text.contains('mainProject/build/xrun_args.f')
     }
 
     def "'argsFiles' artifacts produced by transitive dependencies are consumed in 'genFullXrunArgsFile'"() {
@@ -546,9 +546,9 @@ class SystemVerilogPluginSpec extends Specification {
         result.task(":directDependency:genXrunArgsFile").outcome == SUCCESS
         result.task(":mainProject:genXrunArgsFile").outcome == SUCCESS
         result.task(":mainProject:genFullXrunArgsFile").outcome == SUCCESS
-        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('transitiveDependency/build/xrun_args.f')
-        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('directDependency/build/xrun_args.f')
-        new File(testProjectDir.root, 'mainProject/build/full_args.f').text.contains('mainProject/build/xrun_args.f')
+        new File(testProjectDir.root, 'mainProject/build/full_xrun_args.f').text.contains('transitiveDependency/build/xrun_args.f')
+        new File(testProjectDir.root, 'mainProject/build/full_xrun_args.f').text.contains('directDependency/build/xrun_args.f')
+        new File(testProjectDir.root, 'mainProject/build/full_xrun_args.f').text.contains('mainProject/build/xrun_args.f')
     }
 
     def "'argsFiles' are consumed in dependency order"() {
@@ -586,7 +586,7 @@ class SystemVerilogPluginSpec extends Specification {
             .build()
 
         then:
-        def lines = new File(testProjectDir.root, 'mainProject/build/full_args.f').text.split('\n')
+        def lines = new File(testProjectDir.root, 'mainProject/build/full_xrun_args.f').text.split('\n')
         def transitiveDependencyIdx = lines.findIndexOf {
             it.contains('transitiveDependency/build/xrun_args.f')
         }

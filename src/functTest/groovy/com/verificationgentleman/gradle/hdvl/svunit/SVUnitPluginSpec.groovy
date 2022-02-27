@@ -155,7 +155,7 @@ class SVUnitPluginSpec extends Specification  {
         then:
         result.task(":test").outcome == SUCCESS
         def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
-        dummyLog.text.contains "-f ${testProjectDir.root}/build/full_args.f"
+        dummyLog.text.contains "-f ${testProjectDir.root}/build/full_xrun_args.f"
     }
 
     def "'toolChains' are added by the plugin"() {
@@ -201,7 +201,7 @@ class SVUnitPluginSpec extends Specification  {
                     args 'some_other_arg'
                 }
             }
-            
+
             println toolChains.runSVUnit.args
         """
 

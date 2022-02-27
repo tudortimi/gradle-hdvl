@@ -231,7 +231,7 @@ class DVTPluginSpec extends Specification {
         def dummyLog = new File(testProjectDir.root, 'dvt_cli.sh.log')
         dummyLog.text.contains('-default.build')
         dummyLog.text.contains('+dvt_init+ius.irun')
-        dummyLog.text.contains("-f ${testProjectDir.root}/build/full_args.f")
+        dummyLog.text.contains("-f ${testProjectDir.root}/build/full_xrun_args.f")
     }
 
     def newGradleRunnerWithFakeDvtCli() {
