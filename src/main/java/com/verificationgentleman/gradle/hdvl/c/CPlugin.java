@@ -25,6 +25,7 @@ import org.gradle.api.Project;
 import org.gradle.api.internal.plugins.DslObject;
 
 public class CPlugin implements Plugin<Project> {
+
     @Override
     public void apply(Project project) {
         project.getPluginManager().apply(HDVLBasePlugin.class);
