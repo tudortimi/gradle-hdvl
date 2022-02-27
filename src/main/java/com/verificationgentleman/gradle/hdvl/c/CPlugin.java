@@ -16,10 +16,7 @@
 
 package com.verificationgentleman.gradle.hdvl.c;
 
-import com.verificationgentleman.gradle.hdvl.GenXrunArgsFile;
-import com.verificationgentleman.gradle.hdvl.HDVLBasePlugin;
-import com.verificationgentleman.gradle.hdvl.HDVLPluginExtension;
-import com.verificationgentleman.gradle.hdvl.SourceSet;
+import com.verificationgentleman.gradle.hdvl.*;
 import com.verificationgentleman.gradle.hdvl.c.internal.DefaultCSourceSet;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
@@ -28,6 +25,7 @@ import org.gradle.api.Project;
 import org.gradle.api.internal.plugins.DslObject;
 
 public class CPlugin implements Plugin<Project> {
+
     @Override
     public void apply(Project project) {
         project.getPluginManager().apply(HDVLBasePlugin.class);
@@ -41,9 +39,12 @@ public class CPlugin implements Plugin<Project> {
                 // XXX WORKAROUND Not part of the public API
                 new DslObject(sourceSet).getConvention().getPlugins().put("c", cSourceSet);
 
-                GenXrunArgsFile genXrunArgsFile
-                        = (GenXrunArgsFile) project.getTasks().getByName(sourceSet.getGenArgsFileTaskName("Xrun"));
-                genXrunArgsFile.setCSource(cSourceSet.getC());
+                String[] toolNames = {"Xrun", "Qrun"};
+                for (String toolName: toolNames) {
+                    AbstractGenArgsFile genArgsFile
+                            = (AbstractGenArgsFile) project.getTasks().getByName(sourceSet.getGenArgsFileTaskName(toolName));
+                    genArgsFile.setCSource(cSourceSet.getC());
+                }
             }
         });
     }
