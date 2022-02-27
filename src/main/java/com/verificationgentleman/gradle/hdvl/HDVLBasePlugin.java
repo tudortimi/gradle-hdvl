@@ -82,13 +82,13 @@ public class HDVLBasePlugin implements Plugin<Project> {
     }
 
     private void configureGenFullArgsFile(Project project, String toolName) {
-        AbstractGenArgsFile genXrunArgsFile = (AbstractGenArgsFile) project.getTasks()
+        AbstractGenArgsFile genArgsFile = (AbstractGenArgsFile) project.getTasks()
                 .getByName(Names.getMainGenArgsFileTaskName(toolName));
         project.getTasks().register(Names.getGenFullArgsFileTaskName(toolName), GenFullArgsFile.class, new Action<GenFullArgsFile>() {
             @Override
             public void execute(GenFullArgsFile genFullArgsFile) {
                 genFullArgsFile.setDescription("Generates an argument file for the main source code and its dependencies.");
-                genFullArgsFile.getSource().set(genXrunArgsFile.getDestination());
+                genFullArgsFile.getSource().set(genArgsFile.getDestination());
                 genFullArgsFile.getDestination().set(new File(project.getBuildDir(), Names.getFullArgsFileName(toolName)));
                 genFullArgsFile.setArgsFiles(project.getConfigurations().getByName(Names.getArgsFilesConfigurationName(toolName)));
             }
