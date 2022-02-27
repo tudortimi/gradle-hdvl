@@ -51,7 +51,7 @@ public class SVUnitPlugin implements Plugin<Project> {
                 HasConvention sourceSetWithConvention = (HasConvention) sourceSet;
                 SystemVerilogSourceSet svSourceSet
                         = (SystemVerilogSourceSet) sourceSetWithConvention.getConvention().getPlugins().get("sv");
-                configureTestTask(project, svSourceSet);
+                configureTestWithXrunTask(project, svSourceSet);
             }
         });
     }
@@ -64,10 +64,10 @@ public class SVUnitPlugin implements Plugin<Project> {
         toolChains = project.getExtensions().create(ToolChains.class, "toolChains", DefaultToolChains.class);
     }
 
-    private void configureTestTask(Project project, SystemVerilogSourceSet testSourceSet) {
+    private void configureTestWithXrunTask(Project project, SystemVerilogSourceSet testSourceSet) {
         GenFullArgsFile genFullArgsFile = (GenFullArgsFile) project.getTasks().getByName("genFullXrunArgsFile");
         Configuration testCompileConfiguration = project.getConfigurations().getByName("testCompile");
-        project.getTasks().register("test", TestTask.class, new Action<TestTask>() {
+        project.getTasks().register("testWithXrun", TestTask.class, new Action<TestTask>() {
             @Override
             public void execute(TestTask testTask) {
                 testTask.setDescription("Runs the unit tests using SVUnit.");
