@@ -72,6 +72,7 @@ public class SVUnitPlugin implements Plugin<Project> {
             @Override
             public void execute(TestTask testTask) {
                 testTask.setDescription("Runs the unit tests using SVUnit.");
+                testTask.getToolName().set("xrun");
                 testTask.getMainArgsFile().set(genFullArgsFile.getDestination());
                 testTask.setTestsRoot(testSourceSet.getSv().getSourceDirectories().getSingleFile());
                 testTask.setSvunitRoot(testCompileConfiguration);
@@ -88,6 +89,7 @@ public class SVUnitPlugin implements Plugin<Project> {
             @Override
             public void execute(TestTask testTask) {
                 testTask.setDescription("Runs the unit tests using SVUnit.");
+                testTask.getToolName().set("qrun");
                 testTask.getMainArgsFile().set(genFullArgsFile.getDestination());
                 testTask.setTestsRoot(testSourceSet.getSv().getSourceDirectories().getSingleFile());
                 testTask.setSvunitRoot(testCompileConfiguration);

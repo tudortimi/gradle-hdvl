@@ -23,6 +23,7 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.*;
 import org.gradle.process.ExecSpec;
 
@@ -32,17 +33,25 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 public class TestTask extends DefaultTask {
+
     private RegularFileProperty mainArgsFile;
     private File testsRoot;
     private FileCollection svunitRoot;
+    private Property<String> toolName;
     private DirectoryProperty workingDir;
     private ListProperty<String> extraArgs;
 
     @Inject
     public TestTask(ObjectFactory objectFactory) {
+        toolName = objectFactory.property(String.class);
         mainArgsFile = objectFactory.fileProperty();
         workingDir = objectFactory.directoryProperty();
         extraArgs = objectFactory.listProperty(String.class);
+    }
+
+    @Input
+    public Property<String> getToolName() {
+        return toolName;
     }
 
     @InputFile
@@ -105,7 +114,7 @@ public class TestTask extends DefaultTask {
                         "cd -");
                 String runSVUnitCommand = String.join(" ",
                         "runSVUnit",
-                        "--sim", "xrun",
+                        "--sim", toolName.get(),
                         "-f", mainArgsFile.getAsFile().get().getAbsolutePath(),
                         String.join(" ", extraArgs.get()));
                 String cArg = String.join("; ", sourceCommands, runSVUnitCommand);
@@ -114,4 +123,5 @@ public class TestTask extends DefaultTask {
             }
         });
     }
+
 }
