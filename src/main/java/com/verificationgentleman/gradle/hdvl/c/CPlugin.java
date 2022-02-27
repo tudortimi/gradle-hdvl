@@ -38,13 +38,12 @@ public class CPlugin implements Plugin<Project> {
                 // XXX WORKAROUND Not part of the public API
                 new DslObject(sourceSet).getConvention().getPlugins().put("c", cSourceSet);
 
-                AbstractGenArgsFile genXrunArgsFile
-                        = (AbstractGenArgsFile) project.getTasks().getByName(sourceSet.getGenArgsFileTaskName("Xrun"));
-                genXrunArgsFile.setCSource(cSourceSet.getC());
-
-                AbstractGenArgsFile genQrunArgsFile
-                        = (AbstractGenArgsFile) project.getTasks().getByName(sourceSet.getGenArgsFileTaskName("Qrun"));
-                genQrunArgsFile.setCSource(cSourceSet.getC());
+                String[] toolNames = {"Xrun", "Qrun"};
+                for (String toolName: toolNames) {
+                    AbstractGenArgsFile genArgsFile
+                            = (AbstractGenArgsFile) project.getTasks().getByName(sourceSet.getGenArgsFileTaskName(toolName));
+                    genArgsFile.setCSource(cSourceSet.getC());
+                }
             }
         });
     }
