@@ -21,30 +21,16 @@ import org.gradle.api.plugins.ExtensionAware;
 
 public interface SourceSet extends Named, ExtensionAware {
     /**
-     * Returns the name of the gen xrun args file task for this source set.
+     * Returns the name of the gen args file task for this source set, for the specified tool.
      *
      * @return The task name. Never returns null.
      */
-    String getGenXrunArgsFileTaskName();
+    String getGenArgsFileTaskName(String toolName);
 
     /**
-     * Returns the name of the args file for this source set.
+     * Returns the name of the args file for this source set, for the specified tool.
      *
      * @return The task name. Never returns null.
      */
-    String getXrunArgsFileName();
-
-    /**
-     * Returns the name of the gen qrun args file task for this source set.
-     *
-     * @return The task name. Never returns null.
-     */
-    String getGenQrunArgsFileTaskName();
-
-    /**
-     * Returns the name of the qrun args file for this source set.
-     *
-     * @return The task name. Never returns null.
-     */
-    String getQrunArgsFileName();
+    String getArgsFileName(String toolName);
 }

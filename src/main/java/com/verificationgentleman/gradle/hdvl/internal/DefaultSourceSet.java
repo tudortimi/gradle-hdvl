@@ -22,6 +22,8 @@ import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 
+import static com.verificationgentleman.gradle.hdvl.internal.Names.getMainGenArgsFileTaskName;
+
 public abstract class DefaultSourceSet implements SourceSet {
     private final String name;
 
@@ -36,30 +38,17 @@ public abstract class DefaultSourceSet implements SourceSet {
     }
 
     @Override
-    public String getGenXrunArgsFileTaskName() {
-        return name == "main"
-                ? "genXrunArgsFile"
-                : GUtil.toLowerCamelCase("gen" + " " + name + "" + "XrunArgsFile");
+    public String getGenArgsFileTaskName(String toolName) {
+        return name.equals("main")
+                ? getMainGenArgsFileTaskName(toolName)
+                : GUtil.toLowerCamelCase("gen" + " " + name + "" + toolName + "ArgsFile");
     }
 
     @Override
-    public String getXrunArgsFileName() {
-        return name == "main"
-            ? "xrun_args.f"
-            : name + "_" + "xrun_args.f";
-    }
-
-    @Override
-    public String getGenQrunArgsFileTaskName() {
-        return name == "main"
-            ? "genQrunArgsFile"
-            : GUtil.toLowerCamelCase("gen" + " " + name + "" + "QrunArgsFile");
-    }
-
-    @Override
-    public String getQrunArgsFileName() {
-        return name == "main"
-            ? "qrun_args.f"
-            : name + "_" + "qrun_args.f";
+    public String getArgsFileName(String toolName) {
+        String toolNameLower = toolName.toLowerCase();
+        return name.equals("main")
+            ? toolNameLower + "_" + "args.f"
+            : name + "_" + toolNameLower + "_" + "args.f";
     }
 }

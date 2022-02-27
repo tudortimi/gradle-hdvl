@@ -39,13 +39,12 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                 // XXX WORKAROUND Not part of the public API
                 new DslObject(sourceSet).getConvention().getPlugins().put("sv", svSourceSet);
 
-                AbstractGenArgsFile genXrunArgsFile
-                        = (AbstractGenArgsFile) project.getTasks().getByName(sourceSet.getGenXrunArgsFileTaskName());
-                configureSources(genXrunArgsFile, svSourceSet);
-
-                AbstractGenArgsFile genQrunArgsFile
-                        = (AbstractGenArgsFile) project.getTasks().getByName(sourceSet.getGenQrunArgsFileTaskName());
-                configureSources(genQrunArgsFile, svSourceSet);
+                String[] toolNames = {"Xrun", "Qrun"};
+                for (String toolName: toolNames) {
+                    AbstractGenArgsFile genArgsFile
+                        = (AbstractGenArgsFile) project.getTasks().getByName(sourceSet.getGenArgsFileTaskName(toolName));
+                    configureSources(genArgsFile, svSourceSet);
+                }
             }
         });
     }
