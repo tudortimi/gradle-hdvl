@@ -110,17 +110,16 @@ public class HDVLBasePlugin implements Plugin<Project> {
         Attribute<String> tool = Attribute.of("com.verificationgentlenan.gradle.hdvl.tool", String.class);
         project.getDependencies().getAttributesSchema().attribute(tool);
 
-        Configuration xrunArgsFiles = project.getConfigurations().create(Names.getArgsFilesConfigurationName("Xrun"));
-        xrunArgsFiles.extendsFrom(compileConfiguration);
-        xrunArgsFiles.setCanBeConsumed(true);
-        xrunArgsFiles.setCanBeResolved(true);
-        xrunArgsFiles.getAttributes().attribute(tool, "Xrun");
+        configureArgsFilesConfiguration(project, compileConfiguration, tool, "Xrun");
+        configureArgsFilesConfiguration(project, compileConfiguration, tool, "Qrun");
+    }
 
-        Configuration qrunArgsFiles = project.getConfigurations().create(Names.getArgsFilesConfigurationName("Qrun"));
-        qrunArgsFiles.extendsFrom(compileConfiguration);
-        qrunArgsFiles.setCanBeConsumed(true);
-        qrunArgsFiles.setCanBeResolved(true);
-        qrunArgsFiles.getAttributes().attribute(tool, "Qrun");
+    private void configureArgsFilesConfiguration(Project project, Configuration compileConfiguration, Attribute<String> toolAttribute, String toolName) {
+        Configuration argsFiles = project.getConfigurations().create(Names.getArgsFilesConfigurationName(toolName));
+        argsFiles.extendsFrom(compileConfiguration);
+        argsFiles.setCanBeConsumed(true);
+        argsFiles.setCanBeResolved(true);
+        argsFiles.getAttributes().attribute(toolAttribute, toolName);
     }
 
     private void configureXrunCompileArtifact(Project project) {
