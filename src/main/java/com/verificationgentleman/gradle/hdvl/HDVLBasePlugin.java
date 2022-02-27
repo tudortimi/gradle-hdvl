@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2021-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurablePublishArtifact;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.attributes.Attribute;
 
 import java.io.File;
 
@@ -37,12 +38,15 @@ public class HDVLBasePlugin implements Plugin<Project> {
             @Override
             public void execute(SourceSet sourceSet) {
                 configureGenArgsFile(project, sourceSet);
+                configureGenQrunArgsFile(project, sourceSet);
             }
         });
 
         configureGenFullArgsFile(project);
+        configureGenFullQrunArgsFile(project);
         configureConfigurations(project);
         configureCompileArtifact(project);
+        configureQrunCompileArtifact(project);
     }
 
     private void configureGenArgsFile(Project project, SourceSet sourceSet) {
@@ -69,16 +73,59 @@ public class HDVLBasePlugin implements Plugin<Project> {
                 genFullArgsFile.setDescription("Generates an argument file for the main source code and its dependencies.");
                 genFullArgsFile.getSource().set(genArgsFile.getDestination());
                 genFullArgsFile.getDestination().set(new File(project.getBuildDir(), "full_args.f"));
-                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName("compile"));
+                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName("xrunArgsFiles"));
+            }
+        });
+    }
+
+    private void configureGenQrunArgsFile(Project project, SourceSet sourceSet) {
+        String taskName = sourceSet.getGenQrunArgsFileTaskName();
+        project.getTasks().register(taskName, GenQrunArgsFile.class, new Action<GenQrunArgsFile>() {
+            @Override
+            public void execute(GenQrunArgsFile genQrunArgsFile) {
+                genQrunArgsFile.setDescription("Generates a 'qrun' argument file for the " + sourceSet.getName()
+                        + " source code.");
+                genQrunArgsFile.setSource(project.files().getAsFileTree());
+                genQrunArgsFile.setPrivateIncludeDirs(project.files().getAsFileTree());
+                genQrunArgsFile.setExportedIncludeDirs(project.files().getAsFileTree());
+                genQrunArgsFile.setCSource(project.files().getAsFileTree());
+                genQrunArgsFile.getDestination().set(new File(project.getBuildDir(), sourceSet.getQrunArgsFileName()));
+            }
+        });
+    }
+
+    private void configureGenFullQrunArgsFile(Project project) {
+        AbstractGenArgsFile genQrunArgsFile = (AbstractGenArgsFile) project.getTasks().getByName("genQrunArgsFile");
+        project.getTasks().register("genFullQrunArgsFile", GenFullArgsFile.class, new Action<GenFullArgsFile>() {
+            @Override
+            public void execute(GenFullArgsFile genFullArgsFile) {
+                genFullArgsFile.setDescription("Generates a qrun argument file for the main source code and its dependencies.");
+                genFullArgsFile.getSource().set(genQrunArgsFile.getDestination());
+                genFullArgsFile.getDestination().set(new File(project.getBuildDir(), "full_qrun_args.f"));
+                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName("qrunArgsFiles"));
             }
         });
     }
 
     private void configureConfigurations(Project project) {
         Configuration compileConfiguration = project.getConfigurations().create("compile");
+        compileConfiguration.setCanBeConsumed(false);
+        compileConfiguration.setCanBeResolved(false);
 
-        Configuration defaultConfiguration = project.getConfigurations().create(Dependency.DEFAULT_CONFIGURATION);
-        defaultConfiguration.extendsFrom(compileConfiguration);
+        Attribute<String> tool = Attribute.of("com.verificationgentlenan.gradle.hdvl.tool", String.class);
+        project.getDependencies().getAttributesSchema().attribute(tool);
+
+        Configuration xrunArgsFiles = project.getConfigurations().create("xrunArgsFiles");
+        xrunArgsFiles.extendsFrom(compileConfiguration);
+        xrunArgsFiles.setCanBeConsumed(true);
+        xrunArgsFiles.setCanBeResolved(true);
+        xrunArgsFiles.getAttributes().attribute(tool, "Xrun");
+
+        Configuration qrunArgsFiles = project.getConfigurations().create("qrunArgsFiles");
+        qrunArgsFiles.extendsFrom(compileConfiguration);
+        qrunArgsFiles.setCanBeConsumed(true);
+        qrunArgsFiles.setCanBeResolved(true);
+        qrunArgsFiles.getAttributes().attribute(tool, "Qrun");
     }
 
     private void configureCompileArtifact(Project project) {
@@ -89,6 +136,17 @@ public class HDVLBasePlugin implements Plugin<Project> {
                 configurablePublishArtifact.builtBy(genArgsFile);
             }
         };
-        project.getArtifacts().add("default", genArgsFile.getDestination(), configureAction);
+        project.getArtifacts().add("xrunArgsFiles", genArgsFile.getDestination(), configureAction);
+    }
+
+    private void configureQrunCompileArtifact(Project project) {
+        AbstractGenArgsFile genArgsFile = (AbstractGenArgsFile) project.getTasks().getByName("genQrunArgsFile");
+        Action<ConfigurablePublishArtifact> configureAction = new Action<ConfigurablePublishArtifact>() {
+            @Override
+            public void execute(ConfigurablePublishArtifact configurablePublishArtifact) {
+                configurablePublishArtifact.builtBy(genArgsFile);
+            }
+        };
+        project.getArtifacts().add("qrunArgsFiles", genArgsFile.getDestination(), configureAction);
     }
 }

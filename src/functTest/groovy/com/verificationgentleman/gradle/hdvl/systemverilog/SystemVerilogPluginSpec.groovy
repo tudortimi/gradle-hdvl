@@ -98,7 +98,7 @@ class SystemVerilogPluginSpec extends Specification {
             sourceSets {
                 main
             }
-            
+
             task copy(type: Copy) {
                 from sourceSets.main.sv.files
                 into 'build'
@@ -126,7 +126,7 @@ class SystemVerilogPluginSpec extends Specification {
             sourceSets {
                 main
             }
-            
+
             task copy(type: Copy) {
                 from sourceSets.main.sv.files
                 into 'build'
@@ -157,7 +157,7 @@ class SystemVerilogPluginSpec extends Specification {
                     }
                 }
             }
-            
+
             task copy(type: Copy) {
                 from sourceSets.main.sv.files
                 into 'build'
@@ -188,7 +188,7 @@ class SystemVerilogPluginSpec extends Specification {
                     }
                 }
             }
-            
+
             task copy(type: Copy) {
                 from sourceSets.main.svHeaders.files
                 into 'build'
@@ -211,7 +211,7 @@ class SystemVerilogPluginSpec extends Specification {
         File sv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
-        buildFile << """            
+        buildFile << """
             task copy(type: Copy) {
                 from sourceSets.main.sv.files
                 into 'build'
@@ -243,11 +243,11 @@ class SystemVerilogPluginSpec extends Specification {
         File buildFile = testProjectDir.newFile('build.gradle.kts')
         buildFile << """
             import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogSourceSet
-            
+
             plugins {
                 id("com.verificationgentleman.gradle.hdvl.systemverilog")
             }
-            
+
             sourceSets {
                 main {
                     withConvention(SystemVerilogSourceSet::class) {
@@ -255,7 +255,7 @@ class SystemVerilogPluginSpec extends Specification {
                     }
                 }
             }
-            
+
             tasks.register<Copy>("copy") {
                 // XXX Not clear why we can't just do 'sourceSets.main.sv'.
                 // 'sourceSets.main' doesn't return an object of type 'SourceSet', but a
@@ -290,11 +290,11 @@ class SystemVerilogPluginSpec extends Specification {
         File buildFile = testProjectDir.newFile('build.gradle.kts')
         buildFile << """
             import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogSourceSet
-            
+
             plugins {
                 id("com.verificationgentleman.gradle.hdvl.systemverilog")
             }
-            
+
             sourceSets {
                 main {
                     withConvention(SystemVerilogSourceSet::class) {
@@ -302,7 +302,7 @@ class SystemVerilogPluginSpec extends Specification {
                     }
                 }
             }
-            
+
             tasks.register<Copy>("copy") {
                 // XXX Not clear why we can't just do 'sourceSets.main.sv'.
                 // 'sourceSets.main' doesn't return an object of type 'SourceSet', but a
@@ -646,4 +646,192 @@ class SystemVerilogPluginSpec extends Specification {
         new File(testProjectDir.root, "build/dummy_args.f").exists()
         new File(testProjectDir.root, "build/dummy_args.f").text.contains('dummy.sv')
     }
+
+    def "'genArgsFile' tasks when custom source set present produce correct args file"() {
+        File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(mainSv, "main.sv").createNewFile()
+        File dummySv = testProjectDir.newFolder('src', 'dummy', 'sv')
+        new File(dummySv, "dummy.sv").createNewFile()
+
+        buildFile << """
+            sourceSets {
+                dummy {
+                   sv {
+                       srcDir 'src/dummy/sv'
+                   }
+                }
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genDummyArgsFile', 'genArgsFile')
+            .build()
+
+        then:
+        new File(testProjectDir.root, "build/args.f").text.contains('main.sv')
+        new File(testProjectDir.root, "build/dummy_args.f").text.contains('dummy.sv')
+    }
+
+    def "'genQrunArgsFile' task produces output"() {
+        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(sv, 'dummy.sv').createNewFile()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genQrunArgsFile')
+            .build()
+
+        then:
+        result.task(":genQrunArgsFile").outcome == SUCCESS
+        new File(testProjectDir.root, 'build/qrun_args.f').exists()
+    }
+
+    def "'genQrunArgsFile' task uses 'work' as name for library"() {
+        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(sv, 'dummy.sv').createNewFile()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genQrunArgsFile')
+            .build()
+
+        then:
+        new File(testProjectDir.root, 'build/qrun_args.f').text.contains('-makelib work\n')
+    }
+
+    def "'genQrunArgsFile' task writes private include directories to args file"() {
+        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(sv, 'dummy.sv').createNewFile()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genQrunArgsFile')
+            .build()
+
+        then:
+        def lines = new File(testProjectDir.root, 'build/qrun_args.f').text.split("\n")
+        def lineWithIncdir = lines.find { it.contains('+incdir+') }
+        lineWithIncdir != null
+        lineWithIncdir.endsWith("src/main/sv")
+        !lineWithIncdir.any { it.contains('+ ') }
+    }
+
+    def "'genQrunArgsFile' task writes exported header directories to args file"() {
+        File svHeaders = testProjectDir.newFolder('src', 'main', 'sv_headers')
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genQrunArgsFile')
+            .build()
+
+        then:
+        def lines = new File(testProjectDir.root, 'build/qrun_args.f').text.split("\n")
+        def linesWithIncdir = lines.findAll { it.contains('+incdir+') }
+        !linesWithIncdir.isEmpty()
+        linesWithIncdir.any { it.endsWith("src/main/sv_headers") }
+        !linesWithIncdir.any { it.contains('+ ') }
+    }
+
+    def "'genFullQrunArgsFile' task consumes output of 'genQrunArgsFile"() {
+        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(sv, 'dummy.sv').createNewFile()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genFullQrunArgsFile')
+            .build()
+
+        then:
+        result.task(":genQrunArgsFile").outcome == SUCCESS
+        result.task(":genFullQrunArgsFile").outcome == SUCCESS
+        new File(testProjectDir.root, 'build/full_qrun_args.f').exists()
+        new File(testProjectDir.root, 'build/full_qrun_args.f').text.contains('build/qrun_args.f')
+    }
+
+    def "'argsFiles' artifacts produced by direct dependencies are consumed by main project in 'genFullQrunArgsFile'"() {
+        setup:
+        buildFile.delete()
+
+        File settingsFile = testProjectDir.newFile('settings.gradle')
+        settingsFile << """
+            include 'directDependency'
+            include 'mainProject'
+        """
+
+        File directDependencyBuildFile = newStandardProject('directDependency')
+
+        File mainProjectBuildFile = newStandardProject('mainProject')
+        mainProjectBuildFile << """
+            dependencies {
+                compile project(':directDependency')
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':mainProject:genFullQrunArgsFile')
+            .build()
+
+        then:
+        result.task(":directDependency:genQrunArgsFile").outcome == SUCCESS
+        result.task(":mainProject:genQrunArgsFile").outcome == SUCCESS
+        result.task(":mainProject:genFullQrunArgsFile").outcome == SUCCESS
+        new File(testProjectDir.root, 'mainProject/build/full_qrun_args.f').text
+                .contains('directDependency/build/qrun_args.f')
+        new File(testProjectDir.root, 'mainProject/build/full_qrun_args.f').text
+                .contains('mainProject/build/qrun_args.f')
+    }
+
+    def "only qrun 'argsFiles' artifacts are consumed by main project in 'genFullQrunArgsFile'"() {
+        setup:
+        buildFile.delete()
+
+        File settingsFile = testProjectDir.newFile('settings.gradle')
+        settingsFile << """
+            include 'directDependency'
+            include 'mainProject'
+        """
+
+        File directDependencyBuildFile = newStandardProject('directDependency')
+
+        File mainProjectBuildFile = newStandardProject('mainProject')
+        mainProjectBuildFile << """
+            dependencies {
+                compile project(':directDependency')
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':mainProject:genFullQrunArgsFile')
+            .build()
+
+        then:
+        result.task(":directDependency:genQrunArgsFile").outcome == SUCCESS
+        result.task(":mainProject:genQrunArgsFile").outcome == SUCCESS
+        result.task(":mainProject:genFullQrunArgsFile").outcome == SUCCESS
+        new File(testProjectDir.root, 'mainProject/build/full_qrun_args.f').readLines().each { String line ->
+            if (line.contains('args.f')) {
+                assert line.contains('qrun_args.f')
+            }
+        }
+    }
+
 }

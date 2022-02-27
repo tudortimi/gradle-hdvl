@@ -20,21 +20,21 @@ import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
 
-public class GenArgsFile extends AbstractGenArgsFile {
+public class GenQrunArgsFile extends AbstractGenArgsFile {
 
     @Inject
-    public GenArgsFile(ObjectFactory objectFactory) {
+    public GenQrunArgsFile(ObjectFactory objectFactory) {
         super(objectFactory);
     }
 
     @Override
     protected String getLibName() {
-        return "worklib";
+        return "work";
     }
 
     @Override
     protected String getIncdirOpt(String incdirPath) {
-        return "-incdir " + incdirPath;
+        return "+incdir+" + incdirPath;
     }
 
 }

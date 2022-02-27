@@ -32,4 +32,18 @@ public abstract class DefaultSourceSet implements SourceSet {
             ? "args.f"
             : name + "_" + "args.f";
     }
+
+    @Override
+    public String getGenQrunArgsFileTaskName() {
+        return name == "main"
+            ? "genQrunArgsFile"
+            : GUtil.toLowerCamelCase("gen" + " " + name + "" + "QrunArgsFile");
+    }
+
+    @Override
+    public String getQrunArgsFileName() {
+        return name == "main"
+            ? "qrun_args.f"
+            : name + "_" + "qrun_args.f";
+    }
 }

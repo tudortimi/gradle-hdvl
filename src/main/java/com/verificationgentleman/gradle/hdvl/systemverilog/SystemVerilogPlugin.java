@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2020-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,7 @@
  */
 package com.verificationgentleman.gradle.hdvl.systemverilog;
 
-import com.verificationgentleman.gradle.hdvl.GenArgsFile;
-import com.verificationgentleman.gradle.hdvl.HDVLBasePlugin;
-import com.verificationgentleman.gradle.hdvl.HDVLPluginExtension;
-import com.verificationgentleman.gradle.hdvl.SourceSet;
+import com.verificationgentleman.gradle.hdvl.*;
 import com.verificationgentleman.gradle.hdvl.systemverilog.internal.DefaultSystemVerilogSourceSet;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
@@ -27,6 +24,7 @@ import org.gradle.api.Project;
 import org.gradle.api.internal.plugins.DslObject;
 
 public class SystemVerilogPlugin implements Plugin<Project> {
+
     @Override
     public void apply(Project project) {
         project.getPluginManager().apply(HDVLBasePlugin.class);
@@ -41,11 +39,21 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                 // XXX WORKAROUND Not part of the public API
                 new DslObject(sourceSet).getConvention().getPlugins().put("sv", svSourceSet);
 
-                GenArgsFile genArgsFile = (GenArgsFile) project.getTasks().getByName(sourceSet.getGenArgsFileTaskName());
-                genArgsFile.setSource(svSourceSet.getSv());
-                genArgsFile.setPrivateIncludeDirs(svSourceSet.getSv().getSourceDirectories());
-                genArgsFile.setExportedIncludeDirs(svSourceSet.getSvHeaders().getSourceDirectories());
+                AbstractGenArgsFile genXrunArgsFile
+                        = (AbstractGenArgsFile) project.getTasks().getByName(sourceSet.getGenArgsFileTaskName());
+                configureSources(genXrunArgsFile, svSourceSet);
+
+                AbstractGenArgsFile genQrunArgsFile
+                        = (AbstractGenArgsFile) project.getTasks().getByName(sourceSet.getGenQrunArgsFileTaskName());
+                configureSources(genQrunArgsFile, svSourceSet);
             }
         });
     }
+
+    private void configureSources(AbstractGenArgsFile genArgsFile, SystemVerilogSourceSet svSourceSet) {
+        genArgsFile.setSource(svSourceSet.getSv());
+        genArgsFile.setPrivateIncludeDirs(svSourceSet.getSv().getSourceDirectories());
+        genArgsFile.setExportedIncludeDirs(svSourceSet.getSvHeaders().getSourceDirectories());
+    }
+
 }

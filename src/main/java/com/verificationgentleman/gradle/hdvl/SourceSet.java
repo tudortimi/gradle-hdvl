@@ -17,4 +17,18 @@ public interface SourceSet extends Named, ExtensionAware {
      * @return The task name. Never returns null.
      */
     String getArgsFileName();
+
+    /**
+     * Returns the name of the gen qrun args file task for this source set.
+     *
+     * @return The task name. Never returns null.
+     */
+    String getGenQrunArgsFileTaskName();
+
+    /**
+     * Returns the name of the qrun args file for this source set.
+     *
+     * @return The task name. Never returns null.
+     */
+    String getQrunArgsFileName();
 }
