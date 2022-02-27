@@ -16,6 +16,7 @@
 package com.verificationgentleman.gradle.hdvl;
 
 import com.verificationgentleman.gradle.hdvl.internal.DefaultHDVLPluginExtension;
+import com.verificationgentleman.gradle.hdvl.internal.Names;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -109,13 +110,13 @@ public class HDVLBasePlugin implements Plugin<Project> {
         Attribute<String> tool = Attribute.of("com.verificationgentlenan.gradle.hdvl.tool", String.class);
         project.getDependencies().getAttributesSchema().attribute(tool);
 
-        Configuration xrunArgsFiles = project.getConfigurations().create("xrunArgsFiles");
+        Configuration xrunArgsFiles = project.getConfigurations().create(Names.getArgsFilesConfigurationName("Xrun"));
         xrunArgsFiles.extendsFrom(compileConfiguration);
         xrunArgsFiles.setCanBeConsumed(true);
         xrunArgsFiles.setCanBeResolved(true);
         xrunArgsFiles.getAttributes().attribute(tool, "Xrun");
 
-        Configuration qrunArgsFiles = project.getConfigurations().create("qrunArgsFiles");
+        Configuration qrunArgsFiles = project.getConfigurations().create(Names.getArgsFilesConfigurationName("Qrun"));
         qrunArgsFiles.extendsFrom(compileConfiguration);
         qrunArgsFiles.setCanBeConsumed(true);
         qrunArgsFiles.setCanBeResolved(true);
