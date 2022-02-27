@@ -52,8 +52,11 @@ public class SVUnitPlugin implements Plugin<Project> {
                 HasConvention sourceSetWithConvention = (HasConvention) sourceSet;
                 SystemVerilogSourceSet svSourceSet
                         = (SystemVerilogSourceSet) sourceSetWithConvention.getConvention().getPlugins().get("sv");
-                configureTestTask(project, svSourceSet, "Xrun");
-                configureTestTask(project, svSourceSet, "Qrun");
+
+                String[] toolNames = {"Xrun", "Qrun"};
+                for (String toolName: toolNames) {
+                    configureTestTask(project, svSourceSet, toolName);
+                }
             }
         });
     }
