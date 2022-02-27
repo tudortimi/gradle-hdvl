@@ -49,8 +49,8 @@ public class HDVLBasePlugin implements Plugin<Project> {
         configureGenFullArgsFile(project, "Xrun");
         configureGenFullArgsFile(project, "Qrun");
         configureConfigurations(project);
-        configureXrunCompileArtifact(project);
-        configureQrunCompileArtifact(project);
+        configureCompileArtifact(project, "Xrun");
+        configureCompileArtifact(project, "Qrun");
     }
 
     private void configureGenArgsFile(Project project, SourceSet sourceSet, String toolName) {
@@ -113,26 +113,16 @@ public class HDVLBasePlugin implements Plugin<Project> {
         argsFiles.getAttributes().attribute(HDVLBasePlugin.TOOL_ATTRIBUTE, toolName);
     }
 
-    private void configureXrunCompileArtifact(Project project) {
-        AbstractGenArgsFile genXrunArgsFile = (AbstractGenArgsFile) project.getTasks().getByName("genXrunArgsFile");
-        Action<ConfigurablePublishArtifact> configureAction = new Action<ConfigurablePublishArtifact>() {
-            @Override
-            public void execute(ConfigurablePublishArtifact configurablePublishArtifact) {
-                configurablePublishArtifact.builtBy(genXrunArgsFile);
-            }
-        };
-        project.getArtifacts().add("xrunArgsFiles", genXrunArgsFile.getDestination(), configureAction);
-    }
-
-    private void configureQrunCompileArtifact(Project project) {
-        AbstractGenArgsFile genArgsFile = (AbstractGenArgsFile) project.getTasks().getByName("genQrunArgsFile");
+    private void configureCompileArtifact(Project project, String toolName) {
+        AbstractGenArgsFile genArgsFile
+                = (AbstractGenArgsFile) project.getTasks().getByName(Names.getMainGenArgsFileTaskName(toolName));
         Action<ConfigurablePublishArtifact> configureAction = new Action<ConfigurablePublishArtifact>() {
             @Override
             public void execute(ConfigurablePublishArtifact configurablePublishArtifact) {
                 configurablePublishArtifact.builtBy(genArgsFile);
             }
         };
-        project.getArtifacts().add("qrunArgsFiles", genArgsFile.getDestination(), configureAction);
+        project.getArtifacts().add(Names.getArgsFilesConfigurationName(toolName), genArgsFile.getDestination(), configureAction);
     }
 
 }
