@@ -24,6 +24,8 @@ gradlePlugin {
         }
         create("c") {
             id = "com.verificationgentleman.gradle.hdvl.c"
+            displayName = "Plugin for C support in HDL simulators"
+            description = "A plugin that adds support for compiling and running C code in HDL simulators through the DPI"
             implementationClass = "com.verificationgentleman.gradle.hdvl.c.CPlugin"
         }
         create("svunit") {
