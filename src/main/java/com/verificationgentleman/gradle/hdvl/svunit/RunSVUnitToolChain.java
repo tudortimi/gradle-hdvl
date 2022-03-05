@@ -10,7 +10,7 @@ public interface RunSVUnitToolChain extends ToolChain {
     /**
      * Configures the command line args.
      *
-     * @param configureClosure The closure to use to configure the command line args
+     * @param args The arg values to append
      * @return this
      */
     RunSVUnitToolChain args(String... args);
