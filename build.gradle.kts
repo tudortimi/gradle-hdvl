@@ -42,6 +42,8 @@ gradlePlugin {
         }
         create("dvt") {
             id = "com.verificationgentleman.gradle.hdvl.dvt"
+            displayName = "Plugin for DVT IDE support"
+            description = "A plugin that creates DVT projects from HDVL sources"
             implementationClass = "com.verificationgentleman.gradle.hdvl.dvt.DVTPlugin"
         }
     }
