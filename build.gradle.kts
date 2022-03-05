@@ -2,6 +2,7 @@ plugins {
     id("java-gradle-plugin")
     id("groovy")
     id("maven-publish")
+    id("com.gradle.plugin-publish") version "0.20.0"
 }
 
 apply(from = "$rootDir/gradle/functional-test.gradle")
