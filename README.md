@@ -1,2 +1,2 @@
 # gradle-hdvl
-Gradle plugin that provides support for hardware design and verification languages
+Family of Gradle plugins that provide support for hardware design and verification languages
