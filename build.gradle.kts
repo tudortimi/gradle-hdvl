@@ -30,14 +30,20 @@ gradlePlugin {
         }
         create("svunit") {
             id = "com.verificationgentleman.gradle.hdvl.svunit"
+            displayName = "Plugin for SVUnit support"
+            description = "A plugin that adds testing of HDVL projects with SVUnit"
             implementationClass = "com.verificationgentleman.gradle.hdvl.svunit.SVUnitPlugin"
         }
         create("svunit-build") {
             id = "com.verificationgentleman.gradle.hdvl.svunit-build"
+            displayName = "Plugin for building SVUnit itself as an HDVL project"
+            description = "A plugin that builds SVUnit as an HDVL project"
             implementationClass = "com.verificationgentleman.gradle.hdvl.svunit.SVUnitBuildPlugin"
         }
         create("svunit-build-injector") {
             id = "com.verificationgentleman.gradle.hdvl.svunit-build-injector"
+            displayName = "Plugin for injecting build Gradle into SVUnit itself"
+            description = "A plugin that injects a Gradle build into SVUnit"
             implementationClass = "com.verificationgentleman.gradle.hdvl.svunit.SVUnitBuildInjectorPlugin"
         }
         create("dvt") {
