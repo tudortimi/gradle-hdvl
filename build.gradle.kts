@@ -5,6 +5,12 @@ plugins {
     id("com.gradle.plugin-publish") version "0.20.0"
 }
 
+pluginBundle {
+    website = "https://github.com/tudortimi/gradle-hdvl/blob/master/README.md"
+    vcsUrl = "https://github.com/tudortimi/gradle-hdvl"
+    tags = listOf("SystemVerilog", "HDL", "hardware", "verification", "Xcelium", "QuestaSim", "SVUnit")
+}
+
 apply(from = "$rootDir/gradle/functional-test.gradle")
 
 group = "com.verificationgentleman.gradle"
