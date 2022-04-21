@@ -64,6 +64,10 @@ dependencies {
     testImplementation("org.spockframework:spock-junit4:2.0-groovy-3.0")
 }
 
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
+
 repositories {
     mavenCentral()
 }
