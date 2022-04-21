@@ -58,9 +58,10 @@ gradlePlugin {
 }
 
 dependencies {
-    testImplementation("org.spockframework:spock-core:1.1-groovy-2.4") {
+    testImplementation("org.spockframework:spock-core:2.0-groovy-3.0") {
         exclude(group = "org.codehaus.groovy")
     }
+    testImplementation("org.spockframework:spock-junit4:2.0-groovy-3.0")
 }
 
 repositories {
