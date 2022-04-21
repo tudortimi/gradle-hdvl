@@ -65,7 +65,7 @@ dependencies {
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 tasks.withType(JavaCompile::class) {
