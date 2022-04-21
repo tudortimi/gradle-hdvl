@@ -20,6 +20,8 @@ import org.gradle.api.NamedDomainObjectContainer;
 public interface HDVLPluginExtension {
     /**
      * Returns the {@link SourceSet} container.
+     *
+     * @return the {@link SourceSet} container
      */
     NamedDomainObjectContainer<SourceSet> getSourceSets();
 }
