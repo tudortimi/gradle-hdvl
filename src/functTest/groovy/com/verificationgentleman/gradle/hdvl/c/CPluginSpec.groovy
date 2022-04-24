@@ -21,15 +21,19 @@ import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.TempDir
 
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+
 import static org.gradle.testkit.runner.TaskOutcome.NO_SOURCE
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
 class CPluginSpec extends Specification {
-    @TempDir File testProjectDir
+    @TempDir Path testProjectDir
     File buildFile
 
     def setup() {
-        buildFile = new File(testProjectDir,'build.gradle')
+        buildFile = Files.createFile(testProjectDir.resolve('build.gradle')).toFile()
         buildFile << """
             plugins {
                 id 'com.verificationgentleman.gradle.hdvl.c'
@@ -40,7 +44,7 @@ class CPluginSpec extends Specification {
     def "can successfully import the plugin"() {
         when:
         def result = GradleRunner.create()
-                .withProjectDir(testProjectDir)
+                .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .build()
 
@@ -49,9 +53,8 @@ class CPluginSpec extends Specification {
     }
 
     def "can specify a source set C source directory using a closure"() {
-        File c = new File([testProjectDir, 'c'].join(File.separator))
-        c.mkdirs()
-        new File(c, 'dummy.c').createNewFile()
+        Path c = Files.createDirectories(testProjectDir.resolve('c'))
+        Files.createFile(c.resolve('dummy.c'))
 
         buildFile << """
             sourceSets {
@@ -70,14 +73,14 @@ class CPluginSpec extends Specification {
 
         when:
         def result = GradleRunner.create()
-            .withProjectDir(testProjectDir)
+            .withProjectDir(testProjectDir.toFile())
             .withPluginClasspath()
             .withArguments('copy')
             .build()
 
         then:
         result.task(":copy").outcome == SUCCESS
-        new File(testProjectDir, 'build/dummy.c').exists()
+        Files.exists(testProjectDir.resolve('build').resolve('dummy.c'))
     }
 
     @Ignore("Complains that the source set doesn't support conventions")
@@ -87,9 +90,8 @@ class CPluginSpec extends Specification {
         setup:
         new File(testProjectDir, 'build.gradle').delete()
 
-        File c = new File([testProjectDir, 'src', 'main', 'c'].join(File.separator))
-        c.mkdirs()
-        new File(c, 'dummy.c').createNewFile()
+        Path c = Files.createDirectories(testProjectdir.resolve('src').resolve('c'))
+        Files.createFile(c.resolve('dummy.c'))
 
         File buildFile = new File(testProjectDir, 'build.gradle.kts')
         buildFile << """
@@ -129,60 +131,56 @@ class CPluginSpec extends Specification {
     }
 
     def "'genXrunArgsFile' task writes C files to args file"() {
-        File c = new File([testProjectDir, 'src', 'main', 'c'].join(File.separator))
-        c.mkdirs()
-        new File(c, 'dummy.c').createNewFile()
+        Path c = Files.createDirectories(testProjectDir.resolve('src').resolve('main').resolve('c'))
+        Files.createFile(c.resolve('dummy.c'))
 
         when:
         def result = GradleRunner.create()
-            .withProjectDir(testProjectDir)
+            .withProjectDir(testProjectDir.toFile())
             .withPluginClasspath()
             .withArguments('genXrunArgsFile')
             .build()
 
         then:
-        new File(testProjectDir, 'build/xrun_args.f').text.contains('src/main/c/dummy.c')
+        testProjectDir.resolve('build').resolve('xrun_args.f').toFile().text.contains('src/main/c/dummy.c')
     }
 
     def "'genQrunArgsFile' task writes C files to args file"() {
-        File c = new File([testProjectDir, 'src', 'main', 'c'].join(File.separator))
-        c.mkdirs()
-        new File(c, 'dummy.c').createNewFile()
+        Path c = Files.createDirectories(testProjectDir.resolve('src').resolve('main').resolve('c'))
+        Files.createFile(c.resolve('dummy.c'))
 
         when:
         def result = GradleRunner.create()
-            .withProjectDir(testProjectDir)
+            .withProjectDir(testProjectDir.toFile())
             .withPluginClasspath()
             .withArguments('genQrunArgsFile')
             .build()
 
         then:
-        new File(testProjectDir, 'build/qrun_args.f').text.contains('src/main/c/dummy.c')
+        testProjectDir.resolve('build').resolve('qrun_args.f').toFile().text.contains('src/main/c/dummy.c')
     }
 
     def "'genXrunArgsFile' task indents entries in makelib block"() {
-        File c = new File([testProjectDir, 'src', 'main', 'c'].join(File.separator))
-        c.mkdirs()
-        new File(c, 'dummy.c').createNewFile()
+        Path c = Files.createDirectories(testProjectDir.resolve('src').resolve('main').resolve('c'))
+        Files.createFile(c.resolve('dummy.c'))
 
         when:
         def result = GradleRunner.create()
-            .withProjectDir(testProjectDir)
+            .withProjectDir(testProjectDir.toFile())
             .withPluginClasspath()
             .withArguments('genXrunArgsFile')
             .build()
 
         then:
-        def lines = new File(testProjectDir, 'build/xrun_args.f').text.split('\n')
+        def lines = testProjectDir.resolve('build').resolve('xrun_args.f').toFile().text.split('\n')
         lines.findAll { !it.contains('-makelib') && !it.contains('-endlib') }.each {
             assert it.startsWith('  ')
         }
     }
 
     def "'genXrunArgsFile' task for custom source set produces args file"() {
-        File sv = new File([testProjectDir, 'src', 'dummy', 'c'].join(File.separator))
-        sv.mkdirs()
-        new File(sv, "dummy.c").createNewFile()
+        Path c = Files.createDirectories(testProjectDir.resolve('src').resolve('dummy').resolve('c'))
+        Files.createFile(c.resolve('dummy.c'))
 
         buildFile << """
             sourceSets {
@@ -196,14 +194,14 @@ class CPluginSpec extends Specification {
 
         when:
         def result = GradleRunner.create()
-            .withProjectDir(testProjectDir)
+            .withProjectDir(testProjectDir.toFile())
             .withPluginClasspath()
             .withArguments('genDummyXrunArgsFile')
             .build()
 
         then:
         result.task(":genDummyXrunArgsFile").outcome == SUCCESS
-        new File(testProjectDir, "build/dummy_xrun_args.f").exists()
-        new File(testProjectDir, "build/dummy_xrun_args.f").text.contains('dummy.c')
+        testProjectDir.resolve('build').resolve('dummy_xrun_args.f').toFile().exists()
+        testProjectDir.resolve('build').resolve('dummy_xrun_args.f').toFile().text.contains('dummy.c')
     }
 }
