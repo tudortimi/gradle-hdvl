@@ -14,7 +14,7 @@ pluginBundle {
 apply(from = "$rootDir/gradle/functional-test.gradle")
 
 group = "com.verificationgentleman.gradle"
-version = "0.2.0"
+version = "0.2.1"
 
 gradlePlugin {
     plugins {
