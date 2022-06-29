@@ -75,3 +75,10 @@ repositories {
 tasks.withType(JavaCompile::class) {
   options.compilerArgs.addAll(listOf("-Xlint:unchecked", "-Werror"))
 }
+
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
+}
