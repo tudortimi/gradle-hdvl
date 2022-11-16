@@ -403,6 +403,21 @@ class SystemVerilogPluginSpec extends Specification {
         lineWithIncdir.endsWith("sv")
     }
 
+    def "'genXrunArgsFile' task skips empty private include directories"() {
+        // No `src/main/sv` directory
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genXrunArgsFile')
+            .build()
+
+        then:
+        def lines = new File(testProjectDir.root, 'build/xrun_args.f').text.split("\n")
+        !lines.any { it.contains('-incdir') }
+    }
+
     def "'genXrunArgsFile' task writes exported header directories to args file"() {
         File svHeaders = testProjectDir.newFolder('src', 'main', 'sv_headers')
 
@@ -421,7 +436,7 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genXrunArgsFile' task doesn't write exported header directories to args file if none exist"() {
-        // No 'sv_headers' directory
+        // No 'src/main/sv_headers' directory
 
         when:
         def result = GradleRunner.create()
@@ -432,9 +447,7 @@ class SystemVerilogPluginSpec extends Specification {
 
         then:
         def lines = new File(testProjectDir.root, 'build/xrun_args.f').text.split("\n")
-        def linesWithIncdir = lines.findAll { it.contains('-incdir') }
-        !linesWithIncdir.isEmpty()
-        linesWithIncdir.each { assert !it.endsWith("src/main/sv_headers") }
+        !lines.any { it.contains('-incdir') }
     }
 
     def "'genXrunArgsFile' task indents entries in makelib block"() {
