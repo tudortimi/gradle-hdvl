@@ -437,7 +437,7 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genXrunArgsFile' task doesn't write exported header directories to args file if none exist"() {
-        // No 'sv_headers' directory
+        // No 'src/main/sv_headers' directory
 
         when:
         def result = GradleRunner.create()
@@ -449,8 +449,7 @@ class SystemVerilogPluginSpec extends Specification {
         then:
         def lines = new File(testProjectDir.root, 'build/xrun_args.f').text.split("\n")
         def linesWithIncdir = lines.findAll { it.contains('-incdir') }
-        !linesWithIncdir.isEmpty()
-        linesWithIncdir.each { assert !it.endsWith("src/main/sv_headers") }
+        linesWithIncdir.isEmpty()
     }
 
     def "'genXrunArgsFile' task indents entries in makelib block"() {
