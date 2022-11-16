@@ -94,7 +94,7 @@ public abstract class AbstractGenArgsFile extends SourceTask {
         FileWriter writer = new FileWriter(destination.get().getAsFile());
         writeExportedHeaders(writer);
         writer.write("-makelib " + getLibName() + "\n");
-        for (File f: getPrivateIncludeDirs())
+        for (File f: getPrivateIncludeDirs().filter((File::exists)))
             writer.write("  " + getIncdirOpt(f.getAbsolutePath()) + "\n");
         for (File f: getSource())
             writer.write("  " + f.getAbsolutePath() + "\n");

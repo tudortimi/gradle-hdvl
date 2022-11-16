@@ -403,6 +403,22 @@ class SystemVerilogPluginSpec extends Specification {
         lineWithIncdir.endsWith("sv")
     }
 
+    def "'genXrunArgsFile' task skips empty private include directories"() {
+        // No `src/main/sv` directory
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genXrunArgsFile')
+            .build()
+
+        then:
+        def lines = new File(testProjectDir.root, 'build/xrun_args.f').text.split("\n")
+        def lineWithIncdir = lines.find { it.contains('-incdir') }
+        lineWithIncdir == null
+    }
+
     def "'genXrunArgsFile' task writes exported header directories to args file"() {
         File svHeaders = testProjectDir.newFolder('src', 'main', 'sv_headers')
 
