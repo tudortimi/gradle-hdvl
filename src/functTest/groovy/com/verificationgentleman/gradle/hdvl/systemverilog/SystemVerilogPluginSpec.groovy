@@ -415,8 +415,7 @@ class SystemVerilogPluginSpec extends Specification {
 
         then:
         def lines = new File(testProjectDir.root, 'build/xrun_args.f').text.split("\n")
-        def lineWithIncdir = lines.find { it.contains('-incdir') }
-        lineWithIncdir == null
+        !lines.any { it.contains('-incdir') }
     }
 
     def "'genXrunArgsFile' task writes exported header directories to args file"() {
@@ -448,8 +447,7 @@ class SystemVerilogPluginSpec extends Specification {
 
         then:
         def lines = new File(testProjectDir.root, 'build/xrun_args.f').text.split("\n")
-        def linesWithIncdir = lines.findAll { it.contains('-incdir') }
-        linesWithIncdir.isEmpty()
+        !lines.any { it.contains('-incdir') }
     }
 
     def "'genXrunArgsFile' task indents entries in makelib block"() {
