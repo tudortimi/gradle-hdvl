@@ -45,6 +45,7 @@ public class SVUnitPlugin implements Plugin<Project> {
         final SourceSet testSourceSet = sourceSets.create("test");
 
         configureConfiguration(project);
+        configureSVUnitRootConfiguration(project);
         configureToolChain(project);
 
         sourceSets.named("test", new Action<SourceSet>() {
@@ -66,6 +67,15 @@ public class SVUnitPlugin implements Plugin<Project> {
 
     private void configureConfiguration(Project project) {
         Configuration testCompileConfiguration = project.getConfigurations().create("testCompile");
+        testCompileConfiguration.setCanBeConsumed(false);
+        testCompileConfiguration.setCanBeResolved(false);
+    }
+
+    private void configureSVUnitRootConfiguration(Project project) {
+        Configuration svUnitRoot = project.getConfigurations().create("svUnitRoot");
+        svUnitRoot.extendsFrom(project.getConfigurations().getByName("testCompile"));
+        svUnitRoot.setCanBeConsumed(false);
+        svUnitRoot.setCanBeResolved(true);
     }
 
     private void configureToolChain(Project project) {
@@ -81,7 +91,7 @@ public class SVUnitPlugin implements Plugin<Project> {
                 = (GenFullArgsFile) project.getTasks().getByName(Names.getGenFullArgsFileTaskName(toolName));
         AbstractGenArgsFile genTestArgsFile
                 = (AbstractGenArgsFile) project.getTasks().getByName(Names.getGenArgsFileTaskName("test", toolName));
-        Configuration testCompileConfiguration = project.getConfigurations().getByName("testCompile");
+        Configuration svUnitRoot = project.getConfigurations().getByName("svUnitRoot");
         project.getTasks().register(Names.getTestTaskName(toolName), TestTask.class, new Action<TestTask>() {
             @Override
             public void execute(TestTask testTask) {
@@ -90,7 +100,7 @@ public class SVUnitPlugin implements Plugin<Project> {
                 testTask.getMainArgsFile().set(genFullArgsFile.getDestination());
                 testTask.getTestArgsFile().set(genTestArgsFile.getDestination());
                 testTask.setTestsRoot(testSourceSet.getSv().getSourceDirectories().getSingleFile());
-                testTask.setSvunitRoot(testCompileConfiguration);
+                testTask.setSvunitRoot(svUnitRoot);
                 testTask.getWorkingDir().set(new File(project.getBuildDir(), "svunit"));
                 testTask.getExtraArgs().set(toolChains.getRunSVUnit().getArgs());
             }
