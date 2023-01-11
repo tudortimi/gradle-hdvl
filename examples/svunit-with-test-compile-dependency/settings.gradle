@@ -1,0 +1,11 @@
+includeBuild("../..")
+includeBuild("test_utils")
+
+sourceControl {
+    gitRepository("https://github.com/svunit/svunit.git") {
+        producesModule("org.svunit:svunit")
+        plugins {
+            id "com.verificationgentleman.gradle.hdvl.svunit-build-injector"
+        }
+    }
+}
