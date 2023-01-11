@@ -303,6 +303,26 @@ class SVUnitPluginSpec extends Specification  {
         dummyLog.text.contains "--uvm"
     }
 
+    def "sources in 'src/test/sv' are written to args file"() {
+        given:
+        File testSv = testProjectDir.newFolder('src', 'test', 'sv')
+        new File(testSv, 'some_test_package.sv').createNewFile()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genTestXrunArgsFile')
+            .build()
+
+        then:
+        result.task(":genTestXrunArgsFile").outcome == SUCCESS
+        def testXrunArgs = new File(testProjectDir.root, 'build/test_xrun_args.f')
+        testXrunArgs.exists()
+        def lines = testXrunArgs.text.split("\n")
+        lines.any { it.contains('some_test_package.sv') }
+    }
+
     def newGradleRunnerWithFakeRunSVunit() {
         def runSVUnitFake = new File(getClass().getResource('/runSVUnit').toURI())
         def env = System.getenv()
