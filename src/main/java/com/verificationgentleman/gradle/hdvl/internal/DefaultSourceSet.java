@@ -18,7 +18,6 @@ package com.verificationgentleman.gradle.hdvl.internal;
 
 import com.verificationgentleman.gradle.hdvl.SourceSet;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 
