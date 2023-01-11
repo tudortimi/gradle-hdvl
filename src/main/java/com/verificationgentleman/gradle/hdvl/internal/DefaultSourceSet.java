@@ -41,7 +41,7 @@ public abstract class DefaultSourceSet implements SourceSet {
     public String getGenArgsFileTaskName(String toolName) {
         return name.equals("main")
                 ? getMainGenArgsFileTaskName(toolName)
-                : GUtil.toLowerCamelCase("gen" + " " + name + "" + toolName + "ArgsFile");
+                : Names.getGenArgsFileTaskName(name, toolName);
     }
 
     @Override

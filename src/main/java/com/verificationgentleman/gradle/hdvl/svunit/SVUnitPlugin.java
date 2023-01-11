@@ -80,7 +80,7 @@ public class SVUnitPlugin implements Plugin<Project> {
         GenFullArgsFile genFullArgsFile
                 = (GenFullArgsFile) project.getTasks().getByName(Names.getGenFullArgsFileTaskName(toolName));
         AbstractGenArgsFile genTestArgsFile
-            = (AbstractGenArgsFile) project.getTasks().getByName("genTest" + toolName + "ArgsFile");
+                = (AbstractGenArgsFile) project.getTasks().getByName(Names.getGenArgsFileTaskName("test", toolName));
         Configuration testCompileConfiguration = project.getConfigurations().getByName("testCompile");
         project.getTasks().register(Names.getTestTaskName(toolName), TestTask.class, new Action<TestTask>() {
             @Override
