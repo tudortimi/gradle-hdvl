@@ -8,6 +8,10 @@ public class Names {
         return "gen" + toolName + "ArgsFile";
     }
 
+    public static String getGenArgsFileTaskName(String sourceSetName, String toolName) {
+        return GUtil.toLowerCamelCase("gen" + " " + sourceSetName + "" + toolName + "ArgsFile");
+    }
+
     public static String getGenFullArgsFileTaskName(String toolName) {
         return "genFull" + toolName + "ArgsFile";
     }

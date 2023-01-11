@@ -18,11 +18,8 @@ package com.verificationgentleman.gradle.hdvl.internal;
 
 import com.verificationgentleman.gradle.hdvl.SourceSet;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
-
-import static com.verificationgentleman.gradle.hdvl.internal.Names.getMainGenArgsFileTaskName;
 
 public abstract class DefaultSourceSet implements SourceSet {
     private final String name;
@@ -40,8 +37,8 @@ public abstract class DefaultSourceSet implements SourceSet {
     @Override
     public String getGenArgsFileTaskName(String toolName) {
         return name.equals("main")
-                ? getMainGenArgsFileTaskName(toolName)
-                : GUtil.toLowerCamelCase("gen" + " " + name + "" + toolName + "ArgsFile");
+                ? Names.getMainGenArgsFileTaskName(toolName)
+                : Names.getGenArgsFileTaskName(name, toolName);
     }
 
     @Override

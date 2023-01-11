@@ -35,6 +35,7 @@ import java.nio.file.Files;
 public class TestTask extends DefaultTask {
 
     private RegularFileProperty mainArgsFile;
+    private RegularFileProperty testArgsFile;
     private File testsRoot;
     private FileCollection svunitRoot;
     private Property<String> toolName;
@@ -45,6 +46,7 @@ public class TestTask extends DefaultTask {
     public TestTask(ObjectFactory objectFactory) {
         toolName = objectFactory.property(String.class);
         mainArgsFile = objectFactory.fileProperty();
+        testArgsFile = objectFactory.fileProperty();
         workingDir = objectFactory.directoryProperty();
         extraArgs = objectFactory.listProperty(String.class);
     }
@@ -57,6 +59,11 @@ public class TestTask extends DefaultTask {
     @InputFile
     public RegularFileProperty getMainArgsFile() {
         return mainArgsFile;
+    }
+
+    @InputFile
+    public RegularFileProperty getTestArgsFile() {
+        return testArgsFile;
     }
 
     @InputDirectory
@@ -116,7 +123,8 @@ public class TestTask extends DefaultTask {
                         "runSVUnit",
                         "--sim", toolName.get(),
                         "-f", mainArgsFile.getAsFile().get().getAbsolutePath(),
-                        String.join(" ", extraArgs.get()));
+                        "-f", testArgsFile.getAsFile().get().getAbsolutePath(),
+                    String.join(" ", extraArgs.get()));
                 String cArg = String.join("; ", sourceCommands, runSVUnitCommand);
                 execSpec.args("-c", cArg);
                 execSpec.workingDir(workingDir.get().getAsFile());
