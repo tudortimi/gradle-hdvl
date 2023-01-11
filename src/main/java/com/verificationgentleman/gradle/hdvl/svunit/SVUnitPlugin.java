@@ -53,6 +53,8 @@ public class SVUnitPlugin implements Plugin<Project> {
                 SystemVerilogSourceSet svSourceSet
                         = (SystemVerilogSourceSet) sourceSetWithConvention.getConvention().getPlugins().get("sv");
 
+                ignoreUnitTests(svSourceSet);
+
                 String[] toolNames = {"Xrun", "Qrun"};
                 for (String toolName: toolNames) {
                     configureTestTask(project, svSourceSet, toolName);
@@ -67,6 +69,10 @@ public class SVUnitPlugin implements Plugin<Project> {
 
     private void configureToolChain(Project project) {
         toolChains = project.getExtensions().create(ToolChains.class, "toolChains", DefaultToolChains.class);
+    }
+
+    private void ignoreUnitTests(SystemVerilogSourceSet svSourceSet) {
+        svSourceSet.getSv().exclude("**/*_unit_test.sv");
     }
 
     private void configureTestTask(Project project, SystemVerilogSourceSet testSourceSet, String toolName) {
