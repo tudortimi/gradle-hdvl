@@ -1,0 +1,8 @@
+plugins {
+    id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+    id 'com.verificationgentleman.gradle.hdvl.svunit'
+}
+
+dependencies {
+    testCompile "org.svunit:svunit:v3.34.2"
+}
