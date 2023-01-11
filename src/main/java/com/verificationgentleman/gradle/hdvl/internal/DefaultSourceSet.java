@@ -22,8 +22,6 @@ import org.gradle.util.GUtil;
 
 import javax.inject.Inject;
 
-import static com.verificationgentleman.gradle.hdvl.internal.Names.getMainGenArgsFileTaskName;
-
 public abstract class DefaultSourceSet implements SourceSet {
     private final String name;
 
@@ -40,7 +38,7 @@ public abstract class DefaultSourceSet implements SourceSet {
     @Override
     public String getGenArgsFileTaskName(String toolName) {
         return name.equals("main")
-                ? getMainGenArgsFileTaskName(toolName)
+                ? Names.getMainGenArgsFileTaskName(toolName)
                 : Names.getGenArgsFileTaskName(name, toolName);
     }
 
