@@ -29,6 +29,7 @@ import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.internal.HasConvention;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.util.GUtil;
@@ -85,15 +86,19 @@ public class SVUnitPlugin implements Plugin<Project> {
         svUnitRoot.setCanBeConsumed(false);
         svUnitRoot.setCanBeResolved(true);
         project.getConfigurations().getByName("testCompile").getDependencies().whenObjectAdded(dependency -> {
-            if (dependency.getGroup().equals("org.svunit")) {
+            if (isSVUnit(dependency)) {
                 svUnitRoot.getDependencies().add(dependency);
             }
         });
         project.getConfigurations().getByName("testCompile").getDependencies().whenObjectRemoved(dependency -> {
-            if (dependency.getGroup().equals("org.svunit")) {
+            if (isSVUnit(dependency)) {
                 svUnitRoot.getDependencies().remove(dependency);
             }
         });
+    }
+
+    private boolean isSVUnit(Dependency dependency) {
+        return dependency.getGroup().equals("org.svunit");
     }
 
     private void configureArgsFilesConfiguration(Project project, String toolName) {
