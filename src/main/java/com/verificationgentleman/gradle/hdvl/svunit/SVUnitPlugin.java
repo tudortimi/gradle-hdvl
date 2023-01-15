@@ -89,6 +89,11 @@ public class SVUnitPlugin implements Plugin<Project> {
                 svUnitRoot.getDependencies().add(dependency);
             }
         });
+        project.getConfigurations().getByName("testCompile").getDependencies().whenObjectRemoved(dependency -> {
+            if (dependency.getGroup().equals("org.svunit")) {
+                svUnitRoot.getDependencies().remove(dependency);
+            }
+        });
     }
 
     private void configureArgsFilesConfiguration(Project project, String toolName) {
