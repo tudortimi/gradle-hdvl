@@ -36,6 +36,8 @@ import org.gradle.util.GUtil;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SVUnitPlugin implements Plugin<Project> {
 
@@ -98,16 +100,23 @@ public class SVUnitPlugin implements Plugin<Project> {
     }
 
     private boolean isSVUnit(Dependency dependency) {
-        return dependency.getGroup().equals("org.svunit");
+        return dependency.getGroup().equals("org.svunit") && dependency.getName().equals("svunit");
     }
 
     private void configureArgsFilesConfiguration(Project project, String toolName) {
         Configuration argsFiles = project.getConfigurations().create(GUtil.toLowerCamelCase(toolName + "TestArgsFiles"));
         argsFiles.extendsFrom(project.getConfigurations().getByName("testCompile"));
-        argsFiles.exclude(Collections.singletonMap("group", "org.svunit"));
+        argsFiles.exclude(getExcludeForSVUnit());
         argsFiles.setCanBeConsumed(true);
         argsFiles.setCanBeResolved(true);
         argsFiles.getAttributes().attribute(HDVLBasePlugin.TOOL_ATTRIBUTE, toolName);
+    }
+
+    private Map<String, String> getExcludeForSVUnit() {
+        HashMap<String, String> exclude = new HashMap<>();
+        exclude.put("group", "org.svunit");
+        exclude.put("module", "svunit");
+        return exclude;
     }
 
     private void configureToolChain(Project project) {
