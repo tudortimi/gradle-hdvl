@@ -18,6 +18,7 @@ package com.verificationgentleman.gradle.hdvl.svunit;
 
 import com.verificationgentleman.gradle.hdvl.AbstractGenArgsFile;
 import com.verificationgentleman.gradle.hdvl.GenFullArgsFile;
+import com.verificationgentleman.gradle.hdvl.HDVLBasePlugin;
 import com.verificationgentleman.gradle.hdvl.SourceSet;
 import com.verificationgentleman.gradle.hdvl.internal.Names;
 import com.verificationgentleman.gradle.hdvl.svunit.internal.DefaultToolChains;
@@ -30,8 +31,10 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.internal.HasConvention;
 import org.gradle.api.reflect.TypeOf;
+import org.gradle.util.GUtil;
 
 import java.io.File;
+import java.util.Collections;
 
 public class SVUnitPlugin implements Plugin<Project> {
 
@@ -46,6 +49,12 @@ public class SVUnitPlugin implements Plugin<Project> {
 
         configureConfiguration(project);
         configureSVUnitRootConfiguration(project);
+
+        String[] toolNames = {"Xrun", "Qrun"};
+        for (String toolName: toolNames) {
+            configureArgsFilesConfiguration(project, toolName);
+        }
+
         configureToolChain(project);
 
         sourceSets.named("test", new Action<SourceSet>() {
@@ -73,9 +82,22 @@ public class SVUnitPlugin implements Plugin<Project> {
 
     private void configureSVUnitRootConfiguration(Project project) {
         Configuration svUnitRoot = project.getConfigurations().create("svUnitRoot");
-        svUnitRoot.extendsFrom(project.getConfigurations().getByName("testCompile"));
         svUnitRoot.setCanBeConsumed(false);
         svUnitRoot.setCanBeResolved(true);
+        project.getConfigurations().getByName("testCompile").getDependencies().whenObjectAdded(dependency -> {
+            if (dependency.getGroup().equals("org.svunit")) {
+                svUnitRoot.getDependencies().add(dependency);
+            }
+        });
+    }
+
+    private void configureArgsFilesConfiguration(Project project, String toolName) {
+        Configuration argsFiles = project.getConfigurations().create(GUtil.toLowerCamelCase(toolName + "TestArgsFiles"));
+        argsFiles.extendsFrom(project.getConfigurations().getByName("testCompile"));
+        argsFiles.exclude(Collections.singletonMap("group", "org.svunit"));
+        argsFiles.setCanBeConsumed(true);
+        argsFiles.setCanBeResolved(true);
+        argsFiles.getAttributes().attribute(HDVLBasePlugin.TOOL_ATTRIBUTE, toolName);
     }
 
     private void configureToolChain(Project project) {
