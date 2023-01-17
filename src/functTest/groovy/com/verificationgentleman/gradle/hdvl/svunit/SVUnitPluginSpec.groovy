@@ -348,7 +348,7 @@ class SVUnitPluginSpec extends Specification  {
         !lines.any { it.contains('some_other_unit_test.sv') }
     }
 
-    def "'testWithXrun' task passes args file for 'test' source set to 'runSVUnit'"() {
+    def "'testWithXrun' task passes full args file for 'test' source set to 'runSVUnit'"() {
         File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(mainSv, 'dummy_main.sv').createNewFile()
 
@@ -365,7 +365,7 @@ class SVUnitPluginSpec extends Specification  {
         then:
         result.task(":testWithXrun").outcome == SUCCESS
         def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
-        dummyLog.text.contains "-f ${testProjectDir.root}/build/test_xrun_args.f"
+        dummyLog.text.contains "-f ${testProjectDir.root}/build/full_test_xrun_args.f"
     }
 
     def newGradleRunnerWithFakeRunSVunit() {
