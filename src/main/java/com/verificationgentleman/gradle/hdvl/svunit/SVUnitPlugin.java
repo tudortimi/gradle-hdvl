@@ -145,8 +145,8 @@ public class SVUnitPlugin implements Plugin<Project> {
     private void configureTestTask(Project project, SystemVerilogSourceSet testSourceSet, String toolName) {
         GenFullArgsFile genFullArgsFile
                 = (GenFullArgsFile) project.getTasks().getByName(Names.getGenFullArgsFileTaskName(toolName));
-        AbstractGenArgsFile genTestArgsFile
-                = (AbstractGenArgsFile) project.getTasks().getByName(Names.getGenArgsFileTaskName("test", toolName));
+        GenFullArgsFile genFullTestArgsFile
+                = (GenFullArgsFile) project.getTasks().getByName("genFullTest" + toolName + "ArgsFile");
         Configuration svUnitRoot = project.getConfigurations().getByName("svUnitRoot");
         project.getTasks().register(Names.getTestTaskName(toolName), TestTask.class, new Action<TestTask>() {
             @Override
@@ -154,7 +154,7 @@ public class SVUnitPlugin implements Plugin<Project> {
                 testTask.setDescription("Runs the unit tests using SVUnit.");
                 testTask.getToolName().set(toolName.toLowerCase());
                 testTask.getMainArgsFile().set(genFullArgsFile.getDestination());
-                testTask.getTestArgsFile().set(genTestArgsFile.getDestination());
+                testTask.getTestArgsFile().set(genFullTestArgsFile.getDestination());
                 testTask.setTestsRoot(testSourceSet.getSv().getSourceDirectories().getSingleFile());
                 testTask.setSvunitRoot(svUnitRoot);
                 testTask.getWorkingDir().set(new File(project.getBuildDir(), "svunit"));
