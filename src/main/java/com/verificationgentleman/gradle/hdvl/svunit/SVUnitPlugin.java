@@ -105,7 +105,7 @@ public class SVUnitPlugin implements Plugin<Project> {
     }
 
     private void configureArgsFilesConfiguration(Project project, String toolName) {
-        Configuration argsFiles = project.getConfigurations().create(GUtil.toLowerCamelCase(toolName + "TestArgsFiles"));
+        Configuration argsFiles = project.getConfigurations().create(Names.getArgsFilesConfigurationName("test", toolName));
         argsFiles.extendsFrom(project.getConfigurations().getByName("testCompile"));
         argsFiles.exclude(getExcludeForSVUnit());
         argsFiles.setCanBeConsumed(true);
@@ -123,13 +123,13 @@ public class SVUnitPlugin implements Plugin<Project> {
     private void configureGenFullArgsFile(Project project, String toolName) {
         AbstractGenArgsFile genArgsFile = (AbstractGenArgsFile) project.getTasks()
             .getByName(Names.getGenArgsFileTaskName("test", toolName));
-        project.getTasks().register("genFullTest" + toolName + "ArgsFile", GenFullArgsFile.class, new Action<GenFullArgsFile>() {
+        project.getTasks().register(Names.getGenFullArgsFileTaskName("test", toolName), GenFullArgsFile.class, new Action<GenFullArgsFile>() {
             @Override
             public void execute(GenFullArgsFile genFullArgsFile) {
                 genFullArgsFile.setDescription("Generates an argument file for the test source code and its dependencies.");
                 genFullArgsFile.getSource().set(genArgsFile.getDestination());
-                genFullArgsFile.getDestination().set(new File(project.getBuildDir(), "full_test_" + toolName.toLowerCase() + "_args.f"));
-                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName(GUtil.toLowerCamelCase(toolName + "TestArgsFiles")));
+                genFullArgsFile.getDestination().set(new File(project.getBuildDir(), Names.getFullArgsFileName("test", toolName)));
+                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName(Names.getArgsFilesConfigurationName("test", toolName)));
             }
         });
     }
@@ -144,9 +144,9 @@ public class SVUnitPlugin implements Plugin<Project> {
 
     private void configureTestTask(Project project, SystemVerilogSourceSet testSourceSet, String toolName) {
         GenFullArgsFile genFullArgsFile
-                = (GenFullArgsFile) project.getTasks().getByName(Names.getGenFullArgsFileTaskName(toolName));
+                = (GenFullArgsFile) project.getTasks().getByName(Names.getGenFullArgsFileTaskName("main", toolName));
         GenFullArgsFile genFullTestArgsFile
-                = (GenFullArgsFile) project.getTasks().getByName("genFullTest" + toolName + "ArgsFile");
+                = (GenFullArgsFile) project.getTasks().getByName(Names.getGenFullArgsFileTaskName("test", toolName));
         Configuration svUnitRoot = project.getConfigurations().getByName("svUnitRoot");
         project.getTasks().register(Names.getTestTaskName(toolName), TestTask.class, new Action<TestTask>() {
             @Override
