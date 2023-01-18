@@ -3,6 +3,7 @@ plugins {
     id("groovy")
     id("maven-publish")
     id("com.gradle.plugin-publish") version "0.20.0"
+    id("com.palantir.git-version") version "0.15.0"
 }
 
 pluginBundle {
