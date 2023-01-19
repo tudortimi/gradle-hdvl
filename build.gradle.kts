@@ -3,7 +3,7 @@ plugins {
     id("groovy")
     id("maven-publish")
     id("com.gradle.plugin-publish") version "0.20.0"
-    id("com.palantir.git-version") version "0.13.0"
+    id("fr.brouillard.oss.gradle.jgitver") version "0.9.1"
 }
 
 pluginBundle {
@@ -15,9 +15,6 @@ pluginBundle {
 apply(from = "$rootDir/gradle/functional-test.gradle")
 
 group = "com.verificationgentleman.gradle"
-
-val gitVersion: groovy.lang.Closure<String> by extra
-version = gitVersion()
 
 gradlePlugin {
     plugins {
