@@ -8,3 +8,7 @@ A GitHub tag does have a nice "verified" qualifier,
 which can also be achieved by pushing a signed tag:
 
     git tag -s -a <version> -m ':bookmark: <version>'
+
+Publishing to the plugin portal still has to be done manually:
+
+    ./gradlew publishPlugins
