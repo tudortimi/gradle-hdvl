@@ -46,10 +46,10 @@ public class HDVLBasePlugin implements Plugin<Project> {
                 @Override
                 public void execute(SourceSet sourceSet) {
                     configureGenArgsFile(project, sourceSet, toolName);
+                    configureArgsFilesConfiguration(project, sourceSet, toolName);
                 }
             });
             configureGenFullArgsFile(project, toolName);
-            configureArgsFilesConfiguration(project, toolName);
             configureCompileArtifact(project, toolName);
         }
     }
@@ -103,8 +103,8 @@ public class HDVLBasePlugin implements Plugin<Project> {
         project.getDependencies().getAttributesSchema().attribute(TOOL_ATTRIBUTE);
     }
 
-    private void configureArgsFilesConfiguration(Project project, String toolName) {
-        Configuration argsFiles = project.getConfigurations().create(Names.getArgsFilesConfigurationName("main", toolName));
+    private void configureArgsFilesConfiguration(Project project, SourceSet sourceSet, String toolName) {
+        Configuration argsFiles = project.getConfigurations().create(Names.getArgsFilesConfigurationName(sourceSet.getName(), toolName));
         argsFiles.extendsFrom(project.getConfigurations().getByName("compile"));
         argsFiles.setCanBeConsumed(true);
         argsFiles.setCanBeResolved(true);

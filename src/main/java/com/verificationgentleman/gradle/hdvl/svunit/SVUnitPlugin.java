@@ -105,12 +105,9 @@ public class SVUnitPlugin implements Plugin<Project> {
     }
 
     private void configureArgsFilesConfiguration(Project project, String toolName) {
-        Configuration argsFiles = project.getConfigurations().create(Names.getArgsFilesConfigurationName("test", toolName));
+        Configuration argsFiles = project.getConfigurations().getByName(Names.getArgsFilesConfigurationName("test", toolName));
         argsFiles.extendsFrom(project.getConfigurations().getByName("testCompile"));
         argsFiles.exclude(getExcludeForSVUnit());
-        argsFiles.setCanBeConsumed(true);
-        argsFiles.setCanBeResolved(true);
-        argsFiles.getAttributes().attribute(HDVLBasePlugin.TOOL_ATTRIBUTE, toolName);
     }
 
     private Map<String, String> getExcludeForSVUnit() {
