@@ -9,6 +9,8 @@ public class Names {
     }
 
     public static String getGenArgsFileTaskName(String sourceSetName, String toolName) {
+        if (sourceSetName.equals("main"))
+            return "gen" + toolName + "ArgsFile";
         return GUtil.toLowerCamelCase("gen" + " " + sourceSetName + "" + toolName + "ArgsFile");
     }
 

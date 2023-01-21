@@ -56,7 +56,6 @@ public class SVUnitPlugin implements Plugin<Project> {
         String[] toolNames = {"Xrun", "Qrun"};
         for (String toolName: toolNames) {
             configureArgsFilesConfiguration(project, toolName);
-            configureGenFullArgsFile(project, toolName);
         }
 
         configureToolChain(project);
@@ -115,20 +114,6 @@ public class SVUnitPlugin implements Plugin<Project> {
         exclude.put("group", "org.svunit");
         exclude.put("module", "svunit");
         return exclude;
-    }
-
-    private void configureGenFullArgsFile(Project project, String toolName) {
-        AbstractGenArgsFile genArgsFile = (AbstractGenArgsFile) project.getTasks()
-            .getByName(Names.getGenArgsFileTaskName("test", toolName));
-        project.getTasks().register(Names.getGenFullArgsFileTaskName("test", toolName), GenFullArgsFile.class, new Action<GenFullArgsFile>() {
-            @Override
-            public void execute(GenFullArgsFile genFullArgsFile) {
-                genFullArgsFile.setDescription("Generates an argument file for the test source code and its dependencies.");
-                genFullArgsFile.getSource().set(genArgsFile.getDestination());
-                genFullArgsFile.getDestination().set(new File(project.getBuildDir(), Names.getFullArgsFileName("test", toolName)));
-                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName(Names.getArgsFilesConfigurationName("test", toolName)));
-            }
-        });
     }
 
     private void configureToolChain(Project project) {

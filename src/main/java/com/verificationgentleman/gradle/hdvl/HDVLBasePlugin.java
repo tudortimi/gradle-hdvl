@@ -47,9 +47,10 @@ public class HDVLBasePlugin implements Plugin<Project> {
                 public void execute(SourceSet sourceSet) {
                     configureGenArgsFile(project, sourceSet, toolName);
                     configureArgsFilesConfiguration(project, sourceSet, toolName);
+                    configureGenFullArgsFile(project, sourceSet, toolName);
                 }
             });
-            configureGenFullArgsFile(project, toolName);
+
             configureCompileArtifact(project, toolName);
         }
     }
@@ -81,16 +82,16 @@ public class HDVLBasePlugin implements Plugin<Project> {
         throw new IllegalArgumentException("Unexpected tool name: " + toolName);
     }
 
-    private void configureGenFullArgsFile(Project project, String toolName) {
+    private void configureGenFullArgsFile(Project project, SourceSet sourceSet, String toolName) {
         AbstractGenArgsFile genArgsFile = (AbstractGenArgsFile) project.getTasks()
-                .getByName(Names.getMainGenArgsFileTaskName(toolName));
-        project.getTasks().register(Names.getGenFullArgsFileTaskName("main", toolName), GenFullArgsFile.class, new Action<GenFullArgsFile>() {
+                .getByName(Names.getGenArgsFileTaskName(sourceSet.getName(), toolName));
+        project.getTasks().register(Names.getGenFullArgsFileTaskName(sourceSet.getName(), toolName), GenFullArgsFile.class, new Action<GenFullArgsFile>() {
             @Override
             public void execute(GenFullArgsFile genFullArgsFile) {
-                genFullArgsFile.setDescription("Generates an argument file for the main source code and its dependencies.");
+                genFullArgsFile.setDescription("Generates an argument file for the " + sourceSet.getName() + " source code and its dependencies.");
                 genFullArgsFile.getSource().set(genArgsFile.getDestination());
-                genFullArgsFile.getDestination().set(new File(project.getBuildDir(), Names.getFullArgsFileName("main", toolName)));
-                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName(Names.getArgsFilesConfigurationName("main", toolName)));
+                genFullArgsFile.getDestination().set(new File(project.getBuildDir(), Names.getFullArgsFileName(sourceSet.getName(), toolName)));
+                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName(Names.getArgsFilesConfigurationName(sourceSet.getName(), toolName)));
             }
         });
     }
