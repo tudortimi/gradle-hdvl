@@ -10,6 +10,13 @@ public class Names {
         return GUtil.toLowerCamelCase("gen" + " " + sourceSetName + "" + toolName + "ArgsFile");
     }
 
+    public static String getArgsFileName(String sourceSetName, String toolName) {
+        String toolNameLower = toolName.toLowerCase();
+        if (sourceSetName.equals("main"))
+            return toolNameLower + "_" + "args.f";
+        return sourceSetName + "_"+ toolNameLower + "_" + "args.f";
+    }
+
     public static String getGenFullArgsFileTaskName(String sourceSetName, String toolName) {
         if (sourceSetName.equals("main"))
             return "genFull" + toolName + "ArgsFile";
