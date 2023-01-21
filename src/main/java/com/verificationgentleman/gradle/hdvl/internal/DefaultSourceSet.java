@@ -23,10 +23,12 @@ import javax.inject.Inject;
 
 public abstract class DefaultSourceSet implements SourceSet {
     private final String name;
+    private final Names names;
 
     @Inject
     public DefaultSourceSet(String name, ObjectFactory objectFactory) {
         this.name = name;
+        this.names = Names.of(name);
     }
 
     @Override
@@ -36,16 +38,16 @@ public abstract class DefaultSourceSet implements SourceSet {
 
     @Override
     public String getGenArgsFileTaskName(String toolName) {
-        return Names.getGenArgsFileTaskName(name, toolName);
+        return names.getGenArgsFileTaskName(toolName);
     }
 
     @Override
     public String getGenFullArgsFileTaskName(String toolName) {
-        return Names.getGenFullArgsFileTaskName(name, toolName);
+        return names.getGenFullArgsFileTaskName(toolName);
     }
 
     @Override
     public String getArgsFilesConfigurationName(String toolName) {
-        return Names.getArgsFilesConfigurationName(name, toolName);
+        return names.getArgsFilesConfigurationName(toolName);
     }
 }
