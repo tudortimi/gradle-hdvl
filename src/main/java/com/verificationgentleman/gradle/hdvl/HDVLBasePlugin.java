@@ -36,7 +36,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
         final DefaultHDVLPluginExtension extension = new DefaultHDVLPluginExtension(project);
         project.getExtensions().add("hdvl", extension);
         project.getExtensions().add("sourceSets", extension.getSourceSets());
-        extension.getSourceSets().create("main");
+        SourceSet mainSourceSet = extension.getSourceSets().create("main");
 
         configureCompileConfiguration(project);
 
@@ -51,7 +51,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
                 }
             });
 
-            configureCompileArtifact(project, toolName);
+            configureCompileArtifact(project, mainSourceSet, toolName);
         }
     }
 
@@ -84,7 +84,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
 
     private void configureGenFullArgsFile(Project project, SourceSet sourceSet, String toolName) {
         AbstractGenArgsFile genArgsFile = (AbstractGenArgsFile) project.getTasks()
-                .getByName(Names.getGenArgsFileTaskName(sourceSet.getName(), toolName));
+                .getByName(sourceSet.getGenArgsFileTaskName(toolName));
         project.getTasks().register(Names.getGenFullArgsFileTaskName(sourceSet.getName(), toolName), GenFullArgsFile.class, new Action<GenFullArgsFile>() {
             @Override
             public void execute(GenFullArgsFile genFullArgsFile) {
@@ -112,9 +112,9 @@ public class HDVLBasePlugin implements Plugin<Project> {
         argsFiles.getAttributes().attribute(HDVLBasePlugin.TOOL_ATTRIBUTE, toolName);
     }
 
-    private void configureCompileArtifact(Project project, String toolName) {
+    private void configureCompileArtifact(Project project, SourceSet mainSourceSet, String toolName) {
         AbstractGenArgsFile genArgsFile
-                = (AbstractGenArgsFile) project.getTasks().getByName(Names.getGenArgsFileTaskName("main", toolName));
+                = (AbstractGenArgsFile) project.getTasks().getByName(mainSourceSet.getGenArgsFileTaskName(toolName));
         Action<ConfigurablePublishArtifact> configureAction = new Action<ConfigurablePublishArtifact>() {
             @Override
             public void execute(ConfigurablePublishArtifact configurablePublishArtifact) {
