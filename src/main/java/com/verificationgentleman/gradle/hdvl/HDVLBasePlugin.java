@@ -36,7 +36,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
         final DefaultHDVLPluginExtension extension = new DefaultHDVLPluginExtension(project);
         project.getExtensions().add("hdvl", extension);
         project.getExtensions().add("sourceSets", extension.getSourceSets());
-        extension.getSourceSets().create("main");
+        SourceSet mainSourceSet = extension.getSourceSets().create("main");
 
         configureCompileConfiguration(project);
 
@@ -51,7 +51,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
                 }
             });
 
-            configureCompileArtifact(project, toolName);
+            configureCompileArtifact(project, mainSourceSet, toolName);
         }
     }
 
@@ -66,7 +66,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
                 genArgsFile.setPrivateIncludeDirs(project.files().getAsFileTree());
                 genArgsFile.setExportedIncludeDirs(project.files().getAsFileTree());
                 genArgsFile.setCSource(project.files().getAsFileTree());
-                genArgsFile.getDestination().set(new File(project.getBuildDir(), sourceSet.getArgsFileName(toolName)));
+                genArgsFile.getDestination().set(new File(project.getBuildDir(), Names.of(sourceSet.getName()).getArgsFileName(toolName)));
             }
         });
     }
@@ -84,14 +84,14 @@ public class HDVLBasePlugin implements Plugin<Project> {
 
     private void configureGenFullArgsFile(Project project, SourceSet sourceSet, String toolName) {
         AbstractGenArgsFile genArgsFile = (AbstractGenArgsFile) project.getTasks()
-                .getByName(Names.getGenArgsFileTaskName(sourceSet.getName(), toolName));
-        project.getTasks().register(Names.getGenFullArgsFileTaskName(sourceSet.getName(), toolName), GenFullArgsFile.class, new Action<GenFullArgsFile>() {
+                .getByName(sourceSet.getGenArgsFileTaskName(toolName));
+        project.getTasks().register(sourceSet.getGenFullArgsFileTaskName(toolName), GenFullArgsFile.class, new Action<GenFullArgsFile>() {
             @Override
             public void execute(GenFullArgsFile genFullArgsFile) {
                 genFullArgsFile.setDescription("Generates an argument file for the " + sourceSet.getName() + " source code and its dependencies.");
                 genFullArgsFile.getSource().set(genArgsFile.getDestination());
-                genFullArgsFile.getDestination().set(new File(project.getBuildDir(), Names.getFullArgsFileName(sourceSet.getName(), toolName)));
-                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName(Names.getArgsFilesConfigurationName(sourceSet.getName(), toolName)));
+                genFullArgsFile.getDestination().set(new File(project.getBuildDir(), Names.of(sourceSet.getName()).getFullArgsFileName(toolName)));
+                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName(sourceSet.getArgsFilesConfigurationName(toolName)));
             }
         });
     }
@@ -105,23 +105,23 @@ public class HDVLBasePlugin implements Plugin<Project> {
     }
 
     private void configureArgsFilesConfiguration(Project project, SourceSet sourceSet, String toolName) {
-        Configuration argsFiles = project.getConfigurations().create(Names.getArgsFilesConfigurationName(sourceSet.getName(), toolName));
+        Configuration argsFiles = project.getConfigurations().create(sourceSet.getArgsFilesConfigurationName(toolName));
         argsFiles.extendsFrom(project.getConfigurations().getByName("compile"));
         argsFiles.setCanBeConsumed(true);
         argsFiles.setCanBeResolved(true);
         argsFiles.getAttributes().attribute(HDVLBasePlugin.TOOL_ATTRIBUTE, toolName);
     }
 
-    private void configureCompileArtifact(Project project, String toolName) {
+    private void configureCompileArtifact(Project project, SourceSet mainSourceSet, String toolName) {
         AbstractGenArgsFile genArgsFile
-                = (AbstractGenArgsFile) project.getTasks().getByName(Names.getGenArgsFileTaskName("main", toolName));
+                = (AbstractGenArgsFile) project.getTasks().getByName(mainSourceSet.getGenArgsFileTaskName(toolName));
         Action<ConfigurablePublishArtifact> configureAction = new Action<ConfigurablePublishArtifact>() {
             @Override
             public void execute(ConfigurablePublishArtifact configurablePublishArtifact) {
                 configurablePublishArtifact.builtBy(genArgsFile);
             }
         };
-        project.getArtifacts().add(Names.getArgsFilesConfigurationName("main", toolName), genArgsFile.getDestination(), configureAction);
+        project.getArtifacts().add(mainSourceSet.getArgsFilesConfigurationName(toolName), genArgsFile.getDestination(), configureAction);
     }
 
 }

@@ -29,10 +29,18 @@ public interface SourceSet extends Named, ExtensionAware {
     String getGenArgsFileTaskName(String toolName);
 
     /**
-     * Returns the name of the args file for this source set, for the specified tool.
+     * Returns the name of the gen full args file task for this source set, for the specified tool.
      *
      * @param toolName The tool for which the args file is generated.
      * @return The task name. Never returns null.
      */
-    String getArgsFileName(String toolName);
+    String getGenFullArgsFileTaskName(String toolName);
+
+    /**
+     * Returns the name of the args file configuration for this source set, for the specified tool.
+     *
+     * @param toolName The tool for which the configuration is used.
+     * @return The configuration name. Never returns null.
+     */
+    String getArgsFilesConfigurationName(String toolName);
 }

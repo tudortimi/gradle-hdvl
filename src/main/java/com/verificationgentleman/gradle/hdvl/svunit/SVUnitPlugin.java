@@ -55,7 +55,7 @@ public class SVUnitPlugin implements Plugin<Project> {
 
         String[] toolNames = {"Xrun", "Qrun"};
         for (String toolName: toolNames) {
-            configureArgsFilesConfiguration(project, toolName);
+            configureArgsFilesConfiguration(project, testSourceSet, toolName);
         }
 
         configureToolChain(project);
@@ -71,7 +71,7 @@ public class SVUnitPlugin implements Plugin<Project> {
 
                 String[] toolNames = {"Xrun", "Qrun"};
                 for (String toolName: toolNames) {
-                    configureTestTask(project, svSourceSet, toolName);
+                    configureTestTask(project, sourceSets.getByName("main"), sourceSet, svSourceSet, toolName);
                 }
             }
         });
@@ -103,8 +103,8 @@ public class SVUnitPlugin implements Plugin<Project> {
         return dependency.getGroup().equals("org.svunit") && dependency.getName().equals("svunit");
     }
 
-    private void configureArgsFilesConfiguration(Project project, String toolName) {
-        Configuration argsFiles = project.getConfigurations().getByName(Names.getArgsFilesConfigurationName("test", toolName));
+    private void configureArgsFilesConfiguration(Project project, SourceSet testSourceSet, String toolName) {
+        Configuration argsFiles = project.getConfigurations().getByName(testSourceSet.getArgsFilesConfigurationName(toolName));
         argsFiles.extendsFrom(project.getConfigurations().getByName("testCompile"));
         argsFiles.exclude(getExcludeForSVUnit());
     }
@@ -124,11 +124,11 @@ public class SVUnitPlugin implements Plugin<Project> {
         svSourceSet.getSv().exclude("**/*_unit_test.sv");
     }
 
-    private void configureTestTask(Project project, SystemVerilogSourceSet testSourceSet, String toolName) {
+    private void configureTestTask(Project project, SourceSet mainSourceSet, SourceSet testSourceSet, SystemVerilogSourceSet testSvSourceSet, String toolName) {
         GenFullArgsFile genFullArgsFile
-                = (GenFullArgsFile) project.getTasks().getByName(Names.getGenFullArgsFileTaskName("main", toolName));
+                = (GenFullArgsFile) project.getTasks().getByName(mainSourceSet.getGenFullArgsFileTaskName(toolName));
         GenFullArgsFile genFullTestArgsFile
-                = (GenFullArgsFile) project.getTasks().getByName(Names.getGenFullArgsFileTaskName("test", toolName));
+                = (GenFullArgsFile) project.getTasks().getByName(testSourceSet.getGenFullArgsFileTaskName(toolName));
         Configuration svUnitRoot = project.getConfigurations().getByName("svUnitRoot");
         project.getTasks().register(Names.getTestTaskName(toolName), TestTask.class, new Action<TestTask>() {
             @Override
@@ -137,7 +137,7 @@ public class SVUnitPlugin implements Plugin<Project> {
                 testTask.getToolName().set(toolName.toLowerCase());
                 testTask.getMainArgsFile().set(genFullArgsFile.getDestination());
                 testTask.getTestArgsFile().set(genFullTestArgsFile.getDestination());
-                testTask.setTestsRoot(testSourceSet.getSv().getSourceDirectories().getSingleFile());
+                testTask.setTestsRoot(testSvSourceSet.getSv().getSourceDirectories().getSingleFile());
                 testTask.setSvunitRoot(svUnitRoot);
                 testTask.getWorkingDir().set(new File(project.getBuildDir(), "svunit"));
                 testTask.getExtraArgs().set(toolChains.getRunSVUnit().getArgs());
