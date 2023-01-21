@@ -13,6 +13,10 @@ To check that Gradle extracts the version properly do:
 
     ./gradlew version
 
+Push the tag to GitHub and draft a release manually based on this tag:
+
+    git push origin <version>
+
 Publishing to the plugin portal still has to be done manually:
 
     ./gradlew publishPlugins
