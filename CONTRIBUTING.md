@@ -9,6 +9,10 @@ which can also be achieved by pushing a signed tag:
 
     git tag -s -a <version> -m ':bookmark: <version>'
 
+To check that Gradle extracts the version properly do:
+
+    ./gradlew version
+
 Publishing to the plugin portal still has to be done manually:
 
     ./gradlew publishPlugins
