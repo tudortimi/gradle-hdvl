@@ -51,4 +51,9 @@ public abstract class DefaultSourceSet implements SourceSet {
     public String getGenFullArgsFileTaskName(String toolName) {
         return Names.getGenFullArgsFileTaskName(name, toolName);
     }
+
+    @Override
+    public String getArgsFilesConfigurationName(String toolName) {
+        return Names.getArgsFilesConfigurationName(name, toolName);
+    }
 }

@@ -55,7 +55,7 @@ public class SVUnitPlugin implements Plugin<Project> {
 
         String[] toolNames = {"Xrun", "Qrun"};
         for (String toolName: toolNames) {
-            configureArgsFilesConfiguration(project, toolName);
+            configureArgsFilesConfiguration(project, testSourceSet, toolName);
         }
 
         configureToolChain(project);
@@ -103,8 +103,8 @@ public class SVUnitPlugin implements Plugin<Project> {
         return dependency.getGroup().equals("org.svunit") && dependency.getName().equals("svunit");
     }
 
-    private void configureArgsFilesConfiguration(Project project, String toolName) {
-        Configuration argsFiles = project.getConfigurations().getByName(Names.getArgsFilesConfigurationName("test", toolName));
+    private void configureArgsFilesConfiguration(Project project, SourceSet testSourceSet, String toolName) {
+        Configuration argsFiles = project.getConfigurations().getByName(testSourceSet.getArgsFilesConfigurationName(toolName));
         argsFiles.extendsFrom(project.getConfigurations().getByName("testCompile"));
         argsFiles.exclude(getExcludeForSVUnit());
     }

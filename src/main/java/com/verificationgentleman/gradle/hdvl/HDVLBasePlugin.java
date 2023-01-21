@@ -91,7 +91,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
                 genFullArgsFile.setDescription("Generates an argument file for the " + sourceSet.getName() + " source code and its dependencies.");
                 genFullArgsFile.getSource().set(genArgsFile.getDestination());
                 genFullArgsFile.getDestination().set(new File(project.getBuildDir(), Names.getFullArgsFileName(sourceSet.getName(), toolName)));
-                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName(Names.getArgsFilesConfigurationName(sourceSet.getName(), toolName)));
+                genFullArgsFile.setArgsFiles(project.getConfigurations().getByName(sourceSet.getArgsFilesConfigurationName(toolName)));
             }
         });
     }
@@ -105,7 +105,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
     }
 
     private void configureArgsFilesConfiguration(Project project, SourceSet sourceSet, String toolName) {
-        Configuration argsFiles = project.getConfigurations().create(Names.getArgsFilesConfigurationName(sourceSet.getName(), toolName));
+        Configuration argsFiles = project.getConfigurations().create(sourceSet.getArgsFilesConfigurationName(toolName));
         argsFiles.extendsFrom(project.getConfigurations().getByName("compile"));
         argsFiles.setCanBeConsumed(true);
         argsFiles.setCanBeResolved(true);
@@ -121,7 +121,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
                 configurablePublishArtifact.builtBy(genArgsFile);
             }
         };
-        project.getArtifacts().add(Names.getArgsFilesConfigurationName("main", toolName), genArgsFile.getDestination(), configureAction);
+        project.getArtifacts().add(mainSourceSet.getArgsFilesConfigurationName(toolName), genArgsFile.getDestination(), configureAction);
     }
 
 }
