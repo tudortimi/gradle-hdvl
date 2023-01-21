@@ -23,17 +23,17 @@ public abstract class Names {
     private static class NamesForMain extends Names {
         @Override
         public String getGenArgsFileTaskName(String toolName) {
-            return "gen" + toolName + "ArgsFile";
+            return toLowerCamelCase("gen", toolName, "argsFile");
         }
 
         @Override
         public String getGenFullArgsFileTaskName(String toolName) {
-            return "genFull" + toolName + "ArgsFile";
+            return toLowerCamelCase("genFull", toolName, "ArgsFile");
         }
 
         @Override
         public String getArgsFilesConfigurationName(String toolName) {
-            return GUtil.toLowerCamelCase(toolName + "ArgsFiles");
+            return toLowerCamelCase(toolName, "ArgsFiles");
         }
 
         @Override
@@ -56,17 +56,17 @@ public abstract class Names {
 
         @Override
         public String getGenArgsFileTaskName(String toolName) {
-            return GUtil.toLowerCamelCase("gen" + " " + sourceSetName + "" + toolName + "ArgsFile");
+            return toLowerCamelCase("gen", sourceSetName, toolName, "ArgsFile");
         }
 
         @Override
         public String getGenFullArgsFileTaskName(String toolName) {
-            return GUtil.toLowerCamelCase("genFull" + " " + sourceSetName + "" + toolName + "ArgsFile");
+            return toLowerCamelCase("genFull", sourceSetName, toolName, "ArgsFile");
         }
 
         @Override
         public String getArgsFilesConfigurationName(String toolName) {
-            return GUtil.toLowerCamelCase(sourceSetName + " " + toolName + "ArgsFiles");
+            return toLowerCamelCase(sourceSetName, toolName, "ArgsFiles");
         }
 
         @Override
@@ -81,7 +81,14 @@ public abstract class Names {
     }
 
     public static String getTestTaskName(String toolName) {
-        return GUtil.toLowerCamelCase("testWith" + " " + toolName);
+        return toLowerCamelCase("testWith", toolName);
+    }
+
+    private static String toLowerCamelCase(String ... words) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String word: words)
+            stringBuilder.append(word).append(" ");
+        return GUtil.toLowerCamelCase(stringBuilder.toString());
     }
 
 }
