@@ -5,7 +5,9 @@ import org.gradle.util.GUtil;
 public abstract class Names {
 
     public static Names of(String sourceSetName) {
-        return new DefaultNames(sourceSetName);
+        if (sourceSetName.equals("main"))
+            return new NamesForMain();
+        return new NamesForOther(sourceSetName);
     }
 
     public abstract String getGenArgsFileTaskName(String toolName);
@@ -14,31 +16,42 @@ public abstract class Names {
 
     public abstract String getArgsFilesConfigurationName(String toolName);
 
-    private static class DefaultNames extends Names {
+    private static class NamesForMain extends Names {
+        @Override
+        public String getGenArgsFileTaskName(String toolName) {
+            return "gen" + toolName + "ArgsFile";
+        }
+
+        @Override
+        public String getGenFullArgsFileTaskName(String toolName) {
+            return "genFull" + toolName + "ArgsFile";
+        }
+
+        @Override
+        public String getArgsFilesConfigurationName(String toolName) {
+            return GUtil.toLowerCamelCase(toolName + "ArgsFiles");
+        }
+    }
+
+    private static class NamesForOther extends Names {
         private final String sourceSetName;
 
-        DefaultNames(String sourceSetName) {
+        NamesForOther(String sourceSetName) {
             this.sourceSetName = sourceSetName;
         }
 
         @Override
         public String getGenArgsFileTaskName(String toolName) {
-            if (sourceSetName.equals("main"))
-                return "gen" + toolName + "ArgsFile";
             return GUtil.toLowerCamelCase("gen" + " " + sourceSetName + "" + toolName + "ArgsFile");
         }
 
         @Override
         public String getGenFullArgsFileTaskName(String toolName) {
-            if (sourceSetName.equals("main"))
-                return "genFull" + toolName + "ArgsFile";
             return GUtil.toLowerCamelCase("genFull" + " " + sourceSetName + "" + toolName + "ArgsFile");
         }
 
         @Override
         public String getArgsFilesConfigurationName(String toolName) {
-            if (sourceSetName.equals("main"))
-                return GUtil.toLowerCamelCase(toolName + "ArgsFiles");
             return GUtil.toLowerCamelCase(sourceSetName + " " + toolName + "ArgsFiles");
         }
     }
