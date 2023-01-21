@@ -4,10 +4,6 @@ import org.gradle.util.GUtil;
 
 public class Names {
 
-    public static String getMainGenArgsFileTaskName(String toolName) {
-        return "gen" + toolName + "ArgsFile";
-    }
-
     public static String getGenArgsFileTaskName(String sourceSetName, String toolName) {
         if (sourceSetName.equals("main"))
             return "gen" + toolName + "ArgsFile";

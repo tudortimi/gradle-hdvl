@@ -114,7 +114,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
 
     private void configureCompileArtifact(Project project, String toolName) {
         AbstractGenArgsFile genArgsFile
-                = (AbstractGenArgsFile) project.getTasks().getByName(Names.getMainGenArgsFileTaskName(toolName));
+                = (AbstractGenArgsFile) project.getTasks().getByName(Names.getGenArgsFileTaskName("main", toolName));
         Action<ConfigurablePublishArtifact> configureAction = new Action<ConfigurablePublishArtifact>() {
             @Override
             public void execute(ConfigurablePublishArtifact configurablePublishArtifact) {
