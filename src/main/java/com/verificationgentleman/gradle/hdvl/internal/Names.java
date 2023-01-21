@@ -2,6 +2,9 @@ package com.verificationgentleman.gradle.hdvl.internal;
 
 import org.gradle.util.GUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class Names {
 
     public static Names of(String sourceSetName) {
@@ -38,12 +41,12 @@ public abstract class Names {
 
         @Override
         public String getArgsFileName(String toolName) {
-            return toolName.toLowerCase() + "_" + "args.f";
+            return toLowerSnakeCase(toolName, "args.f");
         }
 
         @Override
         public String getFullArgsFileName(String toolName) {
-            return "full" + "_" + toolName.toLowerCase() + "_" + "args.f";
+            return toLowerSnakeCase("full", toolName, "args.f");
         }
     }
 
@@ -71,12 +74,12 @@ public abstract class Names {
 
         @Override
         public String getArgsFileName(String toolName) {
-            return sourceSetName + "_"+ toolName.toLowerCase() + "_" + "args.f";
+            return toLowerSnakeCase(sourceSetName, toolName, "args.f");
         }
 
         @Override
         public String getFullArgsFileName(String toolName) {
-            return "full" + "_" + sourceSetName + "_" + toolName.toLowerCase() + "_" + "args.f";
+            return toLowerSnakeCase("full", sourceSetName, toolName, "args.f");
         }
     }
 
@@ -89,6 +92,13 @@ public abstract class Names {
         for (String word: words)
             stringBuilder.append(word).append(" ");
         return GUtil.toLowerCamelCase(stringBuilder.toString());
+    }
+
+    private static String toLowerSnakeCase(String ... words) {
+        List<String> lowerCaseWords = new ArrayList<>();
+        for (String word: words)
+            lowerCaseWords.add(word.toLowerCase());
+        return String.join("_", lowerCaseWords);
     }
 
 }
