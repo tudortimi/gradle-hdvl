@@ -46,4 +46,9 @@ public abstract class DefaultSourceSet implements SourceSet {
             ? toolNameLower + "_" + "args.f"
             : name + "_" + toolNameLower + "_" + "args.f";
     }
+
+    @Override
+    public String getGenFullArgsFileTaskName(String toolName) {
+        return Names.getGenFullArgsFileTaskName(name, toolName);
+    }
 }
