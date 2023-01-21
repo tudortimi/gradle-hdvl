@@ -66,7 +66,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
                 genArgsFile.setPrivateIncludeDirs(project.files().getAsFileTree());
                 genArgsFile.setExportedIncludeDirs(project.files().getAsFileTree());
                 genArgsFile.setCSource(project.files().getAsFileTree());
-                genArgsFile.getDestination().set(new File(project.getBuildDir(), Names.getArgsFileName(sourceSet.getName(), toolName)));
+                genArgsFile.getDestination().set(new File(project.getBuildDir(), Names.of(sourceSet.getName()).getArgsFileName(toolName)));
             }
         });
     }
@@ -90,7 +90,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
             public void execute(GenFullArgsFile genFullArgsFile) {
                 genFullArgsFile.setDescription("Generates an argument file for the " + sourceSet.getName() + " source code and its dependencies.");
                 genFullArgsFile.getSource().set(genArgsFile.getDestination());
-                genFullArgsFile.getDestination().set(new File(project.getBuildDir(), Names.getFullArgsFileName(sourceSet.getName(), toolName)));
+                genFullArgsFile.getDestination().set(new File(project.getBuildDir(), Names.of(sourceSet.getName()).getFullArgsFileName(toolName)));
                 genFullArgsFile.setArgsFiles(project.getConfigurations().getByName(sourceSet.getArgsFilesConfigurationName(toolName)));
             }
         });

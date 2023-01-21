@@ -16,6 +16,10 @@ public abstract class Names {
 
     public abstract String getArgsFilesConfigurationName(String toolName);
 
+    public abstract String getArgsFileName(String toolName);
+
+    public abstract String getFullArgsFileName(String toolName);
+
     private static class NamesForMain extends Names {
         @Override
         public String getGenArgsFileTaskName(String toolName) {
@@ -30,6 +34,16 @@ public abstract class Names {
         @Override
         public String getArgsFilesConfigurationName(String toolName) {
             return GUtil.toLowerCamelCase(toolName + "ArgsFiles");
+        }
+
+        @Override
+        public String getArgsFileName(String toolName) {
+            return toolName.toLowerCase() + "_" + "args.f";
+        }
+
+        @Override
+        public String getFullArgsFileName(String toolName) {
+            return "full" + "_" + toolName.toLowerCase() + "_" + "args.f";
         }
     }
 
@@ -54,20 +68,16 @@ public abstract class Names {
         public String getArgsFilesConfigurationName(String toolName) {
             return GUtil.toLowerCamelCase(sourceSetName + " " + toolName + "ArgsFiles");
         }
-    }
 
-    public static String getArgsFileName(String sourceSetName, String toolName) {
-        String toolNameLower = toolName.toLowerCase();
-        if (sourceSetName.equals("main"))
-            return toolNameLower + "_" + "args.f";
-        return sourceSetName + "_"+ toolNameLower + "_" + "args.f";
-    }
+        @Override
+        public String getArgsFileName(String toolName) {
+            return sourceSetName + "_"+ toolName.toLowerCase() + "_" + "args.f";
+        }
 
-    public static String getFullArgsFileName(String sourceSetName, String toolName) {
-        String toolNameLower = toolName.toLowerCase();
-        if (sourceSetName.equals("main"))
-            return "full" + "_" + toolNameLower + "_" + "args.f";
-        return "full" + "_" + sourceSetName + "_" + toolNameLower + "_" + "args.f";
+        @Override
+        public String getFullArgsFileName(String toolName) {
+            return "full" + "_" + sourceSetName + "_" + toolName.toLowerCase() + "_" + "args.f";
+        }
     }
 
     public static String getTestTaskName(String toolName) {
