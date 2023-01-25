@@ -33,6 +33,7 @@ import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.internal.HasConvention;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.util.GUtil;
 
 import java.io.File;
@@ -134,6 +135,7 @@ public class SVUnitPlugin implements Plugin<Project> {
         TaskProvider<TestTask> testTask = project.getTasks().register(Names.getTestTaskName(toolName), TestTask.class, new Action<TestTask>() {
             @Override
             public void execute(TestTask testTask) {
+                testTask.setGroup(LifecycleBasePlugin.VERIFICATION_GROUP);
                 testTask.setDescription("Runs the unit tests using SVUnit.");
                 testTask.getToolName().set(toolName.toLowerCase());
                 testTask.getMainArgsFile().set(genFullArgsFile.getDestination());
