@@ -33,6 +33,8 @@ public class HDVLBasePlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
+        project.getPluginManager().apply("base");
+
         final DefaultHDVLPluginExtension extension = new DefaultHDVLPluginExtension(project);
         project.getExtensions().add("hdvl", extension);
         project.getExtensions().add("sourceSets", extension.getSourceSets());

@@ -368,6 +368,23 @@ class SVUnitPluginSpec extends Specification  {
         dummyLog.text.contains "-f ${testProjectDir.root}/build/full_test_xrun_args.f"
     }
 
+    def "'check' task executes test tasks"() {
+        File testSv = testProjectDir.newFolder('src', 'test', 'sv')
+        new File(testSv, 'dummy_test.sv').createNewFile()
+
+        when:
+        def result = newGradleRunnerWithFakeRunSVunit()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('check')
+            .build()
+
+        then:
+        result.task(":check").outcome == SUCCESS
+        result.task(":testWithXrun").outcome == SUCCESS
+        result.task(":testWithQrun").outcome == SUCCESS
+    }
+
     def newGradleRunnerWithFakeRunSVunit() {
         def runSVUnitFake = new File(getClass().getResource('/runSVUnit').toURI())
         def env = System.getenv()
