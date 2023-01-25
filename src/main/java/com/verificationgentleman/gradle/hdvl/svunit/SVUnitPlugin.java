@@ -32,6 +32,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.internal.HasConvention;
 import org.gradle.api.reflect.TypeOf;
+import org.gradle.api.tasks.TaskProvider;
 import org.gradle.util.GUtil;
 
 import java.io.File;
@@ -130,7 +131,7 @@ public class SVUnitPlugin implements Plugin<Project> {
         GenFullArgsFile genFullTestArgsFile
                 = (GenFullArgsFile) project.getTasks().getByName(testSourceSet.getGenFullArgsFileTaskName(toolName));
         Configuration svUnitRoot = project.getConfigurations().getByName("svUnitRoot");
-        project.getTasks().register(Names.getTestTaskName(toolName), TestTask.class, new Action<TestTask>() {
+        TaskProvider<TestTask> testTask = project.getTasks().register(Names.getTestTaskName(toolName), TestTask.class, new Action<TestTask>() {
             @Override
             public void execute(TestTask testTask) {
                 testTask.setDescription("Runs the unit tests using SVUnit.");
@@ -143,6 +144,7 @@ public class SVUnitPlugin implements Plugin<Project> {
                 testTask.getExtraArgs().set(toolChains.getRunSVUnit().getArgs());
             }
         });
+        project.getTasks().getByName("check").dependsOn(testTask);
     }
 
 }
