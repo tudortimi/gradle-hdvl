@@ -48,5 +48,50 @@ class HDVLBasePluginSpec extends Specification {
         result.task(":help").outcome == SUCCESS
     }
 
-    // TODO Move tests from other HDV language plugins that are not specific to them
+    def "project with extra source set can be used as dependency"() {
+        given:
+        fsFixture.create {
+            dir('consumer') {
+                file('build.gradle') << """
+                    plugins {
+                        id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+                    }
+                    dependencies {
+                        compile ':producer'
+                    }
+                """
+                file('settings.gradle') << """
+                    includeBuild '../producer'
+                """
+                dir('src/main/sv') {
+                    file('main.sv')
+                }
+            }
+            dir('producer') {
+                file('build.gradle') << """
+                    plugins {
+                        id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+                    }
+                    sourceSets.create('other')
+                """
+                dir('src/main/sv') {
+                    file('main.sv')
+                }
+                dir('src/other/sv') {
+                    file('other.sv')
+                }
+            }
+        }
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(fsFixture.resolve('consumer').toFile())
+            .withPluginClasspath()
+            .withArguments('genFullXrunArgsFile')
+            .build()
+        println result.output
+
+        then:
+        result.task(":genFullXrunArgsFile").outcome == SUCCESS
+    }
 }
