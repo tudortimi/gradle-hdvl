@@ -18,6 +18,12 @@ group = "com.verificationgentleman.gradle"
 
 gradlePlugin {
     plugins {
+        create("base") {
+            id = "com.verificationgentleman.gradle.hdvl.base"
+            displayName = "Base plugin for hardware design and verification languages"
+            description = "A plugin that adds support for compiling and running code in HDL simulators"
+            implementationClass = "com.verificationgentleman.gradle.hdvl.HDVLBasePlugin"
+        }
         create("systemverilog") {
             id = "com.verificationgentleman.gradle.hdvl.systemverilog"
             displayName = "Plugin for SystemVerilog support in HDL simulators"
