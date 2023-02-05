@@ -109,7 +109,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
     private void configureArgsFilesConfiguration(Project project, SourceSet sourceSet, String toolName) {
         Configuration argsFiles = project.getConfigurations().create(sourceSet.getArgsFilesConfigurationName(toolName));
         argsFiles.extendsFrom(project.getConfigurations().getByName("compile"));
-        argsFiles.setCanBeConsumed(true);
+        argsFiles.setCanBeConsumed(sourceSet.getName().equals("main"));
         argsFiles.setCanBeResolved(true);
         argsFiles.getAttributes().attribute(HDVLBasePlugin.TOOL_ATTRIBUTE, toolName);
     }
