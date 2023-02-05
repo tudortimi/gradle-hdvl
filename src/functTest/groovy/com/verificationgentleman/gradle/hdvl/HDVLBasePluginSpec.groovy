@@ -45,4 +45,6 @@ class HDVLBasePluginSpec extends Specification {
         then:
         result.task(":help").outcome == SUCCESS
     }
+
+    // TODO Move tests from other HDV language plugins that are not specific to them
 }
