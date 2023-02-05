@@ -17,5 +17,5 @@ sourceSets {
 }
 
 dependencies {
-    compile files(genPreMainArgsFile.destination)
+    compile files(genPreMainXrunArgsFile.destination)
 }
