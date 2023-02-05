@@ -52,7 +52,6 @@ public class SVUnitPlugin implements Plugin<Project> {
                 .getByType(new TypeOf<NamedDomainObjectContainer<SourceSet>>() {});
         final SourceSet testSourceSet = sourceSets.create("test");
 
-        configureConfiguration(project);
         configureSVUnitRootConfiguration(project);
 
         String[] toolNames = {"Xrun", "Qrun"};
@@ -79,12 +78,6 @@ public class SVUnitPlugin implements Plugin<Project> {
         });
     }
 
-    private void configureConfiguration(Project project) {
-        Configuration testCompileConfiguration = project.getConfigurations().create("testCompile");
-        testCompileConfiguration.setCanBeConsumed(false);
-        testCompileConfiguration.setCanBeResolved(false);
-    }
-
     private void configureSVUnitRootConfiguration(Project project) {
         Configuration svUnitRoot = project.getConfigurations().create("svUnitRoot");
         svUnitRoot.setCanBeConsumed(false);
@@ -107,7 +100,6 @@ public class SVUnitPlugin implements Plugin<Project> {
 
     private void configureArgsFilesConfiguration(Project project, SourceSet testSourceSet, String toolName) {
         Configuration argsFiles = project.getConfigurations().getByName(testSourceSet.getArgsFilesConfigurationName(toolName));
-        argsFiles.extendsFrom(project.getConfigurations().getByName("testCompile"));
         argsFiles.exclude(getExcludeForSVUnit());
     }
 
