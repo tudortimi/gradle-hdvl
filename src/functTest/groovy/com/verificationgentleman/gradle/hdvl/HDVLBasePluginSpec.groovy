@@ -16,29 +16,31 @@
 package com.verificationgentleman.gradle.hdvl
 
 import org.gradle.testkit.runner.GradleRunner
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
+import spock.lang.TempDir
+import spock.util.io.FileSystemFixture
 
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
 class HDVLBasePluginSpec extends Specification {
-    @Rule TemporaryFolder testProjectDir = new TemporaryFolder()
-    File buildFile
+    @TempDir FileSystemFixture fsFixture
+    def buildFile
 
     def setup() {
-        buildFile = testProjectDir.newFile('build.gradle')
-        buildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.base'
-            }
-        """
+        fsFixture.create {
+            file('build.gradle') << """
+                plugins {
+                    id 'com.verificationgentleman.gradle.hdvl.base'
+                }
+            """
+        }
+        buildFile = fsFixture.resolve('build.gradle')
     }
 
     def "can successfully import the plugin"() {
         when:
         def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
+                .withProjectDir(fsFixture.currentPath.toFile())
                 .withPluginClasspath()
                 .build()
 
