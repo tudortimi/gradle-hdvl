@@ -8,7 +8,16 @@ dependencies {
 }
 
 class Test extends DefaultTask {
-    private Property<Boolean> withGui = project.objects.property(Boolean).convention(false)
+    private Property<Boolean> withGui;
+
+    Test() {
+        withGui = project.objects.property(Boolean)
+
+        // It's extremely important that we have a convention for boolean properties. If it is not set to `false` by
+        // default, then calling `map()` on it will return `null`, which will cause the `args` property to have no
+        // value. The error message in this case is pretty cryptic.
+        withGui.convention(false)
+    }
 
     @Option(option = "with-gui", description = "Passes +WITH_GUI plusarg")
     Property<Boolean> getWithGui() {
