@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 the original author or authors.
+ * Copyright 2021-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.internal.HasConvention;
 import org.gradle.api.reflect.TypeOf;
+import org.gradle.api.specs.Specs;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.util.GUtil;
@@ -136,6 +137,9 @@ public class SVUnitPlugin implements Plugin<Project> {
                 testTask.setSvunitRoot(svUnitRoot);
                 testTask.getWorkingDir().set(new File(project.getBuildDir(), "svunit"));
                 testTask.getExtraArgs().set(toolChains.getRunSVUnit().getArgs());
+
+                // TODO Implement proper up-to-date checking
+                testTask.getOutputs().upToDateWhen(Specs.satisfyNone());
             }
         });
         project.getTasks().getByName("check").dependsOn(testTask);
