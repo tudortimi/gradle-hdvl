@@ -1,11 +1,12 @@
 package com.verificationgentleman.gradle.hdvl.svunit;
 
+import org.gradle.api.provider.ListProperty;
 import org.gradle.platform.base.ToolChain;
 
 import java.util.List;
 
 public interface RunSVUnitToolChain extends ToolChain {
-    List<String> getArgs();
+    ListProperty<String> getArgs();
 
     /**
      * Configures the command line args.

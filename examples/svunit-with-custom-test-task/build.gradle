@@ -1,0 +1,33 @@
+plugins {
+    id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+    id 'com.verificationgentleman.gradle.hdvl.svunit'
+}
+
+dependencies {
+    testCompile "org.svunit:svunit:v3.34.2"
+}
+
+class Test extends DefaultTask {
+    private Property<Boolean> withGui;
+
+    Test() {
+        withGui = project.objects.property(Boolean)
+
+        // It's extremely important that we have a convention for boolean properties. If it is not set to `false` by
+        // default, then calling `map()` on it will return `null`, which will cause the `args` property to have no
+        // value. The error message in this case is pretty cryptic.
+        withGui.convention(false)
+    }
+
+    @Option(option = "with-gui", description = "Passes +WITH_GUI plusarg")
+    Property<Boolean> getWithGui() {
+        return withGui
+    }
+}
+
+
+tasks.register("test", Test) {t ->
+    t.setGroup("Verification")
+    project.toolChains.runSVUnit.args.addAll(t.withGui.map { it ? ['-r_arg', '+WITH_GUI'] : [] })
+    t.dependsOn project.tasks.getByName("testWithXrun")
+}
