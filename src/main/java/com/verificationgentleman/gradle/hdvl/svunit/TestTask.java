@@ -105,7 +105,7 @@ public class TestTask extends DefaultTask {
             File testsLink = new File(workingDir.get().getAsFile(), "tests");
             Files.createSymbolicLink(testsLink.toPath(), getTestsRoot().toPath());
         } catch (IOException e) {
-            System.out.println("Could not create 'tests' link");
+            throw new RuntimeException("Could not create 'tests' link.\n\n" + e.toString());
         }
 
     }
