@@ -13,6 +13,8 @@ public abstract class Names {
         return new NamesForOther(sourceSetName);
     }
 
+    public abstract String getCompileConfigurationName();
+
     public abstract String getGenArgsFileTaskName(String toolName);
 
     public abstract String getGenFullArgsFileTaskName(String toolName);
@@ -24,6 +26,11 @@ public abstract class Names {
     public abstract String getFullArgsFileName(String toolName);
 
     private static class NamesForMain extends Names {
+        @Override
+        public String getCompileConfigurationName() {
+            return toLowerCamelCase("compile");
+        }
+
         @Override
         public String getGenArgsFileTaskName(String toolName) {
             return toLowerCamelCase("gen", toolName, "argsFile");
@@ -55,6 +62,11 @@ public abstract class Names {
 
         NamesForOther(String sourceSetName) {
             this.sourceSetName = sourceSetName;
+        }
+
+        @Override
+        public String getCompileConfigurationName() {
+            return toLowerCamelCase(sourceSetName, "compile");
         }
 
         @Override

@@ -3,6 +3,12 @@ plugins {
 }
 
 sourceSets {
+    prePreMain {
+        sv {
+            srcDir 'src/main/sv'
+            include 'dummy2.sv'
+        }
+    }
     preMain {
         sv {
             srcDir 'src/main/sv'
@@ -11,11 +17,17 @@ sourceSets {
     }
     main {
         sv {
-            exclude 'dummy1.sv'
+            include 'dummy0.sv'
         }
     }
 }
 
 dependencies {
-    compile files(genPreMainArgsFile.destination)
+    preMainCompile files(genPrePreMainXrunArgsFile.destination)
+    compile files(genPreMainXrunArgsFile.destination)
+}
+
+// XXX WORKAROUND Gradle doesn't understand that `compile` should transitively depend on `preMainCompile`
+configurations {
+    compile.extendsFrom preMainCompile
 }

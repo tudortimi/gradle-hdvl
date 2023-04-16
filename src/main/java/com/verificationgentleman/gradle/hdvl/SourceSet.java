@@ -21,6 +21,13 @@ import org.gradle.api.plugins.ExtensionAware;
 
 public interface SourceSet extends Named, ExtensionAware {
     /**
+     * Returns the name of the compile configuration for this source set.
+     *
+     * @return The configuration name. Never returns null.
+     */
+    String getCompileConfigurationName();
+
+    /**
      * Returns the name of the gen args file task for this source set, for the specified tool.
      *
      * @param toolName The tool for which the args file is generated.
