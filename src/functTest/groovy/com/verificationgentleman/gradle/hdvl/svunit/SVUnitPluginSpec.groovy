@@ -262,7 +262,7 @@ class SVUnitPluginSpec extends Specification  {
                 }
             }
 
-            println toolChains.runSVUnit.args
+            println toolChains.runSVUnit.args.get()
         """
 
         when:

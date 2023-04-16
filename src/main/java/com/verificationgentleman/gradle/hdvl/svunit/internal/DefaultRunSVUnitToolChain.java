@@ -1,12 +1,20 @@
 package com.verificationgentleman.gradle.hdvl.svunit.internal;
 
 import com.verificationgentleman.gradle.hdvl.svunit.RunSVUnitToolChain;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.ListProperty;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DefaultRunSVUnitToolChain implements RunSVUnitToolChain {
-    private List<String> args = new ArrayList<>();
+    private ListProperty<String> args;
+
+    @Inject
+    public DefaultRunSVUnitToolChain(ObjectFactory objects) {
+        args = objects.listProperty(String.class);
+    }
 
     @Override
     public String getDisplayName() {
@@ -19,7 +27,7 @@ public class DefaultRunSVUnitToolChain implements RunSVUnitToolChain {
     }
 
     @Override
-    public List<String> getArgs() {
+    public ListProperty<String> getArgs() {
         return args;
     }
 
