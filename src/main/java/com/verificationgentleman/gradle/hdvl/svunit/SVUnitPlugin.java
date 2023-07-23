@@ -96,7 +96,7 @@ public class SVUnitPlugin implements Plugin<Project> {
     }
 
     private boolean isSVUnit(Dependency dependency) {
-        return dependency.getGroup().equals("org.svunit") && dependency.getName().equals("svunit");
+        return "org.svunit".equals(dependency.getGroup()) && "svunit".equals(dependency.getName());
     }
 
     private void configureArgsFilesConfiguration(Project project, SourceSet testSourceSet, String toolName) {
