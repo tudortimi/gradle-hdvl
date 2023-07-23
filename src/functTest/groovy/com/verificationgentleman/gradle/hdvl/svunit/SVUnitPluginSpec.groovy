@@ -368,6 +368,31 @@ class SVUnitPluginSpec extends Specification  {
         dummyLog.text.contains "-f ${testProjectDir.root}/build/full_test_xrun_args.f"
     }
 
+    def "'testWithXrun' uses full args file for source set dependency"() {
+        File mainSv = testProjectDir.newFolder('src', 'mocks', 'sv')
+        new File(mainSv, 'dummy_mocks.sv').createNewFile()
+
+        buildFile << """
+            sourceSets.register('mocks')
+
+            dependencies {
+                testCompile files(genMocksXrunArgsFile.destination)
+            }
+        """
+
+        when:
+        def result = newGradleRunnerWithFakeRunSVunit()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('testWithXrun')
+            .build()
+
+        then:
+        result.task(":testWithXrun").outcome == SUCCESS
+        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
+        dummyLog.text.contains "-f ${testProjectDir.root}/build/full_mocks_xrun_args.f"
+    }
+
     def "'check' task executes test tasks"() {
         File testSv = testProjectDir.newFolder('src', 'test', 'sv')
         new File(testSv, 'dummy_test.sv').createNewFile()
