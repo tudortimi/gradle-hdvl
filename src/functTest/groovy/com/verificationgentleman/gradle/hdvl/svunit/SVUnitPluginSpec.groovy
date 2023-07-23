@@ -369,6 +369,8 @@ class SVUnitPluginSpec extends Specification  {
     }
 
     def "'testWithXrun' uses full args file for source set dependency"() {
+        File testSv = testProjectDir.newFolder('src', 'test', 'sv')
+
         File mainSv = testProjectDir.newFolder('src', 'mocks', 'sv')
         new File(mainSv, 'dummy_mocks.sv').createNewFile()
 
