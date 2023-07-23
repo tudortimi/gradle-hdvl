@@ -368,7 +368,7 @@ class SVUnitPluginSpec extends Specification  {
         dummyLog.text.contains "-f ${testProjectDir.root}/build/full_test_xrun_args.f"
     }
 
-    def "'testWithXrun' uses full args file for source set dependency"() {
+    def "'testWithXrun' uses args file for source set dependency"() {
         File testSv = testProjectDir.newFolder('src', 'test', 'sv')
 
         File mainSv = testProjectDir.newFolder('src', 'mocks', 'sv')
@@ -391,8 +391,8 @@ class SVUnitPluginSpec extends Specification  {
 
         then:
         result.task(":testWithXrun").outcome == SUCCESS
-        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
-        dummyLog.text.contains "-f ${testProjectDir.root}/build/full_mocks_xrun_args.f"
+        def testFullXrunArgsFile = new File(testProjectDir.root, 'build/full_test_xrun_args.f')
+        testFullXrunArgsFile.text.contains "-f ${testProjectDir.root}/build/mocks_xrun_args.f"
     }
 
     def "'check' task executes test tasks"() {
