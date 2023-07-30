@@ -60,7 +60,7 @@ class DVTPluginSpec extends Specification {
         result.output.contains('dvt')
     }
 
-    def "'dvt' task calls 'dvt_cli.sh createProject'"() {
+    def "'dvt' task creates 'default.build' in xrun compatibility mode"() {
         buildFile << """
             plugins {
                 id 'com.verificationgentleman.gradle.hdvl.systemverilog'
@@ -68,7 +68,7 @@ class DVTPluginSpec extends Specification {
         """
 
         when:
-        def result = newGradleRunnerWithFakeDvtCli()
+        def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
             .withArguments(':dvt')
@@ -76,12 +76,12 @@ class DVTPluginSpec extends Specification {
 
         then:
         result.task(":dvt").outcome == SUCCESS
-        def dummyLog = new File(testProjectDir.root, 'dvt_cli.sh.log')
-        dummyLog.exists()
-        dummyLog.text.contains('createProject')
+        def defaultBuild = new File(testProjectDir.root, '.dvt/default.build')
+        defaultBuild.exists()
+        defaultBuild.text.contains('+dvt_init+xcelium.xrun')
     }
 
-    def "'dvt' task passes project path"() {
+    def "'dvt' task includes full xrun args file in 'default.build'"() {
         buildFile << """
             plugins {
                 id 'com.verificationgentleman.gradle.hdvl.systemverilog'
@@ -89,7 +89,7 @@ class DVTPluginSpec extends Specification {
         """
 
         when:
-        def result = newGradleRunnerWithFakeDvtCli()
+        def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
             .withArguments(':dvt')
@@ -97,148 +97,9 @@ class DVTPluginSpec extends Specification {
 
         then:
         result.task(":dvt").outcome == SUCCESS
-        def dummyLog = new File(testProjectDir.root, 'dvt_cli.sh.log')
-        dummyLog.exists()
-        dummyLog.text.contains(testProjectDir.root.absolutePath)
-    }
-
-    def "'dvt' task adds '-lang vlog' when 'systemverilog' plugin is imported"() {
-        buildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
-            }
-        """
-
-        when:
-        def result = newGradleRunnerWithFakeDvtCli()
-            .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
-            .withArguments(':dvt')
-            .build()
-
-        then:
-        result.task(":dvt").outcome == SUCCESS
-        def dummyLog = new File(testProjectDir.root, 'dvt_cli.sh.log')
-        dummyLog.exists()
-        dummyLog.text.contains('-lang vlog')
-    }
-
-    def "'dvt' task adds single '-lang' when only 'systemverilog' plugin is imported"() {
-        buildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
-            }
-        """
-
-        when:
-        def result = newGradleRunnerWithFakeDvtCli()
-            .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
-            .withArguments(':dvt')
-            .build()
-
-        then:
-        result.task(":dvt").outcome == SUCCESS
-        def dummyLog = new File(testProjectDir.root, 'dvt_cli.sh.log')
-        dummyLog.exists()
-        dummyLog.text.count('-lang') == 1
-    }
-
-    def "'dvt' task adds '-lang cpp' when 'c' plugin is imported"() {
-        File sv = testProjectDir.newFolder('src', 'main', 'c')
-        new File(sv, "dummy.c").createNewFile()
-
-        buildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.c'
-            }
-        """
-
-        when:
-        def result = newGradleRunnerWithFakeDvtCli()
-            .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
-            .withArguments(':dvt')
-            .build()
-
-        then:
-        result.task(":dvt").outcome == SUCCESS
-        def dummyLog = new File(testProjectDir.root, 'dvt_cli.sh.log')
-        dummyLog.exists()
-        dummyLog.text.contains('-lang c')
-    }
-
-    def "'dvt' task adds two '-lang' options when both 'systemverilog' and 'c' plugins are imported"() {
-        buildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
-                id 'com.verificationgentleman.gradle.hdvl.c'
-            }
-        """
-
-        when:
-        def result = newGradleRunnerWithFakeDvtCli()
-            .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
-            .withArguments(':dvt')
-            .build()
-
-        then:
-        result.task(":dvt").outcome == SUCCESS
-        def dummyLog = new File(testProjectDir.root, 'dvt_cli.sh.log')
-        dummyLog.exists()
-        dummyLog.text.count('-lang') == 2
-    }
-
-    def "'dvt' task passes '-force' option"() {
-        buildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
-            }
-        """
-
-        when:
-        def result = newGradleRunnerWithFakeDvtCli()
-            .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
-            .withArguments(':dvt')
-            .build()
-
-        then:
-        result.task(":dvt").outcome == SUCCESS
-        def dummyLog = new File(testProjectDir.root, 'dvt_cli.sh.log')
-        dummyLog.exists()
-        dummyLog.text.contains('-force')
-    }
-
-    def "'dvt' task includes args file"() {
-        buildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
-            }
-        """
-
-        when:
-        def result = newGradleRunnerWithFakeDvtCli()
-            .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
-            .withArguments(':dvt')
-            .build()
-
-        then:
-        result.task(":dvt").outcome == SUCCESS
-        result.task(":genFullXrunArgsFile").outcome == SUCCESS
-        def dummyLog = new File(testProjectDir.root, 'dvt_cli.sh.log')
-        dummyLog.text.contains('-default.build')
-        dummyLog.text.contains('+dvt_init+ius.irun')
-        dummyLog.text.contains("-f ${testProjectDir.root}/build/full_xrun_args.f")
-    }
-
-    def newGradleRunnerWithFakeDvtCli() {
-        def dvtCliFake = new File(getClass().getResource('/dvt_cli.sh').toURI())
-        def env = System.getenv()
-
-        return GradleRunner.create()
-            .withEnvironment(["PATH": [dvtCliFake.parent, env.PATH].join(':')])
+        def defaultBuild = new File(testProjectDir.root, '.dvt/default.build')
+        defaultBuild.exists()
+        defaultBuild.text.contains('-f')
+        defaultBuild.text.contains('full_xrun_args.f')
     }
 }
