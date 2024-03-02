@@ -21,6 +21,7 @@ import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.plugins.DslObject;
 
 public class SystemVerilogPlugin implements Plugin<Project> {
@@ -37,7 +38,9 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                         sourceSet.getName(), project.getObjects());
 
                 // XXX WORKAROUND Not part of the public API
-                new DslObject(sourceSet).getConvention().getPlugins().put("sv", svSourceSet);
+                //new DslObject(sourceSet).getConvention().getPlugins().put("sv", svSourceSet);
+                sourceSet.getExtensions().add("sv", svSourceSet.getSv());
+                sourceSet.getExtensions().add("svHeaders", svSourceSet.getSvHeaders());
 
                 String[] toolNames = {"Xrun", "Qrun"};
                 for (String toolName: toolNames) {
