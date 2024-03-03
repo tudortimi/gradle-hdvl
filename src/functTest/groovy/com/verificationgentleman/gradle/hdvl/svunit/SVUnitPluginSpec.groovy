@@ -32,6 +32,9 @@ class SVUnitPluginSpec extends Specification  {
     File settingsFile
 
     def setup() {
+        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(sv, 'dummy_main.sv').createNewFile()
+
         buildFile = testProjectDir.newFile('build.gradle')
         buildFile << """
             plugins {
@@ -139,9 +142,6 @@ class SVUnitPluginSpec extends Specification  {
     }
 
     def "'testWithXrun' task passes args file to 'runSVUnit'"() {
-        File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
-        new File(mainSv, 'dummy_main.sv').createNewFile()
-
         File testSv = testProjectDir.newFolder('src', 'test', 'sv')
         new File(testSv, 'dummy_test.sv').createNewFile()
 
@@ -159,9 +159,6 @@ class SVUnitPluginSpec extends Specification  {
     }
 
     def "'testWithQrun' task passes args file to 'runSVUnit'"() {
-        File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
-        new File(mainSv, 'dummy_main.sv').createNewFile()
-
         File testSv = testProjectDir.newFolder('src', 'test', 'sv')
         new File(testSv, 'dummy_test.sv').createNewFile()
 
@@ -179,9 +176,6 @@ class SVUnitPluginSpec extends Specification  {
     }
 
     def "'testWithXrun' task passes simulator option to 'runSVUnit'"() {
-        File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
-        new File(mainSv, 'dummy_main.sv').createNewFile()
-
         File testSv = testProjectDir.newFolder('src', 'test', 'sv')
         new File(testSv, 'dummy_test.sv').createNewFile()
 
@@ -199,9 +193,6 @@ class SVUnitPluginSpec extends Specification  {
     }
 
     def "'testWithQrun' task passes simulator option to 'runSVUnit'"() {
-        File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
-        new File(mainSv, 'dummy_main.sv').createNewFile()
-
         File testSv = testProjectDir.newFolder('src', 'test', 'sv')
         new File(testSv, 'dummy_test.sv').createNewFile()
 
@@ -349,9 +340,6 @@ class SVUnitPluginSpec extends Specification  {
     }
 
     def "'testWithXrun' task passes full args file for 'test' source set to 'runSVUnit'"() {
-        File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
-        new File(mainSv, 'dummy_main.sv').createNewFile()
-
         File testSv = testProjectDir.newFolder('src', 'test', 'sv')
         new File(testSv, 'dummy_test.sv').createNewFile()
 
