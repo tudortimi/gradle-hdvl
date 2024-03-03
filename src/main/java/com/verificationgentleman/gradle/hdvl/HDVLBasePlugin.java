@@ -23,6 +23,7 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurablePublishArtifact;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Attribute;
+import org.gradle.api.tasks.bundling.Zip;
 
 import java.io.File;
 
@@ -55,6 +56,8 @@ public class HDVLBasePlugin implements Plugin<Project> {
 
             configureCompileArtifact(project, mainSourceSet, toolName);
         }
+
+        configureHdvlSourceArchiveTask(project);
     }
 
     private void configureGenArgsFile(Project project, SourceSet sourceSet, String toolName) {
@@ -124,6 +127,13 @@ public class HDVLBasePlugin implements Plugin<Project> {
             }
         };
         project.getArtifacts().add(mainSourceSet.getArgsFilesConfigurationName(toolName), genArgsFile.getDestination(), configureAction);
+    }
+
+    private void configureHdvlSourceArchiveTask(Project project) {
+        project.getTasks().register("hdvlSourcesArchive", Zip.class, zip -> {
+            zip.getDestinationDirectory().convention(project.getLayout().getBuildDirectory());
+            zip.getArchiveFileName().convention("hdvl-sources.zip");
+        });
     }
 
 }

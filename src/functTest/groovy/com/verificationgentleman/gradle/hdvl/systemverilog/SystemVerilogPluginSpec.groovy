@@ -21,6 +21,8 @@ import org.junit.rules.TemporaryFolder
 import spock.lang.Ignore
 import spock.lang.Specification
 
+import java.util.zip.ZipFile
+
 import static org.gradle.testkit.runner.TaskOutcome.NO_SOURCE
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
@@ -861,6 +863,25 @@ class SystemVerilogPluginSpec extends Specification {
                 assert line.contains('qrun_args.f')
             }
         }
+    }
+
+    def "can produce archive with source file"() {
+        File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(mainSv, "main.sv").createNewFile()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':hdvlSourcesArchive')
+            .build()
+
+        then:
+        new File(testProjectDir.root, 'build/hdvl-sources.zip').exists()
+        def zipFile = new ZipFile(new File(testProjectDir.root, 'build/hdvl-sources.zip'))
+        def entries = zipFile.entries().findAll { !it.directory }
+        entries.size() == 1
+        entries[0].name == 'src/main/sv/main.sv'
     }
 
 }

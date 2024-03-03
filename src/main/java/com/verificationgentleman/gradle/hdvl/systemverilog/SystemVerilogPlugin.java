@@ -22,6 +22,7 @@ import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.internal.plugins.DslObject;
+import org.gradle.api.tasks.bundling.Zip;
 
 public class SystemVerilogPlugin implements Plugin<Project> {
 
@@ -44,6 +45,14 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                     AbstractGenArgsFile genArgsFile
                         = (AbstractGenArgsFile) project.getTasks().getByName(sourceSet.getGenArgsFileTaskName(toolName));
                     configureSources(genArgsFile, svSourceSet);
+                }
+
+                if (sourceSet.getName() == "main") {
+                    project.getTasks().getByName("hdvlSourcesArchive", task -> {
+                        Zip hdvlSourcesArchive = (Zip) task;
+                        hdvlSourcesArchive.from(svSourceSet.getSv());
+                        hdvlSourcesArchive.into("src/main/sv");  // FIXME Assumes source in conventional location
+                    });
                 }
             }
         });
