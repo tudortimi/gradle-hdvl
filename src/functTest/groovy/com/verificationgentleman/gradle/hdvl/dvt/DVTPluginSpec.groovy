@@ -28,6 +28,9 @@ class DVTPluginSpec extends Specification {
     File buildFile
 
     def setup() {
+        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(sv, 'dummy_main.sv').createNewFile()
+
         buildFile = testProjectDir.newFile('build.gradle')
         buildFile << """
             plugins {
