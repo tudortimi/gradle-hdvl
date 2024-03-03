@@ -404,7 +404,20 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genXrunArgsFile' task skips empty private include directories"() {
-        // No `src/main/sv` directory
+        File sv = testProjectDir.newFolder('sv')
+        new File(sv, 'dummy.sv').createNewFile()
+
+        buildFile << """
+            sourceSets {
+                main {
+                    sv {
+                        srcDirs 'sv'
+                    }
+                }
+            }
+        """
+
+        // No `src/main/sv` directory, but it still is a `srcDir`
 
         when:
         def result = GradleRunner.create()
@@ -415,7 +428,7 @@ class SystemVerilogPluginSpec extends Specification {
 
         then:
         def lines = new File(testProjectDir.root, 'build/xrun_args.f').text.split("\n")
-        !lines.any { it.contains('-incdir') }
+        !lines.any { it.contains('src/main/sv') }
     }
 
     def "'genXrunArgsFile' task writes exported header directories to args file"() {
