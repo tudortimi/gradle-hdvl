@@ -919,7 +919,7 @@ class SystemVerilogPluginSpec extends Specification {
 
         JsonNode variants = metadata.get("variants")
         variants.size() == 1
-        variants[0].get("name").asText() == "hdvlSourcesArchive"
+        variants[0].get("name").asText() == "hdvlSourcesArchiveElements"
         variants[0].get("attributes").size() == 1
         variants[0].get("attributes").has("com.verificationgentlenan.gradle.hdvl.usage")
         variants[0].get("attributes").get("com.verificationgentlenan.gradle.hdvl.usage").asText() == "HdvlSourcesArchive"

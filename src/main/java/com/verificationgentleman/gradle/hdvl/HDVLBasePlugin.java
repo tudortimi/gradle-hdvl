@@ -16,19 +16,20 @@
 package com.verificationgentleman.gradle.hdvl;
 
 import com.verificationgentleman.gradle.hdvl.internal.DefaultHDVLPluginExtension;
-import com.verificationgentleman.gradle.hdvl.internal.HdvlLibrary;
 import com.verificationgentleman.gradle.hdvl.internal.Names;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurablePublishArtifact;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.attributes.Attribute;
+import org.gradle.api.component.AdhocComponentWithVariants;
+import org.gradle.api.component.SoftwareComponentFactory;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.tasks.bundling.Zip;
 
+import javax.inject.Inject;
 import java.io.File;
 
 public class HDVLBasePlugin implements Plugin<Project> {
@@ -37,6 +38,13 @@ public class HDVLBasePlugin implements Plugin<Project> {
             = Attribute.of("com.verificationgentlenan.gradle.hdvl.tool", String.class);
     public static final Attribute<String> HDVL_USAGE_ATTRIBUTE
             = Attribute.of("com.verificationgentlenan.gradle.hdvl.usage", String.class);
+
+    private final SoftwareComponentFactory softwareComponentFactory;
+
+    @Inject
+    HDVLBasePlugin(SoftwareComponentFactory softwareComponentFactory) {
+        this.softwareComponentFactory = softwareComponentFactory;
+    }
 
     @Override
     public void apply(Project project) {
@@ -153,12 +161,12 @@ public class HDVLBasePlugin implements Plugin<Project> {
             Zip hdvlSourcesArchive = (Zip) task;
             project.getArtifacts().add(hdvlSourcesArchiveElements.getName(), hdvlSourcesArchive.getArchiveFile(), artifact -> {
                 artifact.builtBy(hdvlSourcesArchive);
-                maybeConfigureHdvlSourcesArchiveArtifactPublishing(project, hdvlSourcesArchiveElements, artifact);
+                maybeConfigureHdvlSourcesArchiveArtifactPublishing(project, hdvlSourcesArchiveElements);
             });
         });
     }
 
-    private void maybeConfigureHdvlSourcesArchiveArtifactPublishing(Project project, Configuration hdvlSourcesArchiveElements, PublishArtifact artifact) {
+    private void maybeConfigureHdvlSourcesArchiveArtifactPublishing(Project project, Configuration hdvlSourcesArchiveElements) {
         project.getPluginManager().withPlugin("maven-publish", appliedPlugin -> {
             PublishingExtension publishing = (PublishingExtension) project.getExtensions().getByName("publishing");
             publishing.getPublications().create("hdvlLibrary", MavenPublication.class, mavenPublication -> {
@@ -168,8 +176,8 @@ public class HDVLBasePlugin implements Plugin<Project> {
                     mavenPublication.setVersion(project.getVersion().toString());
                 });
 
-                HdvlLibrary hdvlLibrary = project.getObjects().newInstance(HdvlLibrary.class, "hdvlSourcesArchive",
-                        hdvlSourcesArchiveElements.getAttributes(), artifact);
+                AdhocComponentWithVariants hdvlLibrary =  softwareComponentFactory.adhoc("hdvlLibrary");
+                hdvlLibrary.addVariantsFromConfiguration(hdvlSourcesArchiveElements, configurationVariantDetails -> {});
                 mavenPublication.from(hdvlLibrary);
             });
         });
