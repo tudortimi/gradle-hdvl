@@ -15,6 +15,8 @@
  */
 package com.verificationgentleman.gradle.hdvl.systemverilog
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -882,6 +884,45 @@ class SystemVerilogPluginSpec extends Specification {
         def entries = zipFile.entries().findAll { !it.directory }
         entries.size() == 1
         entries[0].name == 'src/main/sv/main.sv'
+    }
+
+    def "can publishing metadata for archive"() {
+        File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(mainSv, "main.sv").createNewFile()
+
+        buildFile.text = """
+            plugins {
+                id("com.verificationgentleman.gradle.hdvl.systemverilog")
+                id("maven-publish")
+            }
+
+            group = "org.example"
+            version = "1.0.0"
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':generateMetadataFileForHdvlLibraryPublication')
+            .build()
+
+        then:
+        def gradleMetadata = new File(testProjectDir.root, "build/publications/hdvlLibrary/module.json")
+        gradleMetadata.exists()
+        JsonNode metadata = new ObjectMapper().readTree(gradleMetadata);
+
+        JsonNode component = metadata.get("component")
+        component.get("group").asText() == "org.example"
+        component.get("module").asText() == testProjectDir.root.name
+        component.get("version").asText() == "1.0.0"
+
+        JsonNode variants = metadata.get("variants")
+        variants.size() == 1
+        variants[0].get("name").asText() == "hdvlSourcesArchive"
+        variants[0].get("attributes").size() == 1
+        variants[0].get("attributes").has("com.verificationgentlenan.gradle.hdvl.usage")
+        variants[0].get("attributes").get("com.verificationgentlenan.gradle.hdvl.usage").asText() == "HdvlSourcesArchive"
     }
 
 }

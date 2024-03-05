@@ -16,13 +16,17 @@
 package com.verificationgentleman.gradle.hdvl;
 
 import com.verificationgentleman.gradle.hdvl.internal.DefaultHDVLPluginExtension;
+import com.verificationgentleman.gradle.hdvl.internal.HdvlLibrary;
 import com.verificationgentleman.gradle.hdvl.internal.Names;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurablePublishArtifact;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.PublishArtifact;
 import org.gradle.api.attributes.Attribute;
+import org.gradle.api.publish.PublishingExtension;
+import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.tasks.bundling.Zip;
 
 import java.io.File;
@@ -31,6 +35,8 @@ public class HDVLBasePlugin implements Plugin<Project> {
 
     public static final Attribute<String> TOOL_ATTRIBUTE
             = Attribute.of("com.verificationgentlenan.gradle.hdvl.tool", String.class);
+    public static final Attribute<String> HDVL_USAGE_ATTRIBUTE
+            = Attribute.of("com.verificationgentlenan.gradle.hdvl.usage", String.class);
 
     @Override
     public void apply(Project project) {
@@ -58,6 +64,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
         }
 
         configureHdvlSourceArchiveTask(project);
+        configureHdvlSourcesArchiveArtifact(project, mainSourceSet);
     }
 
     private void configureGenArgsFile(Project project, SourceSet sourceSet, String toolName) {
@@ -133,6 +140,38 @@ public class HDVLBasePlugin implements Plugin<Project> {
         project.getTasks().register("hdvlSourcesArchive", Zip.class, zip -> {
             zip.getDestinationDirectory().convention(project.getLayout().getBuildDirectory());
             zip.getArchiveFileName().convention("hdvl-sources.zip");
+        });
+    }
+
+    private void configureHdvlSourcesArchiveArtifact(Project project, SourceSet mainSourceSet) {
+        Configuration hdvlSourcesArchiveElements = project.getConfigurations().create("hdvlSourcesArchiveElements");
+        hdvlSourcesArchiveElements.setCanBeConsumed(true);
+        hdvlSourcesArchiveElements.setCanBeResolved(false);
+        hdvlSourcesArchiveElements.getAttributes().attribute(HDVLBasePlugin.HDVL_USAGE_ATTRIBUTE, "HdvlSourcesArchive");
+
+        project.getTasks().named("hdvlSourcesArchive").configure(task -> {
+            Zip hdvlSourcesArchive = (Zip) task;
+            project.getArtifacts().add(hdvlSourcesArchiveElements.getName(), hdvlSourcesArchive.getArchiveFile(), artifact -> {
+                artifact.builtBy(hdvlSourcesArchive);
+                maybeConfigureHdvlSourcesArchiveArtifactPublishing(project, hdvlSourcesArchiveElements, artifact);
+            });
+        });
+    }
+
+    private void maybeConfigureHdvlSourcesArchiveArtifactPublishing(Project project, Configuration hdvlSourcesArchiveElements, PublishArtifact artifact) {
+        project.getPluginManager().withPlugin("maven-publish", appliedPlugin -> {
+            PublishingExtension publishing = (PublishingExtension) project.getExtensions().getByName("publishing");
+            publishing.getPublications().create("hdvlLibrary", MavenPublication.class, mavenPublication -> {
+                mavenPublication.setArtifactId(project.getName());
+                project.afterEvaluate(p -> {
+                    mavenPublication.setGroupId(project.getGroup().toString());
+                    mavenPublication.setVersion(project.getVersion().toString());
+                });
+
+                HdvlLibrary hdvlLibrary = project.getObjects().newInstance(HdvlLibrary.class, "hdvlSourcesArchive",
+                        hdvlSourcesArchiveElements.getAttributes(), artifact);
+                mavenPublication.from(hdvlLibrary);
+            });
         });
     }
 
