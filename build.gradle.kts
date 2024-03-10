@@ -68,6 +68,7 @@ dependencies {
         exclude(group = "org.codehaus.groovy")
     }
     testImplementation("org.spockframework:spock-junit4:2.0-groovy-3.0")
+    testImplementation("com.fasterxml.jackson.core:jackson-databind:2.16.0")
 }
 
 tasks.withType<Test> {

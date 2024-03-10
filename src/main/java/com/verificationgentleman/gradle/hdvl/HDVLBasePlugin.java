@@ -23,13 +23,28 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurablePublishArtifact;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Attribute;
+import org.gradle.api.component.AdhocComponentWithVariants;
+import org.gradle.api.component.SoftwareComponentFactory;
+import org.gradle.api.publish.PublishingExtension;
+import org.gradle.api.publish.maven.MavenPublication;
+import org.gradle.api.tasks.bundling.Zip;
 
+import javax.inject.Inject;
 import java.io.File;
 
 public class HDVLBasePlugin implements Plugin<Project> {
 
     public static final Attribute<String> TOOL_ATTRIBUTE
             = Attribute.of("com.verificationgentlenan.gradle.hdvl.tool", String.class);
+    public static final Attribute<String> HDVL_USAGE_ATTRIBUTE
+            = Attribute.of("com.verificationgentlenan.gradle.hdvl.usage", String.class);
+
+    private final SoftwareComponentFactory softwareComponentFactory;
+
+    @Inject
+    HDVLBasePlugin(SoftwareComponentFactory softwareComponentFactory) {
+        this.softwareComponentFactory = softwareComponentFactory;
+    }
 
     @Override
     public void apply(Project project) {
@@ -55,6 +70,9 @@ public class HDVLBasePlugin implements Plugin<Project> {
 
             configureCompileArtifact(project, mainSourceSet, toolName);
         }
+
+        configureHdvlSourceArchiveTask(project);
+        configureHdvlSourcesArchiveArtifact(project, mainSourceSet);
     }
 
     private void configureGenArgsFile(Project project, SourceSet sourceSet, String toolName) {
@@ -124,6 +142,45 @@ public class HDVLBasePlugin implements Plugin<Project> {
             }
         };
         project.getArtifacts().add(mainSourceSet.getArgsFilesConfigurationName(toolName), genArgsFile.getDestination(), configureAction);
+    }
+
+    private void configureHdvlSourceArchiveTask(Project project) {
+        project.getTasks().register("hdvlSourcesArchive", Zip.class, zip -> {
+            zip.getDestinationDirectory().convention(project.getLayout().getBuildDirectory());
+            zip.getArchiveFileName().convention("hdvl-sources.zip");
+        });
+    }
+
+    private void configureHdvlSourcesArchiveArtifact(Project project, SourceSet mainSourceSet) {
+        Configuration hdvlSourcesArchiveElements = project.getConfigurations().create("hdvlSourcesArchiveElements");
+        hdvlSourcesArchiveElements.setCanBeConsumed(true);
+        hdvlSourcesArchiveElements.setCanBeResolved(false);
+        hdvlSourcesArchiveElements.getAttributes().attribute(HDVLBasePlugin.HDVL_USAGE_ATTRIBUTE, "HdvlSourcesArchive");
+
+        project.getTasks().named("hdvlSourcesArchive").configure(task -> {
+            Zip hdvlSourcesArchive = (Zip) task;
+            project.getArtifacts().add(hdvlSourcesArchiveElements.getName(), hdvlSourcesArchive.getArchiveFile(), artifact -> {
+                artifact.builtBy(hdvlSourcesArchive);
+                maybeConfigureHdvlSourcesArchiveArtifactPublishing(project, hdvlSourcesArchiveElements);
+            });
+        });
+    }
+
+    private void maybeConfigureHdvlSourcesArchiveArtifactPublishing(Project project, Configuration hdvlSourcesArchiveElements) {
+        project.getPluginManager().withPlugin("maven-publish", appliedPlugin -> {
+            PublishingExtension publishing = (PublishingExtension) project.getExtensions().getByName("publishing");
+            publishing.getPublications().create("hdvlLibrary", MavenPublication.class, mavenPublication -> {
+                mavenPublication.setArtifactId(project.getName());
+                project.afterEvaluate(p -> {
+                    mavenPublication.setGroupId(project.getGroup().toString());
+                    mavenPublication.setVersion(project.getVersion().toString());
+                });
+
+                AdhocComponentWithVariants hdvlLibrary =  softwareComponentFactory.adhoc("hdvlLibrary");
+                hdvlLibrary.addVariantsFromConfiguration(hdvlSourcesArchiveElements, configurationVariantDetails -> {});
+                mavenPublication.from(hdvlLibrary);
+            });
+        });
     }
 
 }
