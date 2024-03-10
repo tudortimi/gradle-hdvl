@@ -1,0 +1,16 @@
+plugins {
+    id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+    id 'maven-publish'
+}
+
+group 'org.example'
+version '0.1.0'
+
+publishing {
+    repositories {
+        maven {
+            name = 'dummy'
+            url = layout.buildDirectory.dir('dummy-repo')
+        }
+    }
+}
