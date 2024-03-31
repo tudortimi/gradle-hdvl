@@ -17,11 +17,14 @@ package com.verificationgentleman.gradle.hdvl;
 
 import com.verificationgentleman.gradle.hdvl.internal.DefaultHDVLPluginExtension;
 import com.verificationgentleman.gradle.hdvl.internal.Names;
+import com.verificationgentleman.gradle.hdvl.internal.UnzipAndWriteXrunArgsFile;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurablePublishArtifact;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.transform.TransformParameters;
+import org.gradle.api.artifacts.transform.TransformSpec;
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.component.AdhocComponentWithVariants;
@@ -127,6 +130,13 @@ public class HDVLBasePlugin implements Plugin<Project> {
             @Override
             public void execute(ArtifactTypeDefinition artifactTypeDefinition) {
                 artifactTypeDefinition.getAttributes().attribute(TOOL_ATTRIBUTE, "None");
+            }
+        });
+        project.getDependencies().registerTransform(UnzipAndWriteXrunArgsFile.class, new Action<TransformSpec<TransformParameters.None>>() {
+            @Override
+            public void execute(TransformSpec<TransformParameters.None> transformSpec) {
+                transformSpec.getFrom().attribute(TOOL_ATTRIBUTE, "None");
+                transformSpec.getTo().attribute(TOOL_ATTRIBUTE, "Xrun");
             }
         });
     }
