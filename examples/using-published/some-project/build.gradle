@@ -1,0 +1,19 @@
+plugins {
+    id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+}
+
+dependencies {
+    compile 'org.example:some-published-dependency:0.1.0'
+}
+
+repositories {
+    maven {
+        url = layout.projectDirectory.dir('../some-published-dependency/build/dummy-repo')
+    }
+}
+
+task runWithXrun(type: Exec) {
+    inputs.file tasks.genFullXrunArgsFile.destination
+    commandLine 'xrun', '-f', tasks.genFullXrunArgsFile.destination.get().getAsFile().getPath(), '-top', 'some_project'
+    workingDir project.layout.buildDirectory
+}
