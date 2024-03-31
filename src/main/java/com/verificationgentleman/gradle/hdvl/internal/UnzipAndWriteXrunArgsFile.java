@@ -7,6 +7,7 @@ import org.gradle.api.artifacts.transform.TransformOutputs;
 import org.gradle.api.artifacts.transform.TransformParameters;
 import org.gradle.api.file.*;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.InputDirectory;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -14,7 +15,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import javax.inject.Inject;
 
-public abstract class UnzipAndWriteXrunArgsFile implements TransformAction<TransformParameters.None> {
+public abstract class UnzipAndWriteXrunArgsFile implements TransformAction<UnzipAndWriteXrunArgsFile.Parameters> {
+    public interface Parameters extends TransformParameters {
+        @InputDirectory
+        DirectoryProperty getUnzipRootDirectory();
+    }
+
     private final FileSystemOperations files;
     private final ArchiveOperations archives;
 
@@ -30,10 +36,11 @@ public abstract class UnzipAndWriteXrunArgsFile implements TransformAction<Trans
     @Override
     public void transform(TransformOutputs outputs) {
         File input = getInputArtifact().get().getAsFile();
-        File xrunArgsFile = outputs.file(input.getName() + ".xrun_args.f");
-        File unzipDir = xrunArgsFile.getParentFile();
+        File unzipDir = getParameters().getUnzipRootDirectory().dir(input.getName()).get().getAsFile();
         unzipTo(input, unzipDir);
-        writeXrunArgsFile(xrunArgsFile);
+
+        File xrunArgsFile = outputs.file(input.getName() + ".xrun_args.f");
+        writeXrunArgsFile(unzipDir, xrunArgsFile);
     }
 
     private void unzipTo(File zipFile, File unzipDir) {
@@ -47,10 +54,10 @@ public abstract class UnzipAndWriteXrunArgsFile implements TransformAction<Trans
         });
     }
 
-    private static void writeXrunArgsFile(File xrunArgsFile) {
+    private static void writeXrunArgsFile(File unzipDir, File xrunArgsFile) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(xrunArgsFile, true))) {
             writer.write("-makelib worklib\n");
-            writer.write("  " + xrunArgsFile.getParent() + "/src/main/sv/*.sv\n");  // FIXME Assumes source in conventional location
+            writer.write("  " + unzipDir + "/src/main/sv/*.sv\n");  // FIXME Assumes source in conventional location
             writer.write("-endlib\n");
         }
         catch (IOException ex) {

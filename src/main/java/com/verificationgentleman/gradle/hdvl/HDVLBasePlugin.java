@@ -132,11 +132,12 @@ public class HDVLBasePlugin implements Plugin<Project> {
                 artifactTypeDefinition.getAttributes().attribute(TOOL_ATTRIBUTE, "None");
             }
         });
-        project.getDependencies().registerTransform(UnzipAndWriteXrunArgsFile.class, new Action<TransformSpec<TransformParameters.None>>() {
+        project.getDependencies().registerTransform(UnzipAndWriteXrunArgsFile.class, new Action<TransformSpec<UnzipAndWriteXrunArgsFile.Parameters>>() {
             @Override
-            public void execute(TransformSpec<TransformParameters.None> transformSpec) {
+            public void execute(TransformSpec<UnzipAndWriteXrunArgsFile.Parameters> transformSpec) {
                 transformSpec.getFrom().attribute(TOOL_ATTRIBUTE, "None");
                 transformSpec.getTo().attribute(TOOL_ATTRIBUTE, "Xrun");
+                transformSpec.getParameters().getUnzipRootDirectory().set(project.getLayout().getBuildDirectory().dir("unzipped-hdvl-source-archives"));
             }
         });
     }
