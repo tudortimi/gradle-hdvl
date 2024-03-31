@@ -22,6 +22,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurablePublishArtifact;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.type.ArtifactTypeDefinition;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.component.AdhocComponentWithVariants;
 import org.gradle.api.component.SoftwareComponentFactory;
@@ -122,6 +123,12 @@ public class HDVLBasePlugin implements Plugin<Project> {
         compileConfiguration.setCanBeResolved(false);
 
         project.getDependencies().getAttributesSchema().attribute(TOOL_ATTRIBUTE);
+        project.getDependencies().getArtifactTypes().register("zip").configure(new Action<ArtifactTypeDefinition>() {
+            @Override
+            public void execute(ArtifactTypeDefinition artifactTypeDefinition) {
+                artifactTypeDefinition.getAttributes().attribute(TOOL_ATTRIBUTE, "None");
+            }
+        });
     }
 
     private void configureArgsFilesConfiguration(Project project, SourceSet sourceSet, String toolName) {
