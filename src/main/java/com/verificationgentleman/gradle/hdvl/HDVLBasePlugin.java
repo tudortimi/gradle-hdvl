@@ -17,7 +17,8 @@ package com.verificationgentleman.gradle.hdvl;
 
 import com.verificationgentleman.gradle.hdvl.internal.DefaultHDVLPluginExtension;
 import com.verificationgentleman.gradle.hdvl.internal.Names;
-import com.verificationgentleman.gradle.hdvl.internal.UnzipAndWriteXrunArgsFile;
+import com.verificationgentleman.gradle.hdvl.internal.Unzip;
+import com.verificationgentleman.gradle.hdvl.internal.WriteXrunArgsFile;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -132,12 +133,18 @@ public class HDVLBasePlugin implements Plugin<Project> {
                 artifactTypeDefinition.getAttributes().attribute(TOOL_ATTRIBUTE, "None");
             }
         });
-        project.getDependencies().registerTransform(UnzipAndWriteXrunArgsFile.class, new Action<TransformSpec<UnzipAndWriteXrunArgsFile.Parameters>>() {
+        project.getDependencies().registerTransform(Unzip.class, new Action<TransformSpec<TransformParameters.None>>() {
             @Override
-            public void execute(TransformSpec<UnzipAndWriteXrunArgsFile.Parameters> transformSpec) {
-                transformSpec.getFrom().attribute(TOOL_ATTRIBUTE, "None");
+            public void execute(TransformSpec<TransformParameters.None> transformSpec) {
+                transformSpec.getFrom().attribute(TOOL_ATTRIBUTE, "None").attribute(ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, "zip");
+                transformSpec.getTo().attribute(TOOL_ATTRIBUTE, "None").attribute(ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, "hdvl-sources-directory");
+            }
+        });
+        project.getDependencies().registerTransform(WriteXrunArgsFile.class, new Action<TransformSpec<TransformParameters.None>>() {
+            @Override
+            public void execute(TransformSpec<TransformParameters.None> transformSpec) {
+                transformSpec.getFrom().attribute(TOOL_ATTRIBUTE, "None").attribute(ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, "hdvl-sources-directory");
                 transformSpec.getTo().attribute(TOOL_ATTRIBUTE, "Xrun");
-                transformSpec.getParameters().getUnzipRootDirectory().set(project.getLayout().getBuildDirectory().dir("unzipped-hdvl-source-archives"));
             }
         });
     }
