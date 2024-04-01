@@ -867,6 +867,22 @@ class SystemVerilogPluginSpec extends Specification {
         }
     }
 
+    def "can write sv source to compile spec file"() {
+        File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(mainSv, "main.sv").createNewFile()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':writeCompileSpecFile')
+            .build()
+
+        then:
+        new File(testProjectDir.root, 'build/compile-spec.xml').exists()
+        // FIXME Check that `main.sv` is added as a source file
+    }
+
     def "can produce archive with source file"() {
         File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(mainSv, "main.sv").createNewFile()

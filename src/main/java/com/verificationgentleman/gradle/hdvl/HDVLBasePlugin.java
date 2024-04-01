@@ -15,10 +15,7 @@
  */
 package com.verificationgentleman.gradle.hdvl;
 
-import com.verificationgentleman.gradle.hdvl.internal.DefaultHDVLPluginExtension;
-import com.verificationgentleman.gradle.hdvl.internal.Names;
-import com.verificationgentleman.gradle.hdvl.internal.Unzip;
-import com.verificationgentleman.gradle.hdvl.internal.WriteXrunArgsFile;
+import com.verificationgentleman.gradle.hdvl.internal.*;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -78,6 +75,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
 
         configureDependenciesAttributes(project);
 
+        configureWriteCompileSpecFileTask(project);
         configureHdvlSourceArchiveTask(project);
         configureHdvlSourcesArchiveArtifact(project, mainSourceSet);
     }
@@ -170,6 +168,12 @@ public class HDVLBasePlugin implements Plugin<Project> {
                 transformSpec.getFrom().attribute(TOOL_ATTRIBUTE, "None").attribute(ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, "hdvl-sources-directory");
                 transformSpec.getTo().attribute(TOOL_ATTRIBUTE, "Xrun");
             }
+        });
+    }
+
+    private void configureWriteCompileSpecFileTask(Project project) {
+        project.getTasks().register("writeCompileSpecFile", WriteCompileSpecFile.class, writeCompileSpecFile -> {
+            writeCompileSpecFile.getDestination().set(project.getLayout().getBuildDirectory().file("compile-spec.xml"));
         });
     }
 
