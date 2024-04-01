@@ -60,7 +60,7 @@ public class WriteCompileSpecFile extends DefaultTask {
 
             for (File svSource : getSvSource().getFiles()) {
                 Element svSourceFileElement = document.createElement("svSourceFile");
-                svSourceFileElement.appendChild(document.createTextNode(svSource.getPath()));
+                svSourceFileElement.appendChild(document.createTextNode(getProject().relativePath(svSource)));
                 svSourceFilesElement.appendChild(svSourceFileElement);
             }
 
