@@ -16,6 +16,7 @@
 package com.verificationgentleman.gradle.hdvl.systemverilog;
 
 import com.verificationgentleman.gradle.hdvl.*;
+import com.verificationgentleman.gradle.hdvl.internal.WriteCompileSpecFile;
 import com.verificationgentleman.gradle.hdvl.systemverilog.internal.DefaultSystemVerilogSourceSet;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
@@ -48,6 +49,9 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                 }
 
                 if (sourceSet.getName() == "main") {
+                    project.getTasks().withType(WriteCompileSpecFile.class, task -> {
+                        task.getSvSource().from(svSourceSet.getSv());
+                    });
                     project.getTasks().getByName("hdvlSourcesArchive", task -> {
                         Zip hdvlSourcesArchive = (Zip) task;
                         hdvlSourcesArchive.from(svSourceSet.getSv());

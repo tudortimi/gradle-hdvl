@@ -879,8 +879,9 @@ class SystemVerilogPluginSpec extends Specification {
             .build()
 
         then:
-        new File(testProjectDir.root, 'build/compile-spec.xml').exists()
-        // FIXME Check that `main.sv` is added as a source file
+        def compileSpecFile = new File(testProjectDir.root, 'build/compile-spec.xml')
+        compileSpecFile.exists()
+        compileSpecFile.text.contains 'src/main/sv/main.sv'
     }
 
     def "can produce archive with source file"() {
