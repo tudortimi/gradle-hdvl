@@ -17,11 +17,16 @@ package com.verificationgentleman.gradle.hdvl;
 
 import com.verificationgentleman.gradle.hdvl.internal.DefaultHDVLPluginExtension;
 import com.verificationgentleman.gradle.hdvl.internal.Names;
+import com.verificationgentleman.gradle.hdvl.internal.Unzip;
+import com.verificationgentleman.gradle.hdvl.internal.WriteXrunArgsFile;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ConfigurablePublishArtifact;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.transform.TransformParameters;
+import org.gradle.api.artifacts.transform.TransformSpec;
+import org.gradle.api.artifacts.type.ArtifactTypeDefinition;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.component.AdhocComponentWithVariants;
 import org.gradle.api.component.SoftwareComponentFactory;
@@ -70,6 +75,8 @@ public class HDVLBasePlugin implements Plugin<Project> {
 
             configureCompileArtifact(project, mainSourceSet, toolName);
         }
+
+        configureDependenciesAttributes(project);
 
         configureHdvlSourceArchiveTask(project);
         configureHdvlSourcesArchiveArtifact(project, mainSourceSet);
@@ -120,8 +127,6 @@ public class HDVLBasePlugin implements Plugin<Project> {
         Configuration compileConfiguration = project.getConfigurations().create(sourceSet.getCompileConfigurationName());
         compileConfiguration.setCanBeConsumed(false);
         compileConfiguration.setCanBeResolved(false);
-
-        project.getDependencies().getAttributesSchema().attribute(TOOL_ATTRIBUTE);
     }
 
     private void configureArgsFilesConfiguration(Project project, SourceSet sourceSet, String toolName) {
@@ -142,6 +147,30 @@ public class HDVLBasePlugin implements Plugin<Project> {
             }
         };
         project.getArtifacts().add(mainSourceSet.getArgsFilesConfigurationName(toolName), genArgsFile.getDestination(), configureAction);
+    }
+
+    private void configureDependenciesAttributes(Project project) {
+        project.getDependencies().getAttributesSchema().attribute(TOOL_ATTRIBUTE);
+        project.getDependencies().getArtifactTypes().register("zip").configure(new Action<ArtifactTypeDefinition>() {
+            @Override
+            public void execute(ArtifactTypeDefinition artifactTypeDefinition) {
+                artifactTypeDefinition.getAttributes().attribute(TOOL_ATTRIBUTE, "None");
+            }
+        });
+        project.getDependencies().registerTransform(Unzip.class, new Action<TransformSpec<TransformParameters.None>>() {
+            @Override
+            public void execute(TransformSpec<TransformParameters.None> transformSpec) {
+                transformSpec.getFrom().attribute(TOOL_ATTRIBUTE, "None").attribute(ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, "zip");
+                transformSpec.getTo().attribute(TOOL_ATTRIBUTE, "None").attribute(ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, "hdvl-sources-directory");
+            }
+        });
+        project.getDependencies().registerTransform(WriteXrunArgsFile.class, new Action<TransformSpec<TransformParameters.None>>() {
+            @Override
+            public void execute(TransformSpec<TransformParameters.None> transformSpec) {
+                transformSpec.getFrom().attribute(TOOL_ATTRIBUTE, "None").attribute(ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, "hdvl-sources-directory");
+                transformSpec.getTo().attribute(TOOL_ATTRIBUTE, "Xrun");
+            }
+        });
     }
 
     private void configureHdvlSourceArchiveTask(Project project) {
