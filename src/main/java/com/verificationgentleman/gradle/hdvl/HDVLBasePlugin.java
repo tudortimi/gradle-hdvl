@@ -76,6 +76,8 @@ public class HDVLBasePlugin implements Plugin<Project> {
             configureCompileArtifact(project, mainSourceSet, toolName);
         }
 
+        configureDependenciesAttributes(project);
+
         configureHdvlSourceArchiveTask(project);
         configureHdvlSourcesArchiveArtifact(project, mainSourceSet);
     }
@@ -125,7 +127,29 @@ public class HDVLBasePlugin implements Plugin<Project> {
         Configuration compileConfiguration = project.getConfigurations().create(sourceSet.getCompileConfigurationName());
         compileConfiguration.setCanBeConsumed(false);
         compileConfiguration.setCanBeResolved(false);
+    }
 
+    private void configureArgsFilesConfiguration(Project project, SourceSet sourceSet, String toolName) {
+        Configuration argsFiles = project.getConfigurations().create(sourceSet.getArgsFilesConfigurationName(toolName));
+        argsFiles.extendsFrom(project.getConfigurations().getByName(sourceSet.getCompileConfigurationName()));
+        argsFiles.setCanBeConsumed(sourceSet.getName().equals("main"));
+        argsFiles.setCanBeResolved(true);
+        argsFiles.getAttributes().attribute(HDVLBasePlugin.TOOL_ATTRIBUTE, toolName);
+    }
+
+    private void configureCompileArtifact(Project project, SourceSet mainSourceSet, String toolName) {
+        AbstractGenArgsFile genArgsFile
+                = (AbstractGenArgsFile) project.getTasks().getByName(mainSourceSet.getGenArgsFileTaskName(toolName));
+        Action<ConfigurablePublishArtifact> configureAction = new Action<ConfigurablePublishArtifact>() {
+            @Override
+            public void execute(ConfigurablePublishArtifact configurablePublishArtifact) {
+                configurablePublishArtifact.builtBy(genArgsFile);
+            }
+        };
+        project.getArtifacts().add(mainSourceSet.getArgsFilesConfigurationName(toolName), genArgsFile.getDestination(), configureAction);
+    }
+
+    private void configureDependenciesAttributes(Project project) {
         project.getDependencies().getAttributesSchema().attribute(TOOL_ATTRIBUTE);
         project.getDependencies().getArtifactTypes().register("zip").configure(new Action<ArtifactTypeDefinition>() {
             @Override
@@ -147,26 +171,6 @@ public class HDVLBasePlugin implements Plugin<Project> {
                 transformSpec.getTo().attribute(TOOL_ATTRIBUTE, "Xrun");
             }
         });
-    }
-
-    private void configureArgsFilesConfiguration(Project project, SourceSet sourceSet, String toolName) {
-        Configuration argsFiles = project.getConfigurations().create(sourceSet.getArgsFilesConfigurationName(toolName));
-        argsFiles.extendsFrom(project.getConfigurations().getByName(sourceSet.getCompileConfigurationName()));
-        argsFiles.setCanBeConsumed(sourceSet.getName().equals("main"));
-        argsFiles.setCanBeResolved(true);
-        argsFiles.getAttributes().attribute(HDVLBasePlugin.TOOL_ATTRIBUTE, toolName);
-    }
-
-    private void configureCompileArtifact(Project project, SourceSet mainSourceSet, String toolName) {
-        AbstractGenArgsFile genArgsFile
-                = (AbstractGenArgsFile) project.getTasks().getByName(mainSourceSet.getGenArgsFileTaskName(toolName));
-        Action<ConfigurablePublishArtifact> configureAction = new Action<ConfigurablePublishArtifact>() {
-            @Override
-            public void execute(ConfigurablePublishArtifact configurablePublishArtifact) {
-                configurablePublishArtifact.builtBy(genArgsFile);
-            }
-        };
-        project.getArtifacts().add(mainSourceSet.getArgsFilesConfigurationName(toolName), genArgsFile.getDestination(), configureAction);
     }
 
     private void configureHdvlSourceArchiveTask(Project project) {
