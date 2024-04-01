@@ -54,8 +54,9 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                     });
                     project.getTasks().getByName("hdvlSourcesArchive", task -> {
                         Zip hdvlSourcesArchive = (Zip) task;
-                        hdvlSourcesArchive.from(svSourceSet.getSv());
-                        hdvlSourcesArchive.into("src/main/sv");  // FIXME Assumes source in conventional location
+                        hdvlSourcesArchive.from(svSourceSet.getSv(), it -> {
+                            it.into("src/main/sv");  // FIXME Assumes source in conventional location
+                        });
                     });
                 }
             }
