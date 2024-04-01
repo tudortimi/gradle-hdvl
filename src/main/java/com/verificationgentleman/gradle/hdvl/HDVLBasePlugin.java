@@ -15,10 +15,7 @@
  */
 package com.verificationgentleman.gradle.hdvl;
 
-import com.verificationgentleman.gradle.hdvl.internal.DefaultHDVLPluginExtension;
-import com.verificationgentleman.gradle.hdvl.internal.Names;
-import com.verificationgentleman.gradle.hdvl.internal.Unzip;
-import com.verificationgentleman.gradle.hdvl.internal.WriteXrunArgsFile;
+import com.verificationgentleman.gradle.hdvl.internal.*;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -78,6 +75,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
 
         configureDependenciesAttributes(project);
 
+        configureWriteCompileSpecFileTask(project);
         configureHdvlSourceArchiveTask(project);
         configureHdvlSourcesArchiveArtifact(project, mainSourceSet);
     }
@@ -173,10 +171,21 @@ public class HDVLBasePlugin implements Plugin<Project> {
         });
     }
 
+    private void configureWriteCompileSpecFileTask(Project project) {
+        project.getTasks().register("writeCompileSpecFile", WriteCompileSpecFile.class, writeCompileSpecFile -> {
+            writeCompileSpecFile.getDestination().set(project.getLayout().getBuildDirectory().file("compile-spec.xml"));
+        });
+    }
+
     private void configureHdvlSourceArchiveTask(Project project) {
+        WriteCompileSpecFile writeCompileSpecFile = (WriteCompileSpecFile) project.getTasks().getByName("writeCompileSpecFile");
+
         project.getTasks().register("hdvlSourcesArchive", Zip.class, zip -> {
             zip.getDestinationDirectory().convention(project.getLayout().getBuildDirectory());
             zip.getArchiveFileName().convention("hdvl-sources.zip");
+            zip.from(writeCompileSpecFile.getDestination(), it -> {
+                it.into(".gradle-hdvl");
+            });
         });
     }
 
