@@ -23,6 +23,7 @@ import org.junit.rules.TemporaryFolder
 import spock.lang.Ignore
 import spock.lang.Specification
 
+import java.nio.file.Files
 import java.util.zip.ZipFile
 
 import static org.gradle.testkit.runner.TaskOutcome.NO_SOURCE
@@ -960,6 +961,60 @@ class SystemVerilogPluginSpec extends Specification {
         variants[0].get("attributes").size() == 1
         variants[0].get("attributes").has("com.verificationgentlenan.gradle.hdvl.usage")
         variants[0].get("attributes").get("com.verificationgentlenan.gradle.hdvl.usage").asText() == "HdvlSourcesArchive"
+    }
+
+    def "can consume source archive"() {
+        File dependencyProjectBuildFile = newStandardProject('dependency-project')
+        dependencyProjectBuildFile << """
+            plugins {
+                id 'maven-publish'
+            }
+
+            group = "org.example"
+            version = "1.0.0"
+
+            publishing {
+                repositories {
+                    maven {
+                        name = 'dummy'
+                        url = layout.buildDirectory.dir('dummy-repo')
+                    }
+                }
+            }
+        """
+
+        GradleRunner.create()
+                .withProjectDir(dependencyProjectBuildFile.parentFile)
+                .withPluginClasspath()
+                .withArguments(':publish')
+                .build()
+
+        File mainProjectBuildFile = newStandardProject('main-project')
+        mainProjectBuildFile << """
+            dependencies {
+                compile 'org.example:dependency-project:1.0.0'
+            }
+
+            repositories {
+                maven {
+                    url = layout.projectDirectory.dir('../dependency-project/build/dummy-repo')
+                }
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(mainProjectBuildFile.parentFile)
+                .withPluginClasspath()
+                .withArguments(':genFullXrunArgsFile')
+                .build()
+
+        then:
+        def lines = new File(mainProjectBuildFile.parentFile, 'build/full_xrun_args.f').text.split("\n")
+        def xrunArgsForDependencyProject = new File(lines[0].split(/\s+/)[1])
+        Files.lines(xrunArgsForDependencyProject.toPath()).anyMatch { line ->
+            line.endsWith 'src/main/sv/*.sv'
+        }
     }
 
 }
