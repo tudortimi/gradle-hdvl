@@ -20,13 +20,20 @@ public abstract class WriteXrunArgsFile implements TransformAction<TransformPara
     public void transform(TransformOutputs outputs) {
         File input = getInputArtifact().get().getAsFile();
         File xrunArgsFile = outputs.file(input.getName() + ".xrun_args.f");
-        writeXrunArgsFile(input, xrunArgsFile);
+        File[] svSourceFiles = getSvSourceFiles(input);
+        writeXrunArgsFile(input, xrunArgsFile, svSourceFiles);
     }
 
-    private static void writeXrunArgsFile(File input, File xrunArgsFile) {
+    private static File[] getSvSourceFiles(File input) {
+        // FIXME Should get list of files from compile spec
+        return new File(input, "src/main/sv").listFiles();
+    }
+
+    private static void writeXrunArgsFile(File input, File xrunArgsFile, File[] svSourceFiles) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(xrunArgsFile, true))) {
             writer.write("-makelib worklib\n");
-            writer.write("  " + input + "/src/main/sv/*.sv\n");  // FIXME Assumes source in conventional location
+            for (File svSourceFile : svSourceFiles)
+                writer.write("  " + svSourceFile + "\n");
             writer.write("-endlib\n");
         }
         catch (IOException ex) {

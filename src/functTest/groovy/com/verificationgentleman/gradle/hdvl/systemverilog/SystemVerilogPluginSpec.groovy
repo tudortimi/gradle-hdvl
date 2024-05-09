@@ -1013,7 +1013,7 @@ class SystemVerilogPluginSpec extends Specification {
         def lines = new File(mainProjectBuildFile.parentFile, 'build/full_xrun_args.f').text.split("\n")
         def xrunArgsForDependencyProject = new File(lines[0].split(/\s+/)[1])
         Files.lines(xrunArgsForDependencyProject.toPath()).anyMatch { line ->
-            line.endsWith 'src/main/sv/*.sv'
+            line.endsWith 'src/main/sv/dependency-project.sv'
         }
     }
 
