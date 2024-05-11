@@ -7,9 +7,16 @@ import java.io.File;
 
 class FileAdapter extends XmlAdapter<String, File> {
     private final Project project;
+    private final File input;
 
     public FileAdapter(Project project) {
         this.project = project;
+        this.input = null;
+    }
+
+    public FileAdapter(File input) {
+        this.input = input;
+        this.project = null;
     }
 
     @Override
@@ -19,6 +26,6 @@ class FileAdapter extends XmlAdapter<String, File> {
 
     @Override
     public File unmarshal(String filePath) {
-        return new File(filePath);
+        return new File(input, filePath);
     }
 }
