@@ -39,7 +39,7 @@ public class WriteCompileSpecFile extends DefaultTask {
             Marshaller marshaller = jaxbContext.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-            FileAdapter fileAdapter = new FileAdapter(getProject());
+            FileAdapter fileAdapter = new FileAdapter(getProject().getProjectDir());
             marshaller.setAdapter(fileAdapter);
 
             marshaller.marshal(compileSpec, destination.get().getAsFile());
