@@ -5,6 +5,7 @@ import com.verificationgentleman.gradle.hdvl.HDVLCompileSpec;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -14,6 +15,7 @@ import java.util.Set;
 public class DefaultHDVLCompileSpec implements HDVLCompileSpec {
     @XmlElementWrapper
     @XmlElement(name="svSourceFile")
+    @XmlJavaTypeAdapter(value=FileAdapter.class)
     private final File[] svSourceFiles;
 
     public DefaultHDVLCompileSpec(File[] svSourceFiles) {
