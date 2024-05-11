@@ -1,5 +1,6 @@
 package com.verificationgentleman.gradle.hdvl.internal;
 
+import com.verificationgentleman.gradle.hdvl.HDVLCompileSpec;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFileProperty;
@@ -42,11 +43,12 @@ public class WriteCompileSpecFile extends DefaultTask {
 
     @TaskAction
     protected void generate() {
-        Document document = getDocument();
+        DefaultHDVLCompileSpec compileSpec = new DefaultHDVLCompileSpec(getSvSource().getFiles());
+        Document document = getDocument(compileSpec);
         writeFile(document);
     }
 
-    private Document getDocument() {
+    private Document getDocument(HDVLCompileSpec compileSpec) {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
@@ -58,7 +60,7 @@ public class WriteCompileSpecFile extends DefaultTask {
             Element svSourceFilesElement = document.createElement("svSourceFiles");
             rootElement.appendChild(svSourceFilesElement);
 
-            for (File svSource : getSvSource().getFiles()) {
+            for (File svSource : compileSpec.getSvSourceFiles()) {
                 Element svSourceFileElement = document.createElement("svSourceFile");
                 svSourceFileElement.appendChild(document.createTextNode(getProject().relativePath(svSource)));
                 svSourceFilesElement.appendChild(svSourceFileElement);

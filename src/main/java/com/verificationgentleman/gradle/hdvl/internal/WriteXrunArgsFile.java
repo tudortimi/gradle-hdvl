@@ -1,5 +1,6 @@
 package com.verificationgentleman.gradle.hdvl.internal;
 
+import com.verificationgentleman.gradle.hdvl.HDVLCompileSpec;
 import org.gradle.api.artifacts.transform.InputArtifact;
 import org.gradle.api.artifacts.transform.TransformAction;
 import org.gradle.api.artifacts.transform.TransformOutputs;
@@ -28,7 +29,8 @@ public abstract class WriteXrunArgsFile implements TransformAction<TransformPara
         File input = getInputArtifact().get().getAsFile();
         File xrunArgsFile = outputs.file(input.getName() + ".xrun_args.f");
         File[] svSourceFiles = getSvSourceFiles(input);
-        writeXrunArgsFile(xrunArgsFile, svSourceFiles);
+        DefaultHDVLCompileSpec compileSpec = new DefaultHDVLCompileSpec(svSourceFiles);
+        writeXrunArgsFile(xrunArgsFile, compileSpec);
     }
 
     private static File[] getSvSourceFiles(File input) {
@@ -58,10 +60,10 @@ public abstract class WriteXrunArgsFile implements TransformAction<TransformPara
         }
     }
 
-    private static void writeXrunArgsFile(File xrunArgsFile, File[] svSourceFiles) {
+    private static void writeXrunArgsFile(File xrunArgsFile, HDVLCompileSpec compileSpec) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(xrunArgsFile, true))) {
             writer.write("-makelib worklib\n");
-            for (File svSourceFile : svSourceFiles)
+            for (File svSourceFile : compileSpec.getSvSourceFiles())
                 writer.write("  " + svSourceFile + "\n");
             writer.write("-endlib\n");
         }
