@@ -28,7 +28,7 @@ public abstract class WriteXrunArgsFile implements TransformAction<TransformPara
         File input = getInputArtifact().get().getAsFile();
         File xrunArgsFile = outputs.file(input.getName() + ".xrun_args.f");
         File[] svSourceFiles = getSvSourceFiles(input);
-        writeXrunArgsFile(input, xrunArgsFile, svSourceFiles);
+        writeXrunArgsFile(xrunArgsFile, svSourceFiles);
     }
 
     private static File[] getSvSourceFiles(File input) {
@@ -58,7 +58,7 @@ public abstract class WriteXrunArgsFile implements TransformAction<TransformPara
         }
     }
 
-    private static void writeXrunArgsFile(File input, File xrunArgsFile, File[] svSourceFiles) {
+    private static void writeXrunArgsFile(File xrunArgsFile, File[] svSourceFiles) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(xrunArgsFile, true))) {
             writer.write("-makelib worklib\n");
             for (File svSourceFile : svSourceFiles)
