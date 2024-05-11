@@ -64,6 +64,9 @@ gradlePlugin {
 }
 
 dependencies {
+    implementation("com.sun.xml.bind:jaxb-ri:2.3.9") {
+        because("javax.xml.bind is not part of the JDK anymore starring with JDK9")
+    }
     testImplementation("org.spockframework:spock-core:2.2-groovy-3.0") {
         exclude(group = "org.codehaus.groovy")
     }
