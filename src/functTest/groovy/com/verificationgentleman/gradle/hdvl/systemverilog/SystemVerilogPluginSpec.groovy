@@ -1006,6 +1006,7 @@ class SystemVerilogPluginSpec extends Specification {
         def result = GradleRunner.create()
                 .withProjectDir(mainProjectBuildFile.parentFile)
                 .withPluginClasspath()
+                .withDebug(true)
                 .withArguments(':genFullXrunArgsFile')
                 .build()
 
