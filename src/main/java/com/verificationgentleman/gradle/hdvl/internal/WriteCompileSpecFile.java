@@ -11,7 +11,7 @@ import org.gradle.api.tasks.*;
 public class WriteCompileSpecFile extends DefaultTask {
     private final RegularFileProperty destination;
 
-    private ConfigurableFileCollection svSourceFiles;
+    private final ConfigurableFileCollection svSourceFiles;
 
     public WriteCompileSpecFile() {
         destination = getProject().getObjects().fileProperty();
