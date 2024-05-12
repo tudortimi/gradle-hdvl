@@ -1,11 +1,11 @@
 package com.verificationgentleman.gradle.hdvl.internal;
 
 import com.verificationgentleman.gradle.hdvl.HDVLCompileSpec;
-
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -18,10 +18,6 @@ public class DefaultHDVLCompileSpec implements HDVLCompileSpec {
     @XmlJavaTypeAdapter(value=FileAdapter.class)
     private final File[] svSourceFiles;
 
-    public DefaultHDVLCompileSpec(File[] svSourceFiles) {
-        this.svSourceFiles = svSourceFiles;
-    }
-
     public DefaultHDVLCompileSpec(Set<File> svSourceFiles) {
         this.svSourceFiles = svSourceFiles.toArray(new File[0]);
     }
@@ -29,7 +25,7 @@ public class DefaultHDVLCompileSpec implements HDVLCompileSpec {
     // Needed for JAXB
     @SuppressWarnings("unused")
     private DefaultHDVLCompileSpec() {
-        this(new File[0]);
+        this.svSourceFiles = new File[0];
     }
 
     @Override
