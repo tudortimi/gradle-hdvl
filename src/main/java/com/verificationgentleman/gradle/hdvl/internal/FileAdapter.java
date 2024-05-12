@@ -1,6 +1,6 @@
 package com.verificationgentleman.gradle.hdvl.internal;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 import java.io.File;
 
 class FileAdapter extends XmlAdapter<String, File> {

@@ -8,9 +8,9 @@ import org.gradle.api.artifacts.transform.TransformParameters;
 import org.gradle.api.file.*;
 import org.gradle.api.provider.Provider;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
