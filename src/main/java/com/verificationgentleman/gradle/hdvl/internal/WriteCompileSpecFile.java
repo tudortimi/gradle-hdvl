@@ -12,10 +12,12 @@ public class WriteCompileSpecFile extends DefaultTask {
     private final RegularFileProperty destination;
 
     private final ConfigurableFileCollection svSourceFiles;
+    private final ConfigurableFileCollection svSPrivateIncludeDirs;
 
     public WriteCompileSpecFile() {
         destination = getProject().getObjects().fileProperty();
         svSourceFiles = getProject().getObjects().fileCollection();
+        svSPrivateIncludeDirs = getProject().getObjects().fileCollection();
     }
 
     @OutputFile
@@ -30,9 +32,17 @@ public class WriteCompileSpecFile extends DefaultTask {
         return svSourceFiles;
     }
 
+    @InputFiles
+    @SkipWhenEmpty
+    @PathSensitive(PathSensitivity.ABSOLUTE)
+    public ConfigurableFileCollection getSvSPrivateIncludeDirs() {
+        return svSPrivateIncludeDirs;
+    }
+
     @TaskAction
     protected void generate() {
-        DefaultHDVLCompileSpec compileSpec = new DefaultHDVLCompileSpec(getSvSource().getFiles());
+        DefaultHDVLCompileSpec compileSpec = new DefaultHDVLCompileSpec(getSvSource().getFiles(),
+                svSPrivateIncludeDirs.getFiles());
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(DefaultHDVLCompileSpec.class);
             Marshaller marshaller = jaxbContext.createMarshaller();
