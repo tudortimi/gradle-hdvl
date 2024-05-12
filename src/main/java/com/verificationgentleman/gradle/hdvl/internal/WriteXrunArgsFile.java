@@ -1,19 +1,16 @@
 package com.verificationgentleman.gradle.hdvl.internal;
 
+import com.verificationgentleman.gradle.hdvl.HDVLCompileSpec;
 import org.gradle.api.artifacts.transform.InputArtifact;
 import org.gradle.api.artifacts.transform.TransformAction;
 import org.gradle.api.artifacts.transform.TransformOutputs;
 import org.gradle.api.artifacts.transform.TransformParameters;
 import org.gradle.api.file.*;
 import org.gradle.api.provider.Provider;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.*;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -27,41 +24,35 @@ public abstract class WriteXrunArgsFile implements TransformAction<TransformPara
     public void transform(TransformOutputs outputs) {
         File input = getInputArtifact().get().getAsFile();
         File xrunArgsFile = outputs.file(input.getName() + ".xrun_args.f");
-        File[] svSourceFiles = getSvSourceFiles(input);
-        writeXrunArgsFile(xrunArgsFile, svSourceFiles);
+        DefaultHDVLCompileSpec compileSpec = getCompileSpec(input);
+        writeXrunArgsFile(xrunArgsFile, compileSpec);
     }
 
-    private static File[] getSvSourceFiles(File input) {
+    private static DefaultHDVLCompileSpec getCompileSpec(File input) {
         File compileSpec = new File(input, ".gradle-hdvl/compile-spec.xml");
-
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(compileSpec);
+            JAXBContext jaxbContext = JAXBContext.newInstance(DefaultHDVLCompileSpec.class);
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
-            XPathFactory xPathfactory = XPathFactory.newInstance();
-            XPath xpath = xPathfactory.newXPath();
+            FileAdapter fileAdapter = new FileAdapter(input);
+            unmarshaller.setAdapter(fileAdapter);
 
-            XPathExpression expr = xpath.compile("/compileSpec/svSourceFiles/svSourceFile");
-            NodeList svSourceFiles = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
-            assert svSourceFiles != null;
-
-            File[] result = new File[svSourceFiles.getLength()];
-            for (int i = 0; i < svSourceFiles.getLength(); i++) {
-                result[i] = new File(input, svSourceFiles.item(i).getTextContent());
-                assert result[i].isAbsolute() : "not absolute: " + result[i];
-                assert result[i].exists() : "doesn't exist: " + result[i];
+            DefaultHDVLCompileSpec result = (DefaultHDVLCompileSpec) unmarshaller.unmarshal(compileSpec);
+            for (File svSourceFile : result.getSvSourceFiles()) {
+                assert svSourceFile.isAbsolute() : "not absolute: " + svSourceFile;
+                assert svSourceFile.exists() : "doesn't exist: " + svSourceFile;
             }
+
             return result;
-        } catch (ParserConfigurationException | SAXException | IOException | XPathExpressionException e) {
+        } catch (JAXBException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static void writeXrunArgsFile(File xrunArgsFile, File[] svSourceFiles) {
+    private static void writeXrunArgsFile(File xrunArgsFile, HDVLCompileSpec compileSpec) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(xrunArgsFile, true))) {
             writer.write("-makelib worklib\n");
-            for (File svSourceFile : svSourceFiles)
+            for (File svSourceFile : compileSpec.getSvSourceFiles())
                 writer.write("  " + svSourceFile + "\n");
             writer.write("-endlib\n");
         }
