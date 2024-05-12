@@ -924,6 +924,27 @@ class SystemVerilogPluginSpec extends Specification {
         entries[1].name == 'src/main/sv/main.sv'
     }
 
+    def "can produce archive with private header"() {
+        File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(mainSv, "main.sv").createNewFile()
+        new File(mainSv, "private_header.svh").createNewFile()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':hdvlSourcesArchive')
+            .build()
+
+        then:
+        new File(testProjectDir.root, 'build/hdvl-sources.zip').exists()
+        def zipFile = new ZipFile(new File(testProjectDir.root, 'build/hdvl-sources.zip'))
+        def entries = zipFile.entries().findAll { !it.directory }
+        entries.size() == 3
+        entries[1].name == 'src/main/sv/main.sv'
+        entries[2].name == 'src/main/sv/private_header.svh'
+    }
+
     def "can publishing metadata for archive"() {
         File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(mainSv, "main.sv").createNewFile()
