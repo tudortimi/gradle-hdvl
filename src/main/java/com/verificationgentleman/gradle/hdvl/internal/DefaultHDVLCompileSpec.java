@@ -18,10 +18,6 @@ public class DefaultHDVLCompileSpec implements HDVLCompileSpec {
     @XmlJavaTypeAdapter(value=FileAdapter.class)
     private final File[] svSourceFiles;
 
-    public DefaultHDVLCompileSpec(File[] svSourceFiles) {
-        this.svSourceFiles = svSourceFiles;
-    }
-
     public DefaultHDVLCompileSpec(Set<File> svSourceFiles) {
         this.svSourceFiles = svSourceFiles.toArray(new File[0]);
     }
@@ -29,7 +25,7 @@ public class DefaultHDVLCompileSpec implements HDVLCompileSpec {
     // Needed for JAXB
     @SuppressWarnings("unused")
     private DefaultHDVLCompileSpec() {
-        this(new File[0]);
+        this.svSourceFiles = new File[0];
     }
 
     @Override
