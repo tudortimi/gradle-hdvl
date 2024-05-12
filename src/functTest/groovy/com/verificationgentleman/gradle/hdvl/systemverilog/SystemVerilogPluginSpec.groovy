@@ -1039,4 +1039,61 @@ class SystemVerilogPluginSpec extends Specification {
         }
     }
 
+    def "can consume source archive with private include directory"() {
+        File dependencyProjectBuildFile = newStandardProject('dependency-project')
+        dependencyProjectBuildFile << """
+            plugins {
+                id 'maven-publish'
+            }
+
+            group = "org.example"
+            version = "1.0.0"
+
+            publishing {
+                repositories {
+                    maven {
+                        name = 'dummy'
+                        url = layout.buildDirectory.dir('dummy-repo')
+                    }
+                }
+            }
+        """
+
+        File dependencyProjectPrivateHeader = new File(dependencyProjectBuildFile.parentFile, 'src/main/sv/dependency-project-private-header.svh')
+        dependencyProjectPrivateHeader.text = "dummy"
+
+        GradleRunner.create()
+            .withProjectDir(dependencyProjectBuildFile.parentFile)
+            .withPluginClasspath()
+            .withArguments(':publish')
+            .build()
+
+        File mainProjectBuildFile = newStandardProject('main-project')
+        mainProjectBuildFile << """
+            dependencies {
+                compile 'org.example:dependency-project:1.0.0'
+            }
+
+            repositories {
+                maven {
+                    url = layout.projectDirectory.dir('../dependency-project/build/dummy-repo')
+                }
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(mainProjectBuildFile.parentFile)
+            .withPluginClasspath()
+            .withDebug(true)
+            .withArguments(':genFullXrunArgsFile')
+            .build()
+
+        then:
+        def lines = new File(mainProjectBuildFile.parentFile, 'build/full_xrun_args.f').text.split("\n")
+        def xrunArgsForDependencyProject = new File(lines[0].split(/\s+/)[1])
+        Files.lines(xrunArgsForDependencyProject.toPath()).anyMatch { line ->
+            line.contains('-incdir') && line.endsWith('src/main/sv')
+        }
+    }
 }

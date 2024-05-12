@@ -42,6 +42,10 @@ public abstract class WriteXrunArgsFile implements TransformAction<TransformPara
                 assert svSourceFile.isAbsolute() : "not absolute: " + svSourceFile;
                 assert svSourceFile.exists() : "doesn't exist: " + svSourceFile;
             }
+            for (File svPrivateIncludeDir : result.getSvPrivateIncludeDirs()) {
+                assert svPrivateIncludeDir.isAbsolute() : "not absolute: " + svPrivateIncludeDir;
+                assert svPrivateIncludeDir.exists() : "doesn't exist: " + svPrivateIncludeDir;
+            }
 
             return result;
         } catch (JAXBException e) {
@@ -52,6 +56,8 @@ public abstract class WriteXrunArgsFile implements TransformAction<TransformPara
     private static void writeXrunArgsFile(File xrunArgsFile, HDVLCompileSpec compileSpec) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(xrunArgsFile, true))) {
             writer.write("-makelib worklib\n");
+            for (File svPrivateIncludeDir: compileSpec.getSvPrivateIncludeDirs())
+                writer.write("  -incdir " + svPrivateIncludeDir + "\n");
             for (File svSourceFile : compileSpec.getSvSourceFiles())
                 writer.write("  " + svSourceFile + "\n");
             writer.write("-endlib\n");
