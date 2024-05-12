@@ -1,11 +1,11 @@
 package com.verificationgentleman.gradle.hdvl.internal;
 
 import com.verificationgentleman.gradle.hdvl.HDVLCompileSpec;
-
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
