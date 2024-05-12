@@ -18,18 +18,30 @@ public class DefaultHDVLCompileSpec implements HDVLCompileSpec {
     @XmlJavaTypeAdapter(value=FileAdapter.class)
     private final File[] svSourceFiles;
 
-    public DefaultHDVLCompileSpec(Set<File> svSourceFiles) {
+    @XmlElementWrapper
+    @XmlElement(name="svPrivateIncludeDir")
+    @XmlJavaTypeAdapter(value=FileAdapter.class)
+    private final File[] svPrivateIncludeDirs;
+
+    public DefaultHDVLCompileSpec(Set<File> svSourceFiles, Set<File> svPrivateIncludeDirs) {
         this.svSourceFiles = svSourceFiles.toArray(new File[0]);
+        this.svPrivateIncludeDirs = svPrivateIncludeDirs.toArray(new File[0]);
     }
 
     // Needed for JAXB
     @SuppressWarnings("unused")
     private DefaultHDVLCompileSpec() {
         this.svSourceFiles = new File[0];
+        this.svPrivateIncludeDirs = new File[0];
     }
 
     @Override
     public Set<File> getSvSourceFiles() {
         return new HashSet<>(Arrays.asList(svSourceFiles));
+    }
+
+    @Override
+    public Set<File> getSvPrivateIncludeDirs() {
+        return new HashSet<>(Arrays.asList(svPrivateIncludeDirs));
     }
 }
