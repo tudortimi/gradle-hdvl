@@ -12,14 +12,14 @@ public class WriteCompileSpecFile extends DefaultTask {
     private final RegularFileProperty destination;
 
     private final ConfigurableFileCollection svSourceFiles;
-    private final ConfigurableFileCollection svSPrivateIncludeDirs;
+    private final ConfigurableFileCollection svPrivateIncludeDirs;
     private final ConfigurableFileCollection svExportedHeaderDirs;
 
 
     public WriteCompileSpecFile() {
         destination = getProject().getObjects().fileProperty();
         svSourceFiles = getProject().getObjects().fileCollection();
-        svSPrivateIncludeDirs = getProject().getObjects().fileCollection();
+        svPrivateIncludeDirs = getProject().getObjects().fileCollection();
         svExportedHeaderDirs = getProject().getObjects().fileCollection();
     }
 
@@ -38,8 +38,8 @@ public class WriteCompileSpecFile extends DefaultTask {
     @InputFiles
     @SkipWhenEmpty
     @PathSensitive(PathSensitivity.ABSOLUTE)
-    public ConfigurableFileCollection getSvSPrivateIncludeDirs() {
-        return svSPrivateIncludeDirs;
+    public ConfigurableFileCollection getSvPrivateIncludeDirs() {
+        return svPrivateIncludeDirs;
     }
 
     @InputFiles
@@ -52,7 +52,7 @@ public class WriteCompileSpecFile extends DefaultTask {
     @TaskAction
     protected void generate() {
         DefaultHDVLCompileSpec compileSpec = new DefaultHDVLCompileSpec(getSvSource().getFiles(),
-                svSPrivateIncludeDirs.getFiles(), svExportedHeaderDirs.getFiles());
+                svPrivateIncludeDirs.getFiles(), svExportedHeaderDirs.getFiles());
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(DefaultHDVLCompileSpec.class);
             Marshaller marshaller = jaxbContext.createMarshaller();
