@@ -945,6 +945,25 @@ class SystemVerilogPluginSpec extends Specification {
         entries[2].name == 'src/main/sv/private_header.svh'
     }
 
+    def "can produce archive with private header"() {
+        File mainSvHeaders = testProjectDir.newFolder('src', 'main', 'sv_headers')
+        new File(mainSvHeaders, "exported_header.svh").createNewFile()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':hdvlSourcesArchive')
+            .build()
+
+        then:
+        new File(testProjectDir.root, 'build/hdvl-sources.zip').exists()
+        def zipFile = new ZipFile(new File(testProjectDir.root, 'build/hdvl-sources.zip'))
+        def entries = zipFile.entries().findAll { !it.directory }
+        entries.size() == 2
+        entries[1].name == 'src/main/sv_headers/exported_header.svh'
+    }
+
     def "can publishing metadata for archive"() {
         File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(mainSv, "main.sv").createNewFile()
@@ -1094,6 +1113,66 @@ class SystemVerilogPluginSpec extends Specification {
         def xrunArgsForDependencyProject = new File(lines[0].split(/\s+/)[1])
         Files.lines(xrunArgsForDependencyProject.toPath()).anyMatch { line ->
             line.contains('-incdir') && line.endsWith('src/main/sv')
+        }
+    }
+
+    def "can consume source archive with exported header directory"() {
+        File dependencyProjectBuildFile = newStandardProject('dependency-project')
+        dependencyProjectBuildFile << """
+            plugins {
+                id 'maven-publish'
+            }
+
+            group = "org.example"
+            version = "1.0.0"
+
+            publishing {
+                repositories {
+                    maven {
+                        name = 'dummy'
+                        url = layout.buildDirectory.dir('dummy-repo')
+                    }
+                }
+            }
+        """
+
+        File dependencyProjectExportedHeaderDir = new File(dependencyProjectBuildFile.parentFile, 'src/main/sv_headers')
+        dependencyProjectExportedHeaderDir.mkdir()
+        File dependencyProjectPrivateHeader = new File(dependencyProjectExportedHeaderDir, 'dependency-project-exported-header.svh')
+        dependencyProjectPrivateHeader.text = "dummy"
+
+        GradleRunner.create()
+            .withProjectDir(dependencyProjectBuildFile.parentFile)
+            .withPluginClasspath()
+            .withArguments(':publish')
+            .build()
+
+        File mainProjectBuildFile = newStandardProject('main-project')
+        mainProjectBuildFile << """
+            dependencies {
+                compile 'org.example:dependency-project:1.0.0'
+            }
+
+            repositories {
+                maven {
+                    url = layout.projectDirectory.dir('../dependency-project/build/dummy-repo')
+                }
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(mainProjectBuildFile.parentFile)
+            .withPluginClasspath()
+            .withDebug(true)
+            .withArguments(':genFullXrunArgsFile')
+            .build()
+
+        then:
+        def lines = new File(mainProjectBuildFile.parentFile, 'build/full_xrun_args.f').text.split("\n")
+        def xrunArgsForDependencyProject = new File(lines[0].split(/\s+/)[1])
+        Files.lines(xrunArgsForDependencyProject.toPath()).anyMatch { line ->
+            line.contains('-incdir') && line.endsWith('src/main/sv_headers')
         }
     }
 }
