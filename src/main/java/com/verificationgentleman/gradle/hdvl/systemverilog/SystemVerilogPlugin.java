@@ -26,6 +26,8 @@ import org.gradle.api.file.DuplicatesStrategy;
 import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.tasks.bundling.Zip;
 
+import java.io.File;
+
 public class SystemVerilogPlugin implements Plugin<Project> {
 
     @Override
@@ -53,7 +55,7 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                     project.getTasks().withType(WriteCompileSpecFile.class, task -> {
                         task.getSvSource().from(svSourceSet.getSv());
                         task.getSvSPrivateIncludeDirs().from(svSourceSet.getSv().getSourceDirectories());
-                        task.getSvExportedHeaderDirs().from(svSourceSet.getSvHeaders().getSourceDirectories());
+                        task.getSvExportedHeaderDirs().from(svSourceSet.getSvHeaders().getSourceDirectories().filter(File::exists));
                     });
                     project.getTasks().getByName("hdvlSourcesArchive", task -> {
                         Zip hdvlSourcesArchive = (Zip) task;
