@@ -6,4 +6,5 @@ import java.util.Set;
 public interface HDVLCompileSpec {
     Set<File> getSvSourceFiles();
     Set<File> getSvPrivateIncludeDirs();
+    Set<File> getSvExportedHeaderDirs();
 }
