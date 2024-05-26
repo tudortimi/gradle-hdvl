@@ -53,6 +53,7 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                     project.getTasks().withType(WriteCompileSpecFile.class, task -> {
                         task.getSvSource().from(svSourceSet.getSv());
                         task.getSvSPrivateIncludeDirs().from(svSourceSet.getSv().getSourceDirectories());
+                        task.getSvExportedHeaderDirs().from(svSourceSet.getSvHeaders().getSourceDirectories());
                     });
                     project.getTasks().getByName("hdvlSourcesArchive", task -> {
                         Zip hdvlSourcesArchive = (Zip) task;
