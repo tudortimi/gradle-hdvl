@@ -8,14 +8,13 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.tasks.*;
 
-import java.util.Collections;
-
 public class WriteCompileSpecFile extends DefaultTask {
     private final RegularFileProperty destination;
 
     private final ConfigurableFileCollection svSourceFiles;
     private final ConfigurableFileCollection svPrivateIncludeDirs;
     private final ConfigurableFileCollection svExportedHeaderDirs;
+    private final ConfigurableFileCollection cSourceFiles;
 
 
     public WriteCompileSpecFile() {
@@ -23,6 +22,7 @@ public class WriteCompileSpecFile extends DefaultTask {
         svSourceFiles = getProject().getObjects().fileCollection();
         svPrivateIncludeDirs = getProject().getObjects().fileCollection();
         svExportedHeaderDirs = getProject().getObjects().fileCollection();
+        cSourceFiles = getProject().getObjects().fileCollection();
     }
 
     @OutputFile
@@ -51,10 +51,17 @@ public class WriteCompileSpecFile extends DefaultTask {
         return svExportedHeaderDirs;
     }
 
+    @InputFiles
+    @SkipWhenEmpty
+    @PathSensitive(PathSensitivity.ABSOLUTE)
+    public ConfigurableFileCollection getCSource() {
+        return cSourceFiles;
+    }
+
     @TaskAction
     protected void generate() {
         DefaultHDVLCompileSpec compileSpec = new DefaultHDVLCompileSpec(getSvSource().getFiles(),
-                svPrivateIncludeDirs.getFiles(), svExportedHeaderDirs.getFiles(), Collections.emptySet());
+                svPrivateIncludeDirs.getFiles(), svExportedHeaderDirs.getFiles(), cSourceFiles.getFiles());
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(DefaultHDVLCompileSpec.class);
             Marshaller marshaller = jaxbContext.createMarshaller();

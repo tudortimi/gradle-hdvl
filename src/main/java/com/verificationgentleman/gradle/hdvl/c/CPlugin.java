@@ -16,8 +16,12 @@
 
 package com.verificationgentleman.gradle.hdvl.c;
 
-import com.verificationgentleman.gradle.hdvl.*;
+import com.verificationgentleman.gradle.hdvl.AbstractGenArgsFile;
+import com.verificationgentleman.gradle.hdvl.HDVLBasePlugin;
+import com.verificationgentleman.gradle.hdvl.HDVLPluginExtension;
+import com.verificationgentleman.gradle.hdvl.SourceSet;
 import com.verificationgentleman.gradle.hdvl.c.internal.DefaultCSourceSet;
+import com.verificationgentleman.gradle.hdvl.internal.WriteCompileSpecFile;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
@@ -44,6 +48,12 @@ public class CPlugin implements Plugin<Project> {
                     AbstractGenArgsFile genArgsFile
                             = (AbstractGenArgsFile) project.getTasks().getByName(sourceSet.getGenArgsFileTaskName(toolName));
                     genArgsFile.setCSource(cSourceSet.getC());
+                }
+
+                if (sourceSet.getName() == "main") {
+                    project.getTasks().withType(WriteCompileSpecFile.class, task -> {
+                        task.getCSource().from(cSourceSet.getC());
+                    });
                 }
             }
         });
