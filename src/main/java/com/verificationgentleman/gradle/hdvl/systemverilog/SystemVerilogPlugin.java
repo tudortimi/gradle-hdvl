@@ -22,7 +22,9 @@ import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DuplicatesStrategy;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.tasks.bundling.Zip;
 
@@ -65,10 +67,13 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                             });
                         });
 
-                        // FIXME Implement proper handling of SV private headers
                         hdvlSourcesArchive.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
-                        hdvlSourcesArchive.from(project.files("src/main/sv").getFiles(), it -> {
-                            it.into("src/main/sv");  // FIXME Assumes source in conventional location
+
+                        // FIXME Implement proper handling of SV private headers
+                        hdvlSourcesArchive.from(svSourceSet.getSv().getSourceDirectories().getElements().map(project::files), it -> {
+                            it.eachFile(file -> {
+                                file.setPath(project.relativePath(file.getFile()));
+                            });
                         });
 
                         // FIXME Implement proper handling of SV exported headers
