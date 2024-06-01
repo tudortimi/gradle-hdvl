@@ -27,6 +27,7 @@ import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.internal.plugins.DslObject;
+import org.gradle.api.tasks.bundling.Zip;
 
 public class CPlugin implements Plugin<Project> {
 
@@ -53,6 +54,12 @@ public class CPlugin implements Plugin<Project> {
                 if (sourceSet.getName() == "main") {
                     project.getTasks().withType(WriteCompileSpecFile.class, task -> {
                         task.getCSource().from(cSourceSet.getC());
+                    });
+                    project.getTasks().getByName("hdvlSourcesArchive", task -> {
+                        Zip hdvlSourcesArchive = (Zip) task;
+                        hdvlSourcesArchive.from(cSourceSet.getC(), it -> {
+                            it.into("src/main/c");  // FIXME Assumes source in conventional location
+                        });
                     });
                 }
             }
