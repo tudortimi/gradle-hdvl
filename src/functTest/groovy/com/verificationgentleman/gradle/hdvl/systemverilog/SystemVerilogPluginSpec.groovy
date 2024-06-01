@@ -993,7 +993,7 @@ class SystemVerilogPluginSpec extends Specification {
         entries[2].name == 'sv/private_header.svh'
     }
 
-    def "can produce archive with private header"() {
+    def "can produce archive with exported header"() {
         File mainSvHeaders = testProjectDir.newFolder('src', 'main', 'sv_headers')
         new File(mainSvHeaders, "exported_header.svh").createNewFile()
 
