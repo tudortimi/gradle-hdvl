@@ -50,6 +50,10 @@ public abstract class WriteXrunArgsFile implements TransformAction<TransformPara
                 assert svExportedHeaderDir.isAbsolute() : "not absolute: " + svExportedHeaderDir;
                 assert svExportedHeaderDir.exists() : "doesn't exist: " + svExportedHeaderDir;
             }
+            for (File cSourceFile : result.getCSourceFiles()) {
+                assert cSourceFile.isAbsolute() : "not absolute: " + cSourceFile;
+                assert cSourceFile.exists() : "doesn't exist: " + cSourceFile;
+            }
 
             return result;
         } catch (JAXBException e) {
@@ -66,6 +70,8 @@ public abstract class WriteXrunArgsFile implements TransformAction<TransformPara
                 writer.write("  -incdir " + svPrivateIncludeDir + "\n");
             for (File svSourceFile : compileSpec.getSvSourceFiles())
                 writer.write("  " + svSourceFile + "\n");
+            for (File cSourceFile : compileSpec.getCSourceFiles())
+                writer.write("  " + cSourceFile + "\n");
             writer.write("-endlib\n");
         }
         catch (IOException ex) {
