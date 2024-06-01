@@ -8,6 +8,8 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.tasks.*;
 
+import java.util.Collections;
+
 public class WriteCompileSpecFile extends DefaultTask {
     private final RegularFileProperty destination;
 
@@ -52,7 +54,7 @@ public class WriteCompileSpecFile extends DefaultTask {
     @TaskAction
     protected void generate() {
         DefaultHDVLCompileSpec compileSpec = new DefaultHDVLCompileSpec(getSvSource().getFiles(),
-                svPrivateIncludeDirs.getFiles(), svExportedHeaderDirs.getFiles());
+                svPrivateIncludeDirs.getFiles(), svExportedHeaderDirs.getFiles(), Collections.emptySet());
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(DefaultHDVLCompileSpec.class);
             Marshaller marshaller = jaxbContext.createMarshaller();

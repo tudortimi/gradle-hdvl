@@ -7,4 +7,5 @@ public interface HDVLCompileSpec {
     Set<File> getSvSourceFiles();
     Set<File> getSvPrivateIncludeDirs();
     Set<File> getSvExportedHeaderDirs();
+    Set<File> getCSourceFiles();
 }

@@ -28,10 +28,17 @@ public class DefaultHDVLCompileSpec implements HDVLCompileSpec {
     @XmlJavaTypeAdapter(value=FileAdapter.class)
     private final File[] svExportedHeaderDirs;
 
-    public DefaultHDVLCompileSpec(Set<File> svSourceFiles, Set<File> svPrivateIncludeDirs, Set<File> svExportedHeaderDirs) {
+    @XmlElementWrapper
+    @XmlElement(name="cSourceFile")
+    @XmlJavaTypeAdapter(value=FileAdapter.class)
+    private final File[] cSourceFiles;
+
+    public DefaultHDVLCompileSpec(Set<File> svSourceFiles, Set<File> svPrivateIncludeDirs, Set<File> svExportedHeaderDirs,
+                Set<File> cSourceFiles) {
         this.svSourceFiles = svSourceFiles.toArray(new File[0]);
         this.svPrivateIncludeDirs = svPrivateIncludeDirs.toArray(new File[0]);
         this.svExportedHeaderDirs = svExportedHeaderDirs.toArray(new File[0]);
+        this.cSourceFiles = cSourceFiles.toArray(new File[0]);
     }
 
     // Needed for JAXB
@@ -40,6 +47,7 @@ public class DefaultHDVLCompileSpec implements HDVLCompileSpec {
         this.svSourceFiles = new File[0];
         this.svPrivateIncludeDirs = new File[0];
         this.svExportedHeaderDirs = new File[0];
+        this.cSourceFiles = new File[0];
     }
 
     @Override
@@ -55,5 +63,10 @@ public class DefaultHDVLCompileSpec implements HDVLCompileSpec {
     @Override
     public Set<File> getSvExportedHeaderDirs() {
         return new HashSet<>(Arrays.asList(svExportedHeaderDirs));
+    }
+
+    @Override
+    public Set<File> getCSourceFiles() {
+        return new HashSet<>(Arrays.asList(cSourceFiles));
     }
 }
