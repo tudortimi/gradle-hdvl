@@ -22,6 +22,7 @@ import org.junit.rules.TemporaryFolder
 import spock.lang.Ignore
 import spock.lang.Specification
 
+import java.nio.file.Files
 import java.util.zip.ZipFile
 
 import static org.gradle.testkit.runner.TaskOutcome.NO_SOURCE
@@ -38,6 +39,28 @@ class CPluginSpec extends Specification {
                 id 'com.verificationgentleman.gradle.hdvl.c'
             }
         """
+    }
+
+    /**
+     * Creates a new project in a new directory, with a standard layout.
+     *
+     * @param name The project name
+     * @return The build file of the project
+     */
+    def newStandardProject(String name) {
+        File folder = testProjectDir.newFolder(name)
+
+        File sv = testProjectDir.newFolder(name,'src', 'main', 'c')
+        new File(sv, "${name}.c").createNewFile()
+
+        File buildFile = new File(folder, "build.gradle")
+        buildFile << """
+            plugins {
+                id 'com.verificationgentleman.gradle.hdvl.c'
+            }
+        """
+
+        return buildFile
     }
 
     def "can successfully import the plugin"() {
@@ -221,5 +244,60 @@ class CPluginSpec extends Specification {
         def entries = zipFile.entries().findAll { !it.directory }
         entries.size() == 2
         entries[1].name == 'src/main/c/main.c'
+    }
+
+    def "can consume source archive"() {
+        File dependencyProjectBuildFile = newStandardProject('dependency-project')
+        dependencyProjectBuildFile << """
+            plugins {
+                id 'maven-publish'
+            }
+
+            group = "org.example"
+            version = "1.0.0"
+
+            publishing {
+                repositories {
+                    maven {
+                        name = 'dummy'
+                        url = layout.buildDirectory.dir('dummy-repo')
+                    }
+                }
+            }
+        """
+
+        GradleRunner.create()
+            .withProjectDir(dependencyProjectBuildFile.parentFile)
+            .withPluginClasspath()
+            .withArguments(':publish')
+            .build()
+
+        File mainProjectBuildFile = newStandardProject('main-project')
+        mainProjectBuildFile << """
+            dependencies {
+                compile 'org.example:dependency-project:1.0.0'
+            }
+
+            repositories {
+                maven {
+                    url = layout.projectDirectory.dir('../dependency-project/build/dummy-repo')
+                }
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(mainProjectBuildFile.parentFile)
+            .withPluginClasspath()
+            .withDebug(true)
+            .withArguments(':genFullXrunArgsFile')
+            .build()
+
+        then:
+        def lines = new File(mainProjectBuildFile.parentFile, 'build/full_xrun_args.f').text.split("\n")
+        def xrunArgsForDependencyProject = new File(lines[0].split(/\s+/)[1])
+        Files.lines(xrunArgsForDependencyProject.toPath()).anyMatch { line ->
+            line.endsWith 'src/main/c/dependency-project.c'
+        }
     }
 }
