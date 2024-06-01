@@ -924,6 +924,29 @@ class SystemVerilogPluginSpec extends Specification {
         entries[1].name == 'src/main/sv/main.sv'
     }
 
+    def "can produce archive with source file in custom location"() {
+        File mainSv = testProjectDir.newFolder('sv')
+        new File(mainSv, "main.sv").createNewFile()
+
+        buildFile << """
+        sourceSets.main.sv.srcDirs = ['sv']
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':hdvlSourcesArchive')
+            .build()
+
+        then:
+        new File(testProjectDir.root, 'build/hdvl-sources.zip').exists()
+        def zipFile = new ZipFile(new File(testProjectDir.root, 'build/hdvl-sources.zip'))
+        def entries = zipFile.entries().findAll { !it.directory }
+        entries.size() == 2
+        entries[1].name == 'sv/main.sv'
+    }
+
     def "can produce archive with private header"() {
         File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(mainSv, "main.sv").createNewFile()
@@ -945,7 +968,32 @@ class SystemVerilogPluginSpec extends Specification {
         entries[2].name == 'src/main/sv/private_header.svh'
     }
 
-    def "can produce archive with private header"() {
+    def "can produce archive with private header in custom location"() {
+        File mainSv = testProjectDir.newFolder('sv')
+        new File(mainSv, "main.sv").createNewFile()
+        new File(mainSv, "private_header.svh").createNewFile()
+
+        buildFile << """
+        sourceSets.main.sv.srcDirs = ['sv']
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':hdvlSourcesArchive')
+            .build()
+
+        then:
+        new File(testProjectDir.root, 'build/hdvl-sources.zip').exists()
+        def zipFile = new ZipFile(new File(testProjectDir.root, 'build/hdvl-sources.zip'))
+        def entries = zipFile.entries().findAll { !it.directory }
+        entries.size() == 3
+        entries[1].name == 'sv/main.sv'
+        entries[2].name == 'sv/private_header.svh'
+    }
+
+    def "can produce archive with exported header"() {
         File mainSvHeaders = testProjectDir.newFolder('src', 'main', 'sv_headers')
         new File(mainSvHeaders, "exported_header.svh").createNewFile()
 
@@ -962,6 +1010,29 @@ class SystemVerilogPluginSpec extends Specification {
         def entries = zipFile.entries().findAll { !it.directory }
         entries.size() == 2
         entries[1].name == 'src/main/sv_headers/exported_header.svh'
+    }
+
+    def "can produce archive with exported header in custom location"() {
+        File mainSvHeaders = testProjectDir.newFolder('sv')
+        new File(mainSvHeaders, "exported_header.svh").createNewFile()
+
+        buildFile << """
+        sourceSets.main.svHeaders.srcDirs = ['sv']
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':hdvlSourcesArchive')
+            .build()
+
+        then:
+        new File(testProjectDir.root, 'build/hdvl-sources.zip').exists()
+        def zipFile = new ZipFile(new File(testProjectDir.root, 'build/hdvl-sources.zip'))
+        def entries = zipFile.entries().findAll { !it.directory }
+        entries.size() == 2
+        entries[1].name == 'sv/exported_header.svh'
     }
 
     def "can publishing metadata for archive"() {

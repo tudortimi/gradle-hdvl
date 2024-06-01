@@ -58,7 +58,9 @@ public class CPlugin implements Plugin<Project> {
                     project.getTasks().getByName("hdvlSourcesArchive", task -> {
                         Zip hdvlSourcesArchive = (Zip) task;
                         hdvlSourcesArchive.from(cSourceSet.getC(), it -> {
-                            it.into("src/main/c");  // FIXME Assumes source in conventional location
+                            it.eachFile(file -> {
+                                file.setPath(project.relativePath(file.getFile()));
+                            });
                         });
                     });
                 }
