@@ -8,5 +8,6 @@ module some_project;
     function automatic void do_stuff();
         some_class o = new();
         `some_published_dependency_macro
+        some_dpi_func();
     endfunction
 endmodule
