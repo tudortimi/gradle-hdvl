@@ -246,6 +246,29 @@ class CPluginSpec extends Specification {
         entries[1].name == 'src/main/c/main.c'
     }
 
+    def "can produce archive with source file in custom location"() {
+        File mainSv = testProjectDir.newFolder('c')
+        new File(mainSv, "main.c").createNewFile()
+
+        buildFile << """
+        sourceSets.main.c.srcDirs = ['c']
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':hdvlSourcesArchive')
+            .build()
+
+        then:
+        new File(testProjectDir.root, 'build/hdvl-sources.zip').exists()
+        def zipFile = new ZipFile(new File(testProjectDir.root, 'build/hdvl-sources.zip'))
+        def entries = zipFile.entries().findAll { !it.directory }
+        entries.size() == 2
+        entries[1].name == 'c/main.c'
+    }
+
     def "can consume source archive"() {
         File dependencyProjectBuildFile = newStandardProject('dependency-project')
         dependencyProjectBuildFile << """
