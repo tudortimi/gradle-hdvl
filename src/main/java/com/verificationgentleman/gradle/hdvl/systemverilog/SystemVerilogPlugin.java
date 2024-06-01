@@ -60,7 +60,9 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                     project.getTasks().getByName("hdvlSourcesArchive", task -> {
                         Zip hdvlSourcesArchive = (Zip) task;
                         hdvlSourcesArchive.from(svSourceSet.getSv(), it -> {
-                            it.into("src/main/sv");  // FIXME Assumes source in conventional location
+                            it.eachFile(file -> {
+                                file.setPath(project.relativePath(file.getFile()));
+                            });
                         });
 
                         // FIXME Implement proper handling of SV private headers
