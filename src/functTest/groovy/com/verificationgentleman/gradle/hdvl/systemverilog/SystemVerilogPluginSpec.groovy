@@ -1012,6 +1012,29 @@ class SystemVerilogPluginSpec extends Specification {
         entries[1].name == 'src/main/sv_headers/exported_header.svh'
     }
 
+    def "can produce archive with exported header in custom location"() {
+        File mainSvHeaders = testProjectDir.newFolder('sv')
+        new File(mainSvHeaders, "exported_header.svh").createNewFile()
+
+        buildFile << """
+        sourceSets.main.svHeaders.srcDirs = ['sv']
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':hdvlSourcesArchive')
+            .build()
+
+        then:
+        new File(testProjectDir.root, 'build/hdvl-sources.zip').exists()
+        def zipFile = new ZipFile(new File(testProjectDir.root, 'build/hdvl-sources.zip'))
+        def entries = zipFile.entries().findAll { !it.directory }
+        entries.size() == 2
+        entries[1].name == 'sv/exported_header.svh'
+    }
+
     def "can publishing metadata for archive"() {
         File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(mainSv, "main.sv").createNewFile()

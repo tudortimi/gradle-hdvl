@@ -77,8 +77,10 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                         });
 
                         // FIXME Implement proper handling of SV exported headers
-                        hdvlSourcesArchive.from(project.files("src/main/sv_headers").getFiles(), it -> {
-                            it.into("src/main/sv_headers");  // FIXME Assumes source in conventional location
+                        hdvlSourcesArchive.from(svSourceSet.getSvHeaders().getSourceDirectories().getElements().map(project::files), it -> {
+                            it.eachFile(file -> {
+                                file.setPath(project.relativePath(file.getFile()));
+                            });
                         });
                     });
                 }
