@@ -886,6 +886,27 @@ class SystemVerilogPluginSpec extends Specification {
         !(compileSpecFile.text.contains '/src/main/sv/main.sv')
     }
 
+    def "can write sv source to compile spec file as JSON"() {
+        File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(mainSv, "main.sv").createNewFile()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':writeCompileSpecFile')
+            .build()
+
+        then:
+        def compileSpecFile = new File(testProjectDir.root, 'build/compile-spec.json')
+        compileSpecFile.exists()
+        JsonNode compileSpec = new ObjectMapper().readTree(compileSpecFile)
+        JsonNode svSourceFiles = compileSpec.get("svSourceFiles")
+        svSourceFiles.isArray()
+        svSourceFiles.size() == 1
+        svSourceFiles.get(0).asText() == 'src/main/sv/main.sv'
+    }
+
     def "archive with source file contains compile spec"() {
         File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(mainSv, "main.sv").createNewFile()

@@ -1,8 +1,7 @@
 package com.verificationgentleman.gradle.hdvl.internal;
 
-import com.fasterxml.jackson.core.exc.StreamWriteException;
-import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
@@ -11,6 +10,7 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.tasks.*;
 
+import java.io.File;
 import java.io.IOException;
 
 public class WriteCompileSpecFile extends DefaultTask {
@@ -94,6 +94,10 @@ public class WriteCompileSpecFile extends DefaultTask {
                 svPrivateIncludeDirs.getFiles(), svExportedHeaderDirs.getFiles(), cSourceFiles.getFiles());
         try {
             ObjectMapper objectMapper = new ObjectMapper();
+            SimpleModule module = new SimpleModule();
+            module.addSerializer(File.class, new FileSerializer(getProject().getProjectDir()));
+            objectMapper.registerModule(module);
+
             objectMapper.writerWithDefaultPrettyPrinter().writeValue(destinationForJson.get().getAsFile(), compileSpec);
         } catch (IOException e) {
             throw new RuntimeException(e);
