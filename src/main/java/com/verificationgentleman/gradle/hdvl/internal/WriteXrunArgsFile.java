@@ -3,9 +3,6 @@ package com.verificationgentleman.gradle.hdvl.internal;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.verificationgentleman.gradle.hdvl.HDVLCompileSpec;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Unmarshaller;
 import org.gradle.api.artifacts.transform.InputArtifact;
 import org.gradle.api.artifacts.transform.TransformAction;
 import org.gradle.api.artifacts.transform.TransformOutputs;
@@ -31,45 +28,6 @@ public abstract class WriteXrunArgsFile implements TransformAction<TransformPara
     }
 
     private static DefaultHDVLCompileSpec getCompileSpec(File input) {
-        File compileSpec = new File(input, ".gradle-hdvl/compile-spec.xml");
-        try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(DefaultHDVLCompileSpec.class);
-            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-
-            FileAdapter fileAdapter = new FileAdapter(input);
-            unmarshaller.setAdapter(fileAdapter);
-
-            DefaultHDVLCompileSpec result = (DefaultHDVLCompileSpec) unmarshaller.unmarshal(compileSpec);
-            for (File svSourceFile : result.getSvSourceFiles()) {
-                assert svSourceFile.isAbsolute() : "not absolute: " + svSourceFile;
-                assert svSourceFile.exists() : "doesn't exist: " + svSourceFile;
-            }
-            for (File svPrivateIncludeDir : result.getSvPrivateIncludeDirs()) {
-                assert svPrivateIncludeDir.isAbsolute() : "not absolute: " + svPrivateIncludeDir;
-                assert svPrivateIncludeDir.exists() : "doesn't exist: " + svPrivateIncludeDir;
-            }
-            for (File svExportedHeaderDir : result.getSvExportedHeaderDirs()) {
-                assert svExportedHeaderDir.isAbsolute() : "not absolute: " + svExportedHeaderDir;
-                assert svExportedHeaderDir.exists() : "doesn't exist: " + svExportedHeaderDir;
-            }
-            for (File cSourceFile : result.getCSourceFiles()) {
-                assert cSourceFile.isAbsolute() : "not absolute: " + cSourceFile;
-                assert cSourceFile.exists() : "doesn't exist: " + cSourceFile;
-            }
-
-            DefaultHDVLCompileSpec resultFromJson = getCompileSpecFromJson(input);
-            assert result.getSvSourceFiles().equals(resultFromJson.getSvSourceFiles()) : "SV source files from XML not same as from JSON";
-            assert result.getSvPrivateIncludeDirs().equals(resultFromJson.getSvPrivateIncludeDirs()) : "SV private include dirs from XML not same as from JSON";
-            assert result.getSvExportedHeaderDirs().equals(resultFromJson.getSvExportedHeaderDirs()) : "SV exported header dirs from XML not same as from JSON";
-            assert result.getCSourceFiles().equals(resultFromJson.getCSourceFiles()) : "C source files from XML not same as from JSON";
-
-            return result;
-        } catch (JAXBException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static DefaultHDVLCompileSpec getCompileSpecFromJson(File input) {
         File compileSpec = new File(input, ".gradle-hdvl/compile-spec.json");
 
         ObjectMapper objectMapper = new ObjectMapper();
