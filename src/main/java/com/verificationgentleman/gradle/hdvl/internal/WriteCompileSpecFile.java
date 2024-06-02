@@ -2,9 +2,6 @@ package com.verificationgentleman.gradle.hdvl.internal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Marshaller;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFileProperty;
@@ -15,7 +12,6 @@ import java.io.IOException;
 
 public class WriteCompileSpecFile extends DefaultTask {
     private final RegularFileProperty destination;
-    private final RegularFileProperty destinationForJson;
 
     private final ConfigurableFileCollection svSourceFiles;
     private final ConfigurableFileCollection svPrivateIncludeDirs;
@@ -25,7 +21,6 @@ public class WriteCompileSpecFile extends DefaultTask {
 
     public WriteCompileSpecFile() {
         destination = getProject().getObjects().fileProperty();
-        destinationForJson = getProject().getObjects().fileProperty();
         svSourceFiles = getProject().getObjects().fileCollection();
         svPrivateIncludeDirs = getProject().getObjects().fileCollection();
         svExportedHeaderDirs = getProject().getObjects().fileCollection();
@@ -35,11 +30,6 @@ public class WriteCompileSpecFile extends DefaultTask {
     @OutputFile
     public RegularFileProperty getDestination() {
         return destination;
-    }
-
-    @OutputFile
-    public RegularFileProperty getDestinationForJson() {
-        return destinationForJson;
     }
 
     @InputFiles
@@ -71,24 +61,6 @@ public class WriteCompileSpecFile extends DefaultTask {
     }
 
     @TaskAction
-    protected void generate() {
-        DefaultHDVLCompileSpec compileSpec = new DefaultHDVLCompileSpec(getSvSource().getFiles(),
-                svPrivateIncludeDirs.getFiles(), svExportedHeaderDirs.getFiles(), cSourceFiles.getFiles());
-        try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(DefaultHDVLCompileSpec.class);
-            Marshaller marshaller = jaxbContext.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-            FileAdapter fileAdapter = new FileAdapter(getProject().getProjectDir());
-            marshaller.setAdapter(fileAdapter);
-
-            marshaller.marshal(compileSpec, destination.get().getAsFile());
-        } catch (JAXBException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @TaskAction
     protected void generateJson() {
         DefaultHDVLCompileSpec compileSpec = new DefaultHDVLCompileSpec(getSvSource().getFiles(),
                 svPrivateIncludeDirs.getFiles(), svExportedHeaderDirs.getFiles(), cSourceFiles.getFiles());
@@ -98,7 +70,7 @@ public class WriteCompileSpecFile extends DefaultTask {
             module.addSerializer(File.class, new FileSerializer(getProject().getProjectDir()));
             objectMapper.registerModule(module);
 
-            objectMapper.writerWithDefaultPrettyPrinter().writeValue(destinationForJson.get().getAsFile(), compileSpec);
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(destination.get().getAsFile(), compileSpec);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

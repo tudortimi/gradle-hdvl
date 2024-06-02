@@ -173,8 +173,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
 
     private void configureWriteCompileSpecFileTask(Project project) {
         project.getTasks().register("writeCompileSpecFile", WriteCompileSpecFile.class, writeCompileSpecFile -> {
-            writeCompileSpecFile.getDestination().set(project.getLayout().getBuildDirectory().file("compile-spec.xml"));
-            writeCompileSpecFile.getDestinationForJson().set(project.getLayout().getBuildDirectory().file("compile-spec.json"));
+            writeCompileSpecFile.getDestination().set(project.getLayout().getBuildDirectory().file("compile-spec.json"));
         });
     }
 
@@ -184,7 +183,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
         project.getTasks().register("hdvlSourcesArchive", Zip.class, zip -> {
             zip.getDestinationDirectory().convention(project.getLayout().getBuildDirectory());
             zip.getArchiveFileName().convention("hdvl-sources.zip");
-            zip.from(writeCompileSpecFile.getDestinationForJson(), it -> {
+            zip.from(writeCompileSpecFile.getDestination(), it -> {
                 it.into(".gradle-hdvl");
             });
         });
