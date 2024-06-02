@@ -187,6 +187,9 @@ public class HDVLBasePlugin implements Plugin<Project> {
             zip.from(writeCompileSpecFile.getDestination(), it -> {
                 it.into(".gradle-hdvl");
             });
+            zip.from(writeCompileSpecFile.getDestinationForJson(), it -> {
+                it.into(".gradle-hdvl");
+            });
         });
     }
 

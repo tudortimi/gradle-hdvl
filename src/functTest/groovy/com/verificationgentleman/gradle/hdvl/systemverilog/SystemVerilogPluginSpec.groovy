@@ -922,8 +922,9 @@ class SystemVerilogPluginSpec extends Specification {
         new File(testProjectDir.root, 'build/hdvl-sources.zip').exists()
         def zipFile = new ZipFile(new File(testProjectDir.root, 'build/hdvl-sources.zip'))
         def entries = zipFile.entries().findAll { !it.directory }
-        entries.size() == 2
+        entries.size() == 3
         entries[0].name == '.gradle-hdvl/compile-spec.xml'
+        entries[1].name == '.gradle-hdvl/compile-spec.json'
     }
 
     def "can produce archive with source file"() {
