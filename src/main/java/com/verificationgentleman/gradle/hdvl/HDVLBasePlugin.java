@@ -184,9 +184,6 @@ public class HDVLBasePlugin implements Plugin<Project> {
         project.getTasks().register("hdvlSourcesArchive", Zip.class, zip -> {
             zip.getDestinationDirectory().convention(project.getLayout().getBuildDirectory());
             zip.getArchiveFileName().convention("hdvl-sources.zip");
-            zip.from(writeCompileSpecFile.getDestination(), it -> {
-                it.into(".gradle-hdvl");
-            });
             zip.from(writeCompileSpecFile.getDestinationForJson(), it -> {
                 it.into(".gradle-hdvl");
             });
