@@ -174,6 +174,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
     private void configureWriteCompileSpecFileTask(Project project) {
         project.getTasks().register("writeCompileSpecFile", WriteCompileSpecFile.class, writeCompileSpecFile -> {
             writeCompileSpecFile.getDestination().set(project.getLayout().getBuildDirectory().file("compile-spec.xml"));
+            writeCompileSpecFile.getDestinationForJson().set(project.getLayout().getBuildDirectory().file("compile-spec.json"));
         });
     }
 
