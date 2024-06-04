@@ -1,9 +1,8 @@
 package com.verificationgentleman.gradle.hdvl.internal;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.verificationgentleman.gradle.hdvl.HDVLCompileSpec;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Unmarshaller;
 import org.gradle.api.artifacts.transform.InputArtifact;
 import org.gradle.api.artifacts.transform.TransformAction;
 import org.gradle.api.artifacts.transform.TransformOutputs;
@@ -29,15 +28,15 @@ public abstract class WriteXrunArgsFile implements TransformAction<TransformPara
     }
 
     private static DefaultHDVLCompileSpec getCompileSpec(File input) {
-        File compileSpec = new File(input, ".gradle-hdvl/compile-spec.xml");
+        File compileSpec = new File(input, ".gradle-hdvl/compile-spec.json");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(File.class, new FileDeserializer(input));
+        objectMapper.registerModule(module);
+
         try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(DefaultHDVLCompileSpec.class);
-            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-
-            FileAdapter fileAdapter = new FileAdapter(input);
-            unmarshaller.setAdapter(fileAdapter);
-
-            DefaultHDVLCompileSpec result = (DefaultHDVLCompileSpec) unmarshaller.unmarshal(compileSpec);
+            DefaultHDVLCompileSpec result = objectMapper.readValue(compileSpec, DefaultHDVLCompileSpec.class);
             for (File svSourceFile : result.getSvSourceFiles()) {
                 assert svSourceFile.isAbsolute() : "not absolute: " + svSourceFile;
                 assert svSourceFile.exists() : "doesn't exist: " + svSourceFile;
@@ -56,7 +55,7 @@ public abstract class WriteXrunArgsFile implements TransformAction<TransformPara
             }
 
             return result;
-        } catch (JAXBException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

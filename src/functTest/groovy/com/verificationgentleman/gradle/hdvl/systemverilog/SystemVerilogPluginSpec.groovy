@@ -880,10 +880,13 @@ class SystemVerilogPluginSpec extends Specification {
             .build()
 
         then:
-        def compileSpecFile = new File(testProjectDir.root, 'build/compile-spec.xml')
+        def compileSpecFile = new File(testProjectDir.root, 'build/compile-spec.json')
         compileSpecFile.exists()
-        compileSpecFile.text.contains 'src/main/sv/main.sv'
-        !(compileSpecFile.text.contains '/src/main/sv/main.sv')
+        JsonNode compileSpec = new ObjectMapper().readTree(compileSpecFile)
+        JsonNode svSourceFiles = compileSpec.get("svSourceFiles")
+        svSourceFiles.isArray()
+        svSourceFiles.size() == 1
+        svSourceFiles.get(0).asText() == 'src/main/sv/main.sv'
     }
 
     def "archive with source file contains compile spec"() {
@@ -902,7 +905,7 @@ class SystemVerilogPluginSpec extends Specification {
         def zipFile = new ZipFile(new File(testProjectDir.root, 'build/hdvl-sources.zip'))
         def entries = zipFile.entries().findAll { !it.directory }
         entries.size() == 2
-        entries[0].name == '.gradle-hdvl/compile-spec.xml'
+        entries[0].name == '.gradle-hdvl/compile-spec.json'
     }
 
     def "can produce archive with source file"() {
