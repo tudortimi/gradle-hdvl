@@ -2,36 +2,19 @@ package com.verificationgentleman.gradle.hdvl.internal;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.verificationgentleman.gradle.hdvl.HDVLCompileSpec;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlElementWrapper;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-@XmlRootElement(name="compileSpec")
 public class DefaultHDVLCompileSpec implements HDVLCompileSpec {
-    @XmlElementWrapper
-    @XmlElement(name="svSourceFile")
-    @XmlJavaTypeAdapter(value=FileAdapter.class)
     private final File[] svSourceFiles;
 
-    @XmlElementWrapper
-    @XmlElement(name="svPrivateIncludeDir")
-    @XmlJavaTypeAdapter(value=FileAdapter.class)
     private final File[] svPrivateIncludeDirs;
 
-    @XmlElementWrapper
-    @XmlElement(name="svExportedHeaderDir")
-    @XmlJavaTypeAdapter(value=FileAdapter.class)
     private final File[] svExportedHeaderDirs;
 
-    @XmlElementWrapper
-    @XmlElement(name="cSourceFile")
-    @XmlJavaTypeAdapter(value=FileAdapter.class)
     @JsonProperty("cSourceFiles")
     private final File[] cSourceFiles;
 
