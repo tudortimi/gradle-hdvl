@@ -64,9 +64,6 @@ gradlePlugin {
 }
 
 dependencies {
-    implementation("com.sun.xml.bind:jaxb-ri:3.0.2") {
-        because("javax.xml.bind is not part of the JDK anymore starring with JDK9 and version 2.x.x is busted on JDK11")
-    }
     implementation("com.fasterxml.jackson.core:jackson-databind:2.16.0")
 
     testImplementation("org.spockframework:spock-core:2.2-groovy-3.0") {
