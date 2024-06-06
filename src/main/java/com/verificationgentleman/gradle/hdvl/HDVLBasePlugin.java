@@ -191,6 +191,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
 
     private void configureHdvlSourcesArchiveArtifact(Project project, SourceSet mainSourceSet) {
         Configuration hdvlSourcesArchiveElements = project.getConfigurations().create("hdvlSourcesArchiveElements");
+        hdvlSourcesArchiveElements.extendsFrom(project.getConfigurations().getByName("compile"));
         hdvlSourcesArchiveElements.setCanBeConsumed(true);
         hdvlSourcesArchiveElements.setCanBeResolved(false);
         hdvlSourcesArchiveElements.getAttributes().attribute(HDVLBasePlugin.HDVL_USAGE_ATTRIBUTE, "HdvlSourcesArchive");
