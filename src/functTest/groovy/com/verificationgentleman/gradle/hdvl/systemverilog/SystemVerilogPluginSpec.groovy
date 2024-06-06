@@ -1312,4 +1312,69 @@ class SystemVerilogPluginSpec extends Specification {
             line.contains('-incdir') && line.endsWith('src/main/sv_headers')
         }
     }
+
+    def "can publish dependencies for consumed archives"() {
+        File dependencyProjectBuildFile = newStandardProject('dependency-project')
+        dependencyProjectBuildFile << """
+            plugins {
+                id 'maven-publish'
+            }
+
+            group = "org.example"
+            version = "1.0.0"
+
+            publishing {
+                repositories {
+                    maven {
+                        name = 'dummy'
+                        url = layout.buildDirectory.dir('dummy-repo')
+                    }
+                }
+            }
+        """
+
+        GradleRunner.create()
+            .withProjectDir(dependencyProjectBuildFile.parentFile)
+            .withPluginClasspath()
+            .withArguments(':publish')
+            .build()
+
+        File dependentProjectBuildFile = newStandardProject('dependent-project')
+        dependentProjectBuildFile << """
+            plugins {
+                id 'maven-publish'
+            }
+
+            group = "org.example"
+            version = "1.0.0"
+
+            dependencies {
+                compile 'org.example:dependency-project:1.0.0'
+            }
+
+            repositories {
+                maven {
+                    url = layout.projectDirectory.dir('../dependency-project/build/dummy-repo')
+                }
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(dependentProjectBuildFile.parentFile)
+            .withPluginClasspath()
+            .withArguments(':generateMetadataFileForHdvlLibraryPublication')
+            .build()
+
+        then:
+        def gradleMetadata = new File(dependentProjectBuildFile.parentFile, "build/publications/hdvlLibrary/module.json")
+        gradleMetadata.exists()
+        JsonNode metadata = new ObjectMapper().readTree(gradleMetadata)
+        def dependencies = metadata.get("variants")[0].get("dependencies")
+        dependencies != null
+        dependencies.size() == 1
+        dependencies[0].get('group').asText() == 'org.example'
+        dependencies[0].get('module').asText() == 'dependency-project'
+        dependencies[0].get('version').get('requires').asText() == '1.0.0'
+    }
 }
