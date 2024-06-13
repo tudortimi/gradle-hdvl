@@ -15,6 +15,14 @@ task functionalTest(type: Test) {
     mustRunAfter test
 }
 
+tasks.withType(Test) {
+    afterSuite { desc, result ->
+        if (result.testCount == 0) {
+            throw new IllegalStateException("No tests were run. Aborting.")
+        }
+    }
+}
+
 check.dependsOn functionalTest
 
 gradlePlugin {
