@@ -64,13 +64,13 @@ gradlePlugin {
 }
 
 dependencies {
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.16.0")
+    implementation(libs.jackson.databind)
 
     testImplementation("org.spockframework:spock-core:2.2-groovy-3.0") {
         exclude(group = "org.codehaus.groovy")
     }
     testImplementation("org.spockframework:spock-junit4:2.0-groovy-3.0")
-    testImplementation("com.fasterxml.jackson.core:jackson-databind:2.16.0")
+    testImplementation(libs.jackson.databind)
 }
 
 tasks.withType<Test> {
