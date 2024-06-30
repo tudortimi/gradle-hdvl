@@ -1,0 +1,7 @@
+plugins {
+    id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+}
+
+task runGradleTest {
+    dependsOn 'genFullXrunArgsFile'
+}
