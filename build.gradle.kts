@@ -4,6 +4,7 @@ plugins {
     id("maven-publish")
     id("com.gradle.plugin-publish") version "0.20.0"
     id("fr.brouillard.oss.gradle.jgitver") version "0.9.1"
+    id("org.ysb33r.gradletest") version "3.0.0-alpha.6"
 }
 
 pluginBundle {
@@ -90,4 +91,8 @@ java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(8))
     }
+}
+
+tasks.withType<org.ysb33r.gradle.gradletest.GradleTest> {
+    versions("7.5.1", "8.6")
 }
