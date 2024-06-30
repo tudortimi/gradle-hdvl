@@ -16,3 +16,6 @@
 .dvt
 
 *.log
+
+# GradleTest
+/.generated-src
