@@ -90,6 +90,7 @@ public class DVTTask extends DefaultTask {
         if (testsRoot != null) {
             createLinkToTests();
             buildTestInfrastructure();
+            fw.write("-F " + workingDir.file(".svunit.f").get().getAsFile().getAbsolutePath());
         }
 
         fw.close();

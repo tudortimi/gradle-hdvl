@@ -81,4 +81,19 @@ class DVTWithSVUnitPluginSpec extends AbstractDVTPluginSpec {
         svunitArgsFile.exists()
         svunitArgsFile.text.contains 'dummy_unit_test.sv'
     }
+
+    def "'dvt' task includes SVUnit args file in 'default.build'"() {
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('dvt')
+            .build()
+
+        then:
+        result.task(":dvt").outcome == SUCCESS
+        def svunitArgsFile = new File(testProjectDir.root, 'build/dvt/svunit/.svunit.f')
+        def defaultBuild = new File(testProjectDir.root, '.dvt/default.build')
+        defaultBuild.text.contains "-F $svunitArgsFile"
+    }
 }
