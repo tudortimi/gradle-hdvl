@@ -15,11 +15,14 @@
  */
 package com.verificationgentleman.gradle.hdvl.dvt;
 
+import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.*;
+import org.gradle.process.ExecSpec;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -31,6 +34,7 @@ public class DVTTask extends DefaultTask {
     private RegularFileProperty argsFile;
     private RegularFileProperty defaultBuild;
     private File testsRoot;
+    private FileCollection svunitRoot;
     private DirectoryProperty workingDir;
 
     @Inject
@@ -61,6 +65,16 @@ public class DVTTask extends DefaultTask {
         this.testsRoot = testsRoot;
     }
 
+    @InputFiles
+    @Optional
+    public FileCollection getSvunitRoot() {
+        return svunitRoot;
+    }
+
+    public void setSvunitRoot(FileCollection svunitRoot) {
+        this.svunitRoot = svunitRoot;
+    }
+
     @OutputDirectory
     @Optional
     public DirectoryProperty getWorkingDir() {
@@ -75,6 +89,7 @@ public class DVTTask extends DefaultTask {
 
         if (testsRoot != null) {
             createLinkToTests();
+            buildTestInfrastructure();
         }
 
         fw.close();
@@ -88,5 +103,23 @@ public class DVTTask extends DefaultTask {
         } catch (IOException e) {
             throw new RuntimeException("Could not create 'tests' link.\n\n" + e.toString());
         }
+    }
+
+    private void buildTestInfrastructure() {
+        getProject().exec(new Action<ExecSpec>() {
+            @Override
+            public void execute(ExecSpec execSpec) {
+                execSpec.executable("bash");
+                String sourceCommands = String.join("; ",
+                    "cd " + svunitRoot.getSingleFile(),
+                    "source Setup.bsh",
+                    "cd -");
+                String buildSVUnitCommand = String.join(" ",
+                    "buildSVUnit");
+                String cArg = String.join("; ", sourceCommands, buildSVUnitCommand);
+                execSpec.args("-c", cArg);
+                execSpec.workingDir(workingDir.get().getAsFile());
+            }
+        });
     }
 }

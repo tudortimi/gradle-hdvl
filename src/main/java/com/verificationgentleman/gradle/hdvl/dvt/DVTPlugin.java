@@ -54,6 +54,7 @@ public class DVTPlugin implements Plugin<Project> {
                     @Override
                     public void execute(AppliedPlugin appliedPlugin) {
                         dvt.setTestsRoot(getTestSourceSet().getSv().getSourceDirectories().getSingleFile());
+                        dvt.setSvunitRoot(project.getConfigurations().getByName("svUnitRoot"));
                         dvt.getWorkingDir().set(new File(project.getBuildDir(), "dvt/svunit"));
                     }
 

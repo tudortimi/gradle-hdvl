@@ -131,4 +131,43 @@ class DVTPluginSpec extends Specification {
         Files.isSymbolicLink(testsLink.toPath())
         testsLink.toPath().toRealPath() == testSv.toPath()
     }
+
+    def "'testWithXrun' task executes 'buildSVUnit'"() {
+        File sv = testProjectDir.newFolder('src', 'test', 'sv')
+        new File(sv, 'dummy_unit_test.sv').createNewFile()
+
+        buildFile << """
+            plugins {
+                id 'com.verificationgentleman.gradle.hdvl.svunit'
+            }
+            dependencies {
+                testCompile "org.svunit:svunit:v3.34.2"
+            }
+        """
+
+        File settingsFile = testProjectDir.newFile('settings.gradle')
+        settingsFile << """
+            sourceControl {
+                gitRepository("https://github.com/tudortimi/svunit.git") {
+                    producesModule("org.svunit:svunit")
+                    plugins {
+                        id "com.verificationgentleman.gradle.hdvl.svunit-build-injector"
+                    }
+                }
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('dvt')
+            .build()
+
+        then:
+        result.task(":dvt").outcome == SUCCESS
+        def svunitArgsFile = new File(testProjectDir.root, 'build/dvt/svunit/.svunit.f')
+        svunitArgsFile.exists()
+        svunitArgsFile.text.contains 'dummy_unit_test.sv'
+    }
 }
