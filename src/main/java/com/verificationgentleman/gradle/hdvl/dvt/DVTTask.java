@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 public class DVTTask extends DefaultTask {
+    // TODO Fix duplication with SVUnit plugin w.r.t. executing SVUnit scripts
+
     private RegularFileProperty argsFile;
     private RegularFileProperty defaultBuild;
     private File testsRoot;
