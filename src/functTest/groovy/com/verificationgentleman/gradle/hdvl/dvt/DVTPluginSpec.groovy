@@ -25,22 +25,7 @@ import java.nio.file.Files
 
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
-class DVTPluginSpec extends Specification {
-    @Rule TemporaryFolder testProjectDir = new TemporaryFolder()
-    File buildFile
-
-    def setup() {
-        File sv = testProjectDir.newFolder('src', 'main', 'sv')
-        new File(sv, 'dummy_main.sv').createNewFile()
-
-        buildFile = testProjectDir.newFile('build.gradle')
-        buildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.dvt'
-            }
-        """
-    }
-
+class DVTPluginSpec extends AbstractDVTPluginSpec {
     def "can successfully import the plugin"() {
         when:
         def result = GradleRunner.create()
@@ -106,68 +91,5 @@ class DVTPluginSpec extends Specification {
         defaultBuild.exists()
         defaultBuild.text.contains('-f')
         defaultBuild.text.contains('full_xrun_args.f')
-    }
-
-    def "'dvt' task task creates link in build directory to tests"() {
-        File testSv = testProjectDir.newFolder('src', 'test', 'sv')
-
-        buildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.svunit'
-            }
-        """
-
-        when:
-        def result = GradleRunner.create()
-            .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
-            .withArguments(':dvt')
-            .build()
-
-        then:
-        result.task(":dvt").outcome == SUCCESS
-        def testsLink = new File(testProjectDir.root, 'build/dvt/svunit/tests')
-        testsLink.exists()
-        Files.isSymbolicLink(testsLink.toPath())
-        testsLink.toPath().toRealPath() == testSv.toPath()
-    }
-
-    def "'testWithXrun' task executes 'buildSVUnit'"() {
-        File sv = testProjectDir.newFolder('src', 'test', 'sv')
-        new File(sv, 'dummy_unit_test.sv').createNewFile()
-
-        buildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.svunit'
-            }
-            dependencies {
-                testCompile "org.svunit:svunit:v3.34.2"
-            }
-        """
-
-        File settingsFile = testProjectDir.newFile('settings.gradle')
-        settingsFile << """
-            sourceControl {
-                gitRepository("https://github.com/tudortimi/svunit.git") {
-                    producesModule("org.svunit:svunit")
-                    plugins {
-                        id "com.verificationgentleman.gradle.hdvl.svunit-build-injector"
-                    }
-                }
-            }
-        """
-
-        when:
-        def result = GradleRunner.create()
-            .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
-            .withArguments('dvt')
-            .build()
-
-        then:
-        result.task(":dvt").outcome == SUCCESS
-        def svunitArgsFile = new File(testProjectDir.root, 'build/dvt/svunit/.svunit.f')
-        svunitArgsFile.exists()
-        svunitArgsFile.text.contains 'dummy_unit_test.sv'
     }
 }
