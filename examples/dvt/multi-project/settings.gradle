@@ -1,0 +1,4 @@
+includeBuild("../../..")
+
+include 'proj0'
+include 'proj1'
