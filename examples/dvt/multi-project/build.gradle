@@ -1,0 +1,9 @@
+plugins {
+    id 'com.verificationgentleman.gradle.hdvl.systemverilog' apply false
+    id 'com.verificationgentleman.gradle.hdvl.dvt'
+}
+
+subprojects {
+    apply plugin: 'com.verificationgentleman.gradle.hdvl.systemverilog'
+    group 'com.verificationgentleman'
+}

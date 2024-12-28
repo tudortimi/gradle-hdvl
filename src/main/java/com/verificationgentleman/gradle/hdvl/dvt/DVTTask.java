@@ -17,6 +17,7 @@ package com.verificationgentleman.gradle.hdvl.dvt;
 
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RegularFileProperty;
@@ -33,7 +34,7 @@ import java.nio.file.Files;
 public class DVTTask extends DefaultTask {
     // TODO Fix duplication with SVUnit plugin w.r.t. executing SVUnit scripts
 
-    private RegularFileProperty argsFile;
+    private ConfigurableFileCollection argsFiles;
     private RegularFileProperty defaultBuild;
     private File testsRoot;
     private FileCollection svunitRoot;
@@ -41,15 +42,15 @@ public class DVTTask extends DefaultTask {
 
     @Inject
     public DVTTask(ObjectFactory objectFactory) {
-        argsFile = getProject().getObjects().fileProperty();
+        argsFiles = getProject().getObjects().fileCollection();
         defaultBuild = getProject().getObjects().fileProperty().convention(
                 getProject().getLayout().getProjectDirectory().dir(".dvt").file("default.build"));
         workingDir = objectFactory.directoryProperty();
     }
 
-    @InputFile
-    public RegularFileProperty getArgsFile() {
-        return argsFile;
+    @InputFiles
+    public ConfigurableFileCollection getArgsFiles() {
+        return argsFiles;
     }
 
     @OutputFile
@@ -87,7 +88,8 @@ public class DVTTask extends DefaultTask {
     public void generate() throws IOException {
         FileWriter fw = new FileWriter(defaultBuild.get().getAsFile());
         fw.write("+dvt_init+xcelium.xrun\n");
-        fw.write("-f " + argsFile.getAsFile().get().getAbsolutePath() + "\n");
+        for (File argsFile : argsFiles.getFiles())
+            fw.write("-f " + argsFile.getAbsolutePath() + "\n");
 
         if (testsRoot != null) {
             createLinkToTests();

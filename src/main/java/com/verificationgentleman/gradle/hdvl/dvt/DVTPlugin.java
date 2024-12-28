@@ -17,13 +17,9 @@
 package com.verificationgentleman.gradle.hdvl.dvt;
 
 import com.verificationgentleman.gradle.hdvl.GenFullArgsFile;
-import com.verificationgentleman.gradle.hdvl.HDVLBasePlugin;
 import com.verificationgentleman.gradle.hdvl.SourceSet;
 import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogSourceSet;
-import org.gradle.api.Action;
-import org.gradle.api.NamedDomainObjectContainer;
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
+import org.gradle.api.*;
 import org.gradle.api.internal.HasConvention;
 import org.gradle.api.plugins.AppliedPlugin;
 import org.gradle.api.reflect.TypeOf;
@@ -33,20 +29,28 @@ import java.io.File;
 public class DVTPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
-        project.getPluginManager().apply(HDVLBasePlugin.class);
+        if (project != project.getRootProject()) {
+            throw new InvalidUserDataException("Can only be applied to the root project. Tried to apply to " + project);
+        }
 
         project.getTasks().register("dvt", DVTTask.class, new Action<DVTTask>() {
             @Override
             public void execute(DVTTask dvt) {
                 dvt.setDescription("Generates a DVT project.");
-                setArgsFile(dvt);
+
+                project.allprojects(project -> {
+                    project.getPluginManager().withPlugin("com.verificationgentleman.gradle.hdvl.base", appliedPlugin -> {
+                        addArgsFile(dvt, project);
+                    });
+                });
+
                 maybeConfigureTests(dvt);
             }
 
-            private void setArgsFile(DVTTask dvt) {
+            private void addArgsFile(DVTTask dvt, Project sourceProject) {
                 GenFullArgsFile genFullArgsFile
-                        = dvt.getProject().getTasks().withType(GenFullArgsFile.class).getByName("genFullXrunArgsFile");
-                dvt.getArgsFile().set(genFullArgsFile.getDestination());
+                        = sourceProject.getTasks().withType(GenFullArgsFile.class).getByName("genFullXrunArgsFile");
+                dvt.getArgsFiles().from(genFullArgsFile.getDestination());
             }
 
             private void maybeConfigureTests(DVTTask dvt) {
