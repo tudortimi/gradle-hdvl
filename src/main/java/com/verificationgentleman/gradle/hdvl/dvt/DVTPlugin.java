@@ -39,8 +39,8 @@ public class DVTPlugin implements Plugin<Project> {
 
                 project.getPluginManager().withPlugin("com.verificationgentleman.gradle.hdvl.base", appliedPlugin -> {
                     addArgsFile(dvt, project);
-                    maybeConfigureTests(dvt);
                 });
+                maybeConfigureTests(dvt);
 
                 project.subprojects(subproject -> {
                     subproject.getPluginManager().withPlugin("com.verificationgentleman.gradle.hdvl.base", appliedPlugin -> {
