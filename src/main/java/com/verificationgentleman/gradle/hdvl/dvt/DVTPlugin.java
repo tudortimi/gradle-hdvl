@@ -37,16 +37,13 @@ public class DVTPlugin implements Plugin<Project> {
             public void execute(DVTTask dvt) {
                 dvt.setDescription("Generates a DVT project.");
 
-                project.getPluginManager().withPlugin("com.verificationgentleman.gradle.hdvl.base", appliedPlugin -> {
-                    addArgsFile(dvt, project);
-                });
-                maybeConfigureTests(dvt);
-
-                project.subprojects(subproject -> {
-                    subproject.getPluginManager().withPlugin("com.verificationgentleman.gradle.hdvl.base", appliedPlugin -> {
-                        addArgsFile(dvt, subproject);
+                project.allprojects(project -> {
+                    project.getPluginManager().withPlugin("com.verificationgentleman.gradle.hdvl.base", appliedPlugin -> {
+                        addArgsFile(dvt, project);
                     });
                 });
+
+                maybeConfigureTests(dvt);
             }
 
             private void addArgsFile(DVTTask dvt, Project sourceProject) {
