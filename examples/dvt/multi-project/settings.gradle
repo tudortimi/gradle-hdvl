@@ -2,3 +2,12 @@ includeBuild("../../..")
 
 include 'proj0'
 include 'proj1'
+
+sourceControl {
+    gitRepository("https://github.com/svunit/svunit.git") {
+        producesModule("org.svunit:svunit")
+        plugins {
+            id "com.verificationgentleman.gradle.hdvl.svunit-build-injector"
+        }
+    }
+}

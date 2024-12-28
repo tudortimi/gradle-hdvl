@@ -1,9 +1,16 @@
 plugins {
     id 'com.verificationgentleman.gradle.hdvl.systemverilog' apply false
+    id 'com.verificationgentleman.gradle.hdvl.svunit' apply false
     id 'com.verificationgentleman.gradle.hdvl.dvt'
 }
 
 subprojects {
     apply plugin: 'com.verificationgentleman.gradle.hdvl.systemverilog'
+    apply plugin: 'com.verificationgentleman.gradle.hdvl.svunit'
+
     group 'com.verificationgentleman'
+
+    dependencies {
+        testCompile "org.svunit:svunit:v3.38.0"
+    }
 }
