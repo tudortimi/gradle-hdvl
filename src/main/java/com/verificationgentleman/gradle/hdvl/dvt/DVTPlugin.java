@@ -19,10 +19,7 @@ package com.verificationgentleman.gradle.hdvl.dvt;
 import com.verificationgentleman.gradle.hdvl.GenFullArgsFile;
 import com.verificationgentleman.gradle.hdvl.SourceSet;
 import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogSourceSet;
-import org.gradle.api.Action;
-import org.gradle.api.NamedDomainObjectContainer;
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
+import org.gradle.api.*;
 import org.gradle.api.internal.HasConvention;
 import org.gradle.api.plugins.AppliedPlugin;
 import org.gradle.api.reflect.TypeOf;
@@ -32,6 +29,10 @@ import java.io.File;
 public class DVTPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
+        if (project != project.getRootProject()) {
+            throw new InvalidUserDataException("Can only be applied to the root project. Tried to apply to " + project);
+        }
+
         project.getTasks().register("dvt", DVTTask.class, new Action<DVTTask>() {
             @Override
             public void execute(DVTTask dvt) {
