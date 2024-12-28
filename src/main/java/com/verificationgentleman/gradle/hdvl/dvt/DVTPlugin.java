@@ -57,9 +57,9 @@ public class DVTPlugin implements Plugin<Project> {
                 project.getPluginManager().withPlugin("com.verificationgentleman.gradle.hdvl.svunit", new Action<AppliedPlugin>() {
                     @Override
                     public void execute(AppliedPlugin appliedPlugin) {
-                        dvt.setTestsRoot(getTestSourceSet().getSv().getSourceDirectories().getSingleFile());
-                        dvt.setSvunitRoot(project.getConfigurations().getByName("svUnitRoot"));
-                        dvt.getWorkingDir().set(new File(project.getBuildDir(), "dvt/svunit"));
+                        dvt.getSvUnitSetup().getTestsRoot().set(getTestSourceSet().getSv().getSourceDirectories().getSingleFile());
+                        dvt.getSvUnitSetup().getSvunitRoot().setFrom(project.getConfigurations().getByName("svUnitRoot"));
+                        dvt.getSvUnitSetup().getWorkingDir().set(new File(project.getBuildDir(), "dvt/svunit"));
                     }
 
                     private SystemVerilogSourceSet getTestSourceSet() {
