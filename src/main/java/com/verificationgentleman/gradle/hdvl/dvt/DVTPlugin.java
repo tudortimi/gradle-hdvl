@@ -46,7 +46,7 @@ public class DVTPlugin implements Plugin<Project> {
             private void setArgsFile(DVTTask dvt) {
                 GenFullArgsFile genFullArgsFile
                         = dvt.getProject().getTasks().withType(GenFullArgsFile.class).getByName("genFullXrunArgsFile");
-                dvt.getArgsFile().set(genFullArgsFile.getDestination());
+                dvt.getArgsFiles().setFrom(genFullArgsFile.getDestination());
             }
 
             private void maybeConfigureTests(DVTTask dvt) {
