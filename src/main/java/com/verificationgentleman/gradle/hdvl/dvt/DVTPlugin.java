@@ -41,6 +41,14 @@ public class DVTPlugin implements Plugin<Project> {
                     setArgsFile(dvt);
                     maybeConfigureTests(dvt);
                 });
+
+                project.subprojects(subproject -> {
+                    subproject.getPluginManager().withPlugin("com.verificationgentleman.gradle.hdvl.base", appliedPlugin -> {
+                        GenFullArgsFile genFullArgsFile
+                            = subproject.getTasks().withType(GenFullArgsFile.class).getByName("genFullXrunArgsFile");
+                        dvt.getArgsFiles().from(genFullArgsFile.getDestination());
+                    });
+                });
             }
 
             private void setArgsFile(DVTTask dvt) {
