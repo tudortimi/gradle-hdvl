@@ -17,7 +17,6 @@
 package com.verificationgentleman.gradle.hdvl.dvt;
 
 import com.verificationgentleman.gradle.hdvl.GenFullArgsFile;
-import com.verificationgentleman.gradle.hdvl.HDVLBasePlugin;
 import com.verificationgentleman.gradle.hdvl.SourceSet;
 import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogSourceSet;
 import org.gradle.api.Action;
@@ -33,14 +32,15 @@ import java.io.File;
 public class DVTPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
-        project.getPluginManager().apply(HDVLBasePlugin.class);
-
         project.getTasks().register("dvt", DVTTask.class, new Action<DVTTask>() {
             @Override
             public void execute(DVTTask dvt) {
                 dvt.setDescription("Generates a DVT project.");
-                setArgsFile(dvt);
-                maybeConfigureTests(dvt);
+
+                project.getPluginManager().withPlugin("com.verificationgentleman.gradle.hdvl.base", appliedPlugin -> {
+                    setArgsFile(dvt);
+                    maybeConfigureTests(dvt);
+                });
             }
 
             private void setArgsFile(DVTTask dvt) {
