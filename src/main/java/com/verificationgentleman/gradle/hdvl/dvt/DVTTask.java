@@ -21,7 +21,11 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.tasks.*;
+import org.gradle.api.provider.SetProperty;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Nested;
+import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecSpec;
 
 import javax.inject.Inject;
@@ -54,7 +58,7 @@ public abstract class DVTTask extends DefaultTask {
     }
 
     @Nested
-    public abstract SVUnitSetup getSvUnitSetup();
+    public abstract SetProperty<SVUnitSetup> getSvUnitSetups();
 
     @TaskAction
     public void generate() throws IOException {
@@ -63,39 +67,39 @@ public abstract class DVTTask extends DefaultTask {
         for (File argsFile : argsFiles.getFiles())
             fw.write("-f " + argsFile.getAbsolutePath() + "\n");
 
-        if (getSvUnitSetup().getTestsRoot().isPresent()) {
-            createLinkToTests();
-            buildTestInfrastructure();
-            fw.write("-F " + getSvUnitSetup().getWorkingDir().file(".svunit.f").get().getAsFile().getAbsolutePath());
+        for (SVUnitSetup svUnitSetup : getSvUnitSetups().get()) {
+            createLinkToTests(svUnitSetup);
+            buildTestInfrastructure(svUnitSetup);
+            fw.write("-F " + svUnitSetup.getWorkingDir().file(".svunit.f\n").get().getAsFile().getAbsolutePath());
         }
 
         fw.close();
     }
 
-    private void createLinkToTests() {
+    private void createLinkToTests(SVUnitSetup svUnitSetup) {
         try {
-            File testsLink = new File(getSvUnitSetup().getWorkingDir().get().getAsFile(), "tests");
+            File testsLink = new File(svUnitSetup.getWorkingDir().get().getAsFile(), "tests");
             Files.deleteIfExists(testsLink.toPath());
-            Files.createSymbolicLink(testsLink.toPath(), getSvUnitSetup().getTestsRoot().get().getAsFile().toPath());
+            Files.createSymbolicLink(testsLink.toPath(), svUnitSetup.getTestsRoot().get().getAsFile().toPath());
         } catch (IOException e) {
             throw new RuntimeException("Could not create 'tests' link.\n\n" + e.toString());
         }
     }
 
-    private void buildTestInfrastructure() {
+    private void buildTestInfrastructure(SVUnitSetup svUnitSetup) {
         getProject().exec(new Action<ExecSpec>() {
             @Override
             public void execute(ExecSpec execSpec) {
                 execSpec.executable("bash");
                 String sourceCommands = String.join("; ",
-                    "cd " + getSvUnitSetup().getSvunitRoot().getSingleFile(),
+                    "cd " + svUnitSetup.getSvunitRoot().getSingleFile(),
                     "source Setup.bsh",
                     "cd -");
                 String buildSVUnitCommand = String.join(" ",
                     "buildSVUnit");
                 String cArg = String.join("; ", sourceCommands, buildSVUnitCommand);
                 execSpec.args("-c", cArg);
-                execSpec.workingDir(getSvUnitSetup().getWorkingDir().get().getAsFile());
+                execSpec.workingDir(svUnitSetup.getWorkingDir().get().getAsFile());
             }
         });
     }
