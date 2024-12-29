@@ -5,9 +5,12 @@ plugins {
 sourceSets {
     main {
         sv {
-            order {
-                first 'dummy1.sv'
-            }
+            // FIXME Work towards this DSL
+            // order {
+            //     first 'dummy1.sv'
+            // }
+
+            first 'dummy1.sv'
         }
     }
 }
