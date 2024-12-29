@@ -29,18 +29,27 @@ class DVTPluginInMultiProjectBuildSpec extends Specification {
     def setup() {
         File sv0 = testProjectDir.newFolder('proj0', 'src', 'main', 'sv')
         new File(sv0, 'proj0.sv').createNewFile()
+        File testSv0 = testProjectDir.newFolder('proj0', 'src', 'test', 'sv')
+        new File(testSv0, 'proj0_unit_test.sv').createNewFile()
 
         File sv1 = testProjectDir.newFolder('proj1', 'src', 'main', 'sv')
-        new File(sv0, 'proj1.sv').createNewFile()
+        new File(sv1, 'proj1.sv').createNewFile()
+        File testSv1= testProjectDir.newFolder('proj1', 'src', 'test', 'sv')
+        new File(testSv1, 'proj1_unit_test.sv').createNewFile()
 
         File buildFile = testProjectDir.newFile('build.gradle')
         buildFile << """
             plugins {
                 id 'com.verificationgentleman.gradle.hdvl.systemverilog' apply false
+                id 'com.verificationgentleman.gradle.hdvl.svunit' apply false
                 id 'com.verificationgentleman.gradle.hdvl.dvt'
             }
             subprojects {
                 apply plugin: 'com.verificationgentleman.gradle.hdvl.systemverilog'
+                apply plugin: 'com.verificationgentleman.gradle.hdvl.svunit'
+                dependencies {
+                    testCompile "org.svunit:svunit:v3.34.2"
+                }
             }
         """
 
@@ -48,6 +57,14 @@ class DVTPluginInMultiProjectBuildSpec extends Specification {
         settingsFile << """
             include 'proj0'
             include 'proj1'
+            sourceControl {
+                gitRepository("https://github.com/tudortimi/svunit.git") {
+                    producesModule("org.svunit:svunit")
+                    plugins {
+                        id "com.verificationgentleman.gradle.hdvl.svunit-build-injector"
+                    }
+                }
+            }
         """
     }
 
@@ -64,5 +81,20 @@ class DVTPluginInMultiProjectBuildSpec extends Specification {
         def defaultBuild = new File(testProjectDir.root, '.dvt/default.build')
         defaultBuild.text.contains "proj0"
         defaultBuild.text.contains "proj1"
+    }
+
+    def "'dvt' task includes SVUnit args files of both projects in 'default.build'"() {
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('dvt')
+            .build()
+
+        then:
+        result.task(":dvt").outcome == SUCCESS
+        def defaultBuild = new File(testProjectDir.root, '.dvt/default.build')
+        def svunitLines = defaultBuild.readLines().findAll() { it.contains('.svunit.f') }
+        svunitLines.size() == 2
     }
 }

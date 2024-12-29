@@ -18,10 +18,10 @@ package com.verificationgentleman.gradle.hdvl.dvt;
 
 import com.verificationgentleman.gradle.hdvl.GenFullArgsFile;
 import com.verificationgentleman.gradle.hdvl.SourceSet;
+import com.verificationgentleman.gradle.hdvl.dvt.internal.SVUnitSetup;
 import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogSourceSet;
 import org.gradle.api.*;
 import org.gradle.api.internal.HasConvention;
-import org.gradle.api.plugins.AppliedPlugin;
 import org.gradle.api.reflect.TypeOf;
 
 import java.io.File;
@@ -42,9 +42,10 @@ public class DVTPlugin implements Plugin<Project> {
                     project.getPluginManager().withPlugin("com.verificationgentleman.gradle.hdvl.base", appliedPlugin -> {
                         addArgsFile(dvt, project);
                     });
+                    project.getPluginManager().withPlugin("com.verificationgentleman.gradle.hdvl.svunit", appliedPlugin -> {
+                        maybeConfigureTests(dvt, project);
+                    });
                 });
-
-                maybeConfigureTests(dvt);
             }
 
             private void addArgsFile(DVTTask dvt, Project sourceProject) {
@@ -53,22 +54,19 @@ public class DVTPlugin implements Plugin<Project> {
                 dvt.getArgsFiles().from(genFullArgsFile.getDestination());
             }
 
-            private void maybeConfigureTests(DVTTask dvt) {
-                project.getPluginManager().withPlugin("com.verificationgentleman.gradle.hdvl.svunit", new Action<AppliedPlugin>() {
-                    @Override
-                    public void execute(AppliedPlugin appliedPlugin) {
-                        dvt.setTestsRoot(getTestSourceSet().getSv().getSourceDirectories().getSingleFile());
-                        dvt.setSvunitRoot(project.getConfigurations().getByName("svUnitRoot"));
-                        dvt.getWorkingDir().set(new File(project.getBuildDir(), "dvt/svunit"));
-                    }
+            private void maybeConfigureTests(DVTTask dvt, Project sourceProject) {
+                SVUnitSetup svUnitSetup = dvt.getProject().getObjects().newInstance(SVUnitSetup.class);
+                svUnitSetup.getTestsRoot().set(getTestSourceSet(sourceProject).getSv().getSourceDirectories().getSingleFile());
+                svUnitSetup.getSvunitRoot().setFrom(sourceProject.getConfigurations().getByName("svUnitRoot"));
+                svUnitSetup.getWorkingDir().set(new File(sourceProject.getBuildDir(), "dvt/svunit"));
+                dvt.getSvUnitSetups().add(svUnitSetup);
+            }
 
-                    private SystemVerilogSourceSet getTestSourceSet() {
-                        NamedDomainObjectContainer<SourceSet> sourceSets = project.getExtensions()
-                            .getByType(new TypeOf<NamedDomainObjectContainer<SourceSet>>() {});
-                        HasConvention sourceSetWithConvention = (HasConvention) sourceSets.getByName("test");
-                        return (SystemVerilogSourceSet) sourceSetWithConvention.getConvention().getPlugins().get("sv");
-                    }
-                });
+            private SystemVerilogSourceSet getTestSourceSet(Project sourceProject) {
+                NamedDomainObjectContainer<SourceSet> sourceSets = sourceProject.getExtensions()
+                    .getByType(new TypeOf<NamedDomainObjectContainer<SourceSet>>() {});
+                HasConvention sourceSetWithConvention = (HasConvention) sourceSets.getByName("test");
+                return (SystemVerilogSourceSet) sourceSetWithConvention.getConvention().getPlugins().get("sv");
             }
         });
     }
