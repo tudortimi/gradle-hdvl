@@ -57,6 +57,7 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                 if (sourceSet.getName() == "main") {
                     project.getTasks().withType(WriteCompileSpecFile.class, task -> {
                         task.getSvSource().from(svSourceSet.getSv());
+                        task.getSvSourceOrder().set(svSourceSet.getSv().getOrder());
                         task.getSvPrivateIncludeDirs().from(svSourceSet.getSv().getSourceDirectories().filter(File::exists));
                         task.getSvExportedHeaderDirs().from(svSourceSet.getSvHeaders().getSourceDirectories().filter(File::exists));
                     });
