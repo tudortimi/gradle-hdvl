@@ -54,6 +54,7 @@ public class DefaultSystemVerilogSourceDirectorySet extends DefaultSourceDirecto
 
     private static class Order implements FileOrder, Serializable {
         private String first;
+        private String last;
 
         @Override
         public String getFirst() {
@@ -63,6 +64,17 @@ public class DefaultSystemVerilogSourceDirectorySet extends DefaultSourceDirecto
         @Override
         public FileOrder first(String first) {
             this.first = first;
+            return this;
+        }
+
+        @Override
+        public String getLast() {
+            return last;
+        }
+
+        @Override
+        public FileOrder last(String last) {
+            this.last = last;
             return this;
         }
     }
