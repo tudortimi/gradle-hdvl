@@ -24,12 +24,11 @@ import org.gradle.api.internal.file.FileCollectionFactory;
 import org.gradle.api.internal.file.collections.DirectoryFileTreeFactory;
 import org.gradle.api.internal.tasks.TaskDependencyFactory;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.provider.Property;
-import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.util.PatternSet;
 import org.gradle.internal.Factory;
 
 import javax.inject.Inject;
+import java.io.Serializable;
 
 public class DefaultSystemVerilogSourceDirectorySet extends DefaultSourceDirectorySet implements SystemVerilogSourceDirectorySet {
     // TODO Stop using internal class by using decorator pattern
@@ -39,7 +38,7 @@ public class DefaultSystemVerilogSourceDirectorySet extends DefaultSourceDirecto
     @Inject
     public DefaultSystemVerilogSourceDirectorySet(String name, String displayName, Factory<PatternSet> patternSetFactory, TaskDependencyFactory taskDependencyFactory, FileCollectionFactory fileCollectionFactory, DirectoryFileTreeFactory directoryFileTreeFactory, ObjectFactory objectFactory) {
         super(name, displayName, patternSetFactory, taskDependencyFactory, fileCollectionFactory, directoryFileTreeFactory, objectFactory);
-        order = new Order(objectFactory);
+        order = new Order();
     }
 
     @Override
@@ -53,21 +52,17 @@ public class DefaultSystemVerilogSourceDirectorySet extends DefaultSourceDirecto
         return this;
     }
 
-    private static class Order implements FileOrder {
-        private final Property<String> first;
-
-        Order(ObjectFactory objectFactory) {
-            first = objectFactory.property(String.class);
-        }
+    private static class Order implements FileOrder, Serializable {
+        private String first;
 
         @Override
-        public Provider<String> getFirst() {
+        public String getFirst() {
             return first;
         }
 
         @Override
         public FileOrder first(String first) {
-            this.first.set(first);
+            this.first = first;
             return this;
         }
     }

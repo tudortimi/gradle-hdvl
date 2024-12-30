@@ -91,7 +91,7 @@ public class SystemVerilogPlugin implements Plugin<Project> {
 
     private void configureSources(AbstractGenArgsFile genArgsFile, SystemVerilogSourceSet svSourceSet) {
         genArgsFile.setSource(svSourceSet.getSv());
-        genArgsFile.getFirst().set(svSourceSet.getSv().getOrder().getFirst());
+        genArgsFile.getSvOrder().set(svSourceSet.getSv().getOrder());
         genArgsFile.setPrivateIncludeDirs(svSourceSet.getSv().getSourceDirectories());
         genArgsFile.setExportedIncludeDirs(svSourceSet.getSvHeaders().getSourceDirectories());
     }

@@ -16,6 +16,7 @@
 
 package com.verificationgentleman.gradle.hdvl;
 
+import com.verificationgentleman.gradle.hdvl.systemverilog.FileOrder;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.file.RegularFileProperty;
@@ -50,7 +51,7 @@ public abstract class AbstractGenArgsFile extends SourceTask {
 
     @Input
     @Optional
-    public abstract Property<String> getFirst();
+    public abstract Property<FileOrder> getSvOrder();
 
     @InputFiles
     @SkipWhenEmpty
@@ -130,10 +131,10 @@ public abstract class AbstractGenArgsFile extends SourceTask {
     private Iterable<File> getOrderedSystemVerilogSourceFiles() {
         List<File> result = new ArrayList<>(getSource().getFiles());
 
-        if (!getFirst().isPresent())
+        if (!getSvOrder().isPresent() || getSvOrder().get().getFirst() == null)
             return result;
 
-        String first = getFirst().get();
+        String first = getSvOrder().get().getFirst();
 
         int indexOfFirstFile = IntStream.range(0, result.size())
             .filter(i -> result.get(i).getName().equals(first))

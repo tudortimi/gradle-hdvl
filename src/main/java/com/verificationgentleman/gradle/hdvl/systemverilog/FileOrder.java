@@ -16,9 +16,7 @@
 
 package com.verificationgentleman.gradle.hdvl.systemverilog;
 
-import org.gradle.api.provider.Provider;
-
 public interface FileOrder {
-    Provider<String> getFirst();
+    String getFirst();
     FileOrder first(String first);
 }
