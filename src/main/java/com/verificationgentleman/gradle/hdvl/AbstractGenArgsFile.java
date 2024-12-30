@@ -30,7 +30,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
 
 public abstract class AbstractGenArgsFile extends SourceTask {
 
@@ -129,23 +128,15 @@ public abstract class AbstractGenArgsFile extends SourceTask {
     protected abstract String getIncdirOpt(String incdirPath);
 
     private Iterable<File> getOrderedSystemVerilogSourceFiles() {
-        List<File> result = new ArrayList<>(getSource().getFiles());
-
         if (!getSvOrder().isPresent() || getSvOrder().get().getFirst() == null)
-            return result;
+            return getSource();
 
         String first = getSvOrder().get().getFirst();
+        FileTree firstFiles = getSource().matching(patternFilterable -> patternFilterable.include(first));
 
-        int indexOfFirstFile = IntStream.range(0, result.size())
-            .filter(i -> result.get(i).getName().equals(first))
-            .findFirst()
-            .orElse(-1);
-
-        if (indexOfFirstFile > 0) {
-            File firstFile = result.get(indexOfFirstFile);
-            result.remove(indexOfFirstFile);
-            result.add(0, firstFile);
-        }
+        List<File> result = new ArrayList<>();
+        result.addAll(firstFiles.getFiles());
+        result.addAll(getSource().minus(firstFiles).getFiles());
 
         return result;
     }
