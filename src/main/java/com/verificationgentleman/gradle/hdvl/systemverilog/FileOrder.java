@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,9 @@
  * limitations under the License.
  */
 
-package com.verificationgentleman.gradle.hdvl;
+package com.verificationgentleman.gradle.hdvl.systemverilog;
 
-import org.gradle.api.model.ObjectFactory;
-
-import javax.inject.Inject;
-
-public abstract class GenQrunArgsFile extends AbstractGenArgsFile {
-
-    @Inject
-    public GenQrunArgsFile(ObjectFactory objectFactory) {
-        super(objectFactory);
-    }
-
-    @Override
-    protected String getLibName() {
-        return "work";
-    }
-
-    @Override
-    protected String getIncdirOpt(String incdirPath) {
-        return "+incdir+" + incdirPath;
-    }
-
+public interface FileOrder {
+    String getFirst();
+    FileOrder first(String first);
 }

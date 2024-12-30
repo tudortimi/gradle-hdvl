@@ -16,16 +16,21 @@
 
 package com.verificationgentleman.gradle.hdvl;
 
+import com.verificationgentleman.gradle.hdvl.systemverilog.FileOrder;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.*;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
 
 public abstract class AbstractGenArgsFile extends SourceTask {
 
@@ -43,6 +48,10 @@ public abstract class AbstractGenArgsFile extends SourceTask {
     public RegularFileProperty getDestination() {
         return destination;
     }
+
+    @Input
+    @Optional
+    public abstract Property<FileOrder> getSvOrder();
 
     @InputFiles
     @SkipWhenEmpty
@@ -96,7 +105,7 @@ public abstract class AbstractGenArgsFile extends SourceTask {
         writer.write("-makelib " + getLibName() + "\n");
         for (File f: getPrivateIncludeDirs().filter((File::exists)))
             writer.write("  " + getIncdirOpt(f.getAbsolutePath()) + "\n");
-        for (File f: getSource())
+        for (File f: getOrderedSystemVerilogSourceFiles())
             writer.write("  " + f.getAbsolutePath() + "\n");
         for (File f: getCSource())
             writer.write("  " + f.getAbsolutePath() + "\n");
@@ -118,4 +127,26 @@ public abstract class AbstractGenArgsFile extends SourceTask {
     protected abstract String getLibName();
 
     protected abstract String getIncdirOpt(String incdirPath);
+
+    private Iterable<File> getOrderedSystemVerilogSourceFiles() {
+        List<File> result = new ArrayList<>(getSource().getFiles());
+
+        if (!getSvOrder().isPresent() || getSvOrder().get().getFirst() == null)
+            return result;
+
+        String first = getSvOrder().get().getFirst();
+
+        int indexOfFirstFile = IntStream.range(0, result.size())
+            .filter(i -> result.get(i).getName().equals(first))
+            .findFirst()
+            .orElse(-1);
+
+        if (indexOfFirstFile > 0) {
+            File firstFile = result.get(indexOfFirstFile);
+            result.remove(indexOfFirstFile);
+            result.add(0, firstFile);
+        }
+
+        return result;
+    }
 }

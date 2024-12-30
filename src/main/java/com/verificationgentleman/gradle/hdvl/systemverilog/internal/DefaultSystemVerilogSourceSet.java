@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2021-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.verificationgentleman.gradle.hdvl.systemverilog.internal;
 
+import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogSourceDirectorySet;
 import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogSourceSet;
 import groovy.lang.Closure;
 import org.gradle.api.Action;
@@ -28,12 +29,12 @@ import javax.inject.Inject;
 import static org.gradle.util.ConfigureUtil.configure;
 
 public class DefaultSystemVerilogSourceSet implements SystemVerilogSourceSet {
-    private final SourceDirectorySet sv;
+    private final DefaultSystemVerilogSourceDirectorySet sv;
     private final SourceDirectorySet svHeaders;
 
     @Inject
     public DefaultSystemVerilogSourceSet(String name, ObjectFactory objectFactory) {
-        sv = objectFactory.sourceDirectorySet("sv", "SystemVerilog source");
+        sv = objectFactory.newInstance(DefaultSystemVerilogSourceDirectorySet.class, "sv", "SystemVerilog source");
         sv.srcDir("src/" + name + "/sv");
         sv.getFilter().include("**/*.sv");
 
@@ -42,7 +43,7 @@ public class DefaultSystemVerilogSourceSet implements SystemVerilogSourceSet {
     }
 
     @Override
-    public SourceDirectorySet getSv() {
+    public SystemVerilogSourceDirectorySet getSv() {
         return sv;
     }
 
@@ -54,7 +55,7 @@ public class DefaultSystemVerilogSourceSet implements SystemVerilogSourceSet {
     }
 
     @Override
-    public DefaultSystemVerilogSourceSet sv(Action<? super SourceDirectorySet> configureAction) {
+    public DefaultSystemVerilogSourceSet sv(Action<? super SystemVerilogSourceDirectorySet> configureAction) {
         configureAction.execute(getSv());
         return this;
     }

@@ -1,0 +1,13 @@
+plugins {
+    id("com.verificationgentleman.gradle.hdvl.systemverilog")
+}
+
+sourceSets {
+    main {
+        sv {
+            order {
+                first 'dummy1.sv'
+            }
+        }
+    }
+}
