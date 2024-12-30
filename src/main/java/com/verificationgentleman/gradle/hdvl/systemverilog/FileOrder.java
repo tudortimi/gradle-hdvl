@@ -16,12 +16,9 @@
 
 package com.verificationgentleman.gradle.hdvl.systemverilog;
 
-import org.gradle.api.Action;
-import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.provider.Provider;
 
-public interface SystemVerilogSourceDirectorySet extends SourceDirectorySet {
-
-    FileOrder getOrder();
-
-    SystemVerilogSourceDirectorySet order(Action<FileOrder> configureAction);
+public interface FileOrder {
+    Provider<String> getFirst();
+    FileOrder first(String first);
 }

@@ -1384,7 +1384,7 @@ class SystemVerilogPluginSpec extends Specification {
         new File(mainSv, "file1.sv").createNewFile()
 
         buildFile << """
-            sourceSets.main.sv.first 'file1.sv'
+            sourceSets.main.sv.order.first 'file1.sv'
         """
 
         when:

@@ -16,7 +16,9 @@
 
 package com.verificationgentleman.gradle.hdvl.systemverilog.internal;
 
+import com.verificationgentleman.gradle.hdvl.systemverilog.FileOrder;
 import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogSourceDirectorySet;
+import org.gradle.api.Action;
 import org.gradle.api.internal.file.DefaultSourceDirectorySet;
 import org.gradle.api.internal.file.FileCollectionFactory;
 import org.gradle.api.internal.file.collections.DirectoryFileTreeFactory;
@@ -32,22 +34,41 @@ import javax.inject.Inject;
 public class DefaultSystemVerilogSourceDirectorySet extends DefaultSourceDirectorySet implements SystemVerilogSourceDirectorySet {
     // TODO Stop using internal class by using decorator pattern
 
-    private final Property<String> first;
+    private final Order order;
 
     @Inject
     public DefaultSystemVerilogSourceDirectorySet(String name, String displayName, Factory<PatternSet> patternSetFactory, TaskDependencyFactory taskDependencyFactory, FileCollectionFactory fileCollectionFactory, DirectoryFileTreeFactory directoryFileTreeFactory, ObjectFactory objectFactory) {
         super(name, displayName, patternSetFactory, taskDependencyFactory, fileCollectionFactory, directoryFileTreeFactory, objectFactory);
-        first = objectFactory.property(String.class);
+        order = new Order(objectFactory);
     }
 
     @Override
-    public Provider<String> getFirst() {
-        return first;
+    public FileOrder getOrder() {
+        return order;
     }
 
     @Override
-    public SystemVerilogSourceDirectorySet first(String first) {
-        this.first.set(first);
+    public SystemVerilogSourceDirectorySet order(Action<FileOrder> configureAction) {
+        configureAction.execute(getOrder());
         return this;
+    }
+
+    private static class Order implements FileOrder {
+        private final Property<String> first;
+
+        Order(ObjectFactory objectFactory) {
+            first = objectFactory.property(String.class);
+        }
+
+        @Override
+        public Provider<String> getFirst() {
+            return first;
+        }
+
+        @Override
+        public FileOrder first(String first) {
+            this.first.set(first);
+            return this;
+        }
     }
 }
