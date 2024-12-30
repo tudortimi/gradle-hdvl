@@ -128,16 +128,32 @@ public abstract class AbstractGenArgsFile extends SourceTask {
     protected abstract String getIncdirOpt(String incdirPath);
 
     private Iterable<File> getOrderedSystemVerilogSourceFiles() {
-        if (!getSvOrder().isPresent() || getSvOrder().get().getFirst() == null)
+        if (!getSvOrder().isPresent() || (getSvOrder().get().getFirst() == null && getSvOrder().get().getLast() == null))
             return getSource();
 
-        String first = getSvOrder().get().getFirst();
-        FileTree firstFiles = getSource().matching(patternFilterable -> patternFilterable.include(first));
+        if (getSvOrder().get().getFirst() != null) {
+            String first = getSvOrder().get().getFirst();
+            FileTree firstFiles = getSource().matching(patternFilterable -> patternFilterable.include(first));
 
-        List<File> result = new ArrayList<>();
-        result.addAll(firstFiles.getFiles());
-        result.addAll(getSource().minus(firstFiles).getFiles());
+            List<File> result = new ArrayList<>();
+            result.addAll(firstFiles.getFiles());
+            result.addAll(getSource().minus(firstFiles).getFiles());
 
-        return result;
+            return result;
+        }
+
+        if (getSvOrder().get().getLast() != null) {
+            String last = getSvOrder().get().getLast();
+            FileTree lastFiles = getSource().matching(patternFilterable -> patternFilterable.include(last));
+
+            List<File> result = new ArrayList<>();
+            result.addAll(getSource().minus(lastFiles).getFiles());
+            result.addAll(lastFiles.getFiles());
+
+            return result;
+        }
+
+        // FIXME Implement support for both `first` and `last`
+        return null;
     }
 }
