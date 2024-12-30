@@ -9,6 +9,7 @@ import org.gradle.api.tasks.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class WriteCompileSpecFile extends DefaultTask {
     private final RegularFileProperty destination;
@@ -62,7 +63,7 @@ public class WriteCompileSpecFile extends DefaultTask {
 
     @TaskAction
     protected void generateJson() {
-        DefaultHDVLCompileSpec compileSpec = new DefaultHDVLCompileSpec(getSvSource().getFiles(),
+        DefaultHDVLCompileSpec compileSpec = new DefaultHDVLCompileSpec(new ArrayList<>(getSvSource().getFiles()),
                 svPrivateIncludeDirs.getFiles(), svExportedHeaderDirs.getFiles(), cSourceFiles.getFiles());
         try {
             ObjectMapper objectMapper = new ObjectMapper();
