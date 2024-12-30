@@ -17,6 +17,9 @@
 package com.verificationgentleman.gradle.hdvl.systemverilog;
 
 public interface FileOrder {
-    String getFirst();
-    FileOrder first(String first);
+	String getFirst();
+	FileOrder first(String first);
+
+	String getLast();
+	FileOrder last(String last);
 }

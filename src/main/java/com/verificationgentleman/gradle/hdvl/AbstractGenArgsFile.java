@@ -128,16 +128,29 @@ public abstract class AbstractGenArgsFile extends SourceTask {
     protected abstract String getIncdirOpt(String incdirPath);
 
     private Iterable<File> getOrderedSystemVerilogSourceFiles() {
-        if (!getSvOrder().isPresent() || getSvOrder().get().getFirst() == null)
+        if (!getSvOrder().isPresent() || (getSvOrder().get().getFirst() == null && getSvOrder().get().getLast() == null))
             return getSource();
 
+        FileTree firstFiles = newEmptyFileTree();
+        FileTree lastFiles = newEmptyFileTree();
+
         String first = getSvOrder().get().getFirst();
-        FileTree firstFiles = getSource().matching(patternFilterable -> patternFilterable.include(first));
+        if (first != null)
+            firstFiles = getSource().matching(patternFilterable -> patternFilterable.include(first));
+
+        String last = getSvOrder().get().getLast();
+        if (last != null)
+            lastFiles = getSource().matching(patternFilterable -> patternFilterable.include(last));
 
         List<File> result = new ArrayList<>();
         result.addAll(firstFiles.getFiles());
-        result.addAll(getSource().minus(firstFiles).getFiles());
+        result.addAll(getSource().minus(firstFiles).minus(lastFiles).getFiles());
+        result.addAll(lastFiles.getFiles());
 
         return result;
+    }
+
+    private FileTree newEmptyFileTree() {
+        return getProject().files().getAsFileTree();
     }
 }
