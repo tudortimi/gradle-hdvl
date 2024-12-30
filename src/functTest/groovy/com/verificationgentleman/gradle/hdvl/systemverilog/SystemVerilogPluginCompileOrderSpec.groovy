@@ -26,6 +26,7 @@ import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 class SystemVerilogPluginCompileOrderSpec extends Specification {
     @Rule TemporaryFolder testProjectDir = new TemporaryFolder()
     File buildFile
+    File mainSv
 
     def setup() {
         buildFile = testProjectDir.newFile('build.gradle')
@@ -34,10 +35,11 @@ class SystemVerilogPluginCompileOrderSpec extends Specification {
                 id 'com.verificationgentleman.gradle.hdvl.systemverilog'
             }
         """
+
+        mainSv = testProjectDir.newFolder('src', 'main', 'sv')
     }
 
     def "can compile a given sv source file first"() {
-        File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(mainSv, "file0.sv").createNewFile()
         new File(mainSv, "file1.sv").createNewFile()
 
@@ -64,5 +66,39 @@ class SystemVerilogPluginCompileOrderSpec extends Specification {
         lineWithFile1 != -1
 
         lineWithFile1 < lineWithFile0
+    }
+
+    def "can compile matching source files first"() {
+        new File(mainSv, 'another_file.sv').createNewFile()
+        new File(mainSv, 'file0.sv').createNewFile()
+        new File(mainSv, 'file1.sv').createNewFile()
+
+        buildFile << """
+            sourceSets.main.sv.order.first 'file*.sv'
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':genXrunArgsFile')
+            .build()
+
+        then:
+        result.task(":genXrunArgsFile").outcome == SUCCESS
+        def xrunArgsFile = new File(testProjectDir.root, 'build/xrun_args.f')
+        def lines = xrunArgsFile.text.split('\n')
+
+        def lineWithFile0 = lines.findIndexOf { it.contains('file0.sv') }
+        lineWithFile0 != -1
+
+        def lineWithFile1 = lines.findIndexOf { it.contains('file1.sv') }
+        lineWithFile1 != -1
+
+        def lineWithAnotherFile = lines.findIndexOf { it.contains('another_file.sv') }
+        lineWithFile1 != -1
+
+        lineWithFile0 < lineWithAnotherFile
+        lineWithFile1 < lineWithAnotherFile
     }
 }
