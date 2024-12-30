@@ -15,16 +15,17 @@
  */
 package com.verificationgentleman.gradle.hdvl.systemverilog;
 
-import com.verificationgentleman.gradle.hdvl.*;
+import com.verificationgentleman.gradle.hdvl.AbstractGenArgsFile;
+import com.verificationgentleman.gradle.hdvl.HDVLBasePlugin;
+import com.verificationgentleman.gradle.hdvl.HDVLPluginExtension;
+import com.verificationgentleman.gradle.hdvl.SourceSet;
 import com.verificationgentleman.gradle.hdvl.internal.WriteCompileSpecFile;
 import com.verificationgentleman.gradle.hdvl.systemverilog.internal.DefaultSystemVerilogSourceSet;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.DuplicatesStrategy;
-import org.gradle.api.file.FileCollection;
 import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.tasks.bundling.Zip;
 
@@ -90,6 +91,7 @@ public class SystemVerilogPlugin implements Plugin<Project> {
 
     private void configureSources(AbstractGenArgsFile genArgsFile, SystemVerilogSourceSet svSourceSet) {
         genArgsFile.setSource(svSourceSet.getSv());
+        genArgsFile.getFirst().set(svSourceSet.getSv().getFirst());
         genArgsFile.setPrivateIncludeDirs(svSourceSet.getSv().getSourceDirectories());
         genArgsFile.setExportedIncludeDirs(svSourceSet.getSvHeaders().getSourceDirectories());
     }

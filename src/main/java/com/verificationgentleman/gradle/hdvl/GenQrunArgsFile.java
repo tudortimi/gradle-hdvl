@@ -20,7 +20,7 @@ import org.gradle.api.model.ObjectFactory;
 
 import javax.inject.Inject;
 
-public class GenQrunArgsFile extends AbstractGenArgsFile {
+public abstract class GenQrunArgsFile extends AbstractGenArgsFile {
 
     @Inject
     public GenQrunArgsFile(ObjectFactory objectFactory) {
