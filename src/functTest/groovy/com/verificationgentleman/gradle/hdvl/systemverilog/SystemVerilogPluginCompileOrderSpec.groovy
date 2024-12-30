@@ -15,7 +15,8 @@
  */
 package com.verificationgentleman.gradle.hdvl.systemverilog
 
-
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -166,5 +167,32 @@ class SystemVerilogPluginCompileOrderSpec extends Specification {
         lineWithFile1 < lineWithFile2
         lineWithFile0 > lineWithFile1
         lineWithFile0 > lineWithFile2
+    }
+
+    def "compile spec considers source file order"() {
+        new File(mainSv, "file0.sv").createNewFile()
+        new File(mainSv, "file1.sv").createNewFile()
+        new File(mainSv, "file2.sv").createNewFile()
+
+        buildFile << """
+            sourceSets.main.sv.order.first 'file1.sv'
+            sourceSets.main.sv.order.last 'file0.sv'
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':writeCompileSpecFile')
+            .build()
+
+        then:
+        result.task(":writeCompileSpecFile").outcome == SUCCESS
+        def compileSpecFile = new File(testProjectDir.root, 'build/compile-spec.json')
+        JsonNode compileSpec = new ObjectMapper().readTree(compileSpecFile)
+        JsonNode svSourceFiles = compileSpec.get("svSourceFiles")
+        svSourceFiles.get(0).asText().contains 'file1.sv'
+        svSourceFiles.get(1).asText().contains 'file2.sv'
+        svSourceFiles.get(2).asText().contains 'file0.sv'
     }
 }
