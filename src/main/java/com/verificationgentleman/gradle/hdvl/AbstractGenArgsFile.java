@@ -131,8 +131,8 @@ public abstract class AbstractGenArgsFile extends SourceTask {
         if (!getSvOrder().isPresent() || (getSvOrder().get().getFirst() == null && getSvOrder().get().getLast() == null))
             return getSource();
 
-        FileTree firstFiles = getProject().files().getAsFileTree();
-        FileTree lastFiles = getProject().files().getAsFileTree();
+        FileTree firstFiles = newEmptyFileTree();
+        FileTree lastFiles = newEmptyFileTree();
 
         String first = getSvOrder().get().getFirst();
         if (first != null)
@@ -148,5 +148,9 @@ public abstract class AbstractGenArgsFile extends SourceTask {
         result.addAll(lastFiles.getFiles());
 
         return result;
+    }
+
+    private FileTree newEmptyFileTree() {
+        return getProject().files().getAsFileTree();
     }
 }
