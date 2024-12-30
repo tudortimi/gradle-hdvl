@@ -17,9 +17,10 @@
 package com.verificationgentleman.gradle.hdvl.systemverilog;
 
 import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.provider.Provider;
 
 public interface SystemVerilogSourceDirectorySet extends SourceDirectorySet {
-    String getFirst();
+    Provider<String> getFirst();
 
     SystemVerilogSourceDirectorySet first(String first);
 }

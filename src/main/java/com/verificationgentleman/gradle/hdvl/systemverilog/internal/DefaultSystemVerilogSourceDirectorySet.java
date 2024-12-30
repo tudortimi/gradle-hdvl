@@ -22,6 +22,8 @@ import org.gradle.api.internal.file.FileCollectionFactory;
 import org.gradle.api.internal.file.collections.DirectoryFileTreeFactory;
 import org.gradle.api.internal.tasks.TaskDependencyFactory;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.util.PatternSet;
 import org.gradle.internal.Factory;
 
@@ -30,21 +32,22 @@ import javax.inject.Inject;
 public class DefaultSystemVerilogSourceDirectorySet extends DefaultSourceDirectorySet implements SystemVerilogSourceDirectorySet {
     // TODO Stop using internal class by using decorator pattern
 
-    private String first;
+    private final Property<String> first;
 
     @Inject
     public DefaultSystemVerilogSourceDirectorySet(String name, String displayName, Factory<PatternSet> patternSetFactory, TaskDependencyFactory taskDependencyFactory, FileCollectionFactory fileCollectionFactory, DirectoryFileTreeFactory directoryFileTreeFactory, ObjectFactory objectFactory) {
         super(name, displayName, patternSetFactory, taskDependencyFactory, fileCollectionFactory, directoryFileTreeFactory, objectFactory);
+        first = objectFactory.property(String.class);
     }
 
     @Override
-    public String getFirst() {
+    public Provider<String> getFirst() {
         return first;
     }
 
     @Override
     public SystemVerilogSourceDirectorySet first(String first) {
-        this.first = first;
+        this.first.set(first);
         return this;
     }
 }
