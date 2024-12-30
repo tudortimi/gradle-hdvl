@@ -7,6 +7,7 @@ sourceSets {
         sv {
             order {
                 first 'dummy1.sv'
+                last 'dummy0.sv'
             }
         }
     }
