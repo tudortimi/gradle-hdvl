@@ -130,4 +130,41 @@ class SystemVerilogPluginCompileOrderSpec extends Specification {
 
         lineWithFile0 > lineWithFile1
     }
+
+    def "can specify both first and last for compile order"() {
+        new File(mainSv, "file0.sv").createNewFile()
+        new File(mainSv, "file1.sv").createNewFile()
+        new File(mainSv, "file2.sv").createNewFile()
+
+        buildFile << """
+            sourceSets.main.sv.order.first 'file1.sv'
+            sourceSets.main.sv.order.last 'file0.sv'
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments(':genXrunArgsFile')
+            .build()
+
+        then:
+        result.task(":genXrunArgsFile").outcome == SUCCESS
+        def xrunArgsFile = new File(testProjectDir.root, 'build/xrun_args.f')
+        def lines = xrunArgsFile.text.split('\n')
+
+        def lineWithFile0 = lines.findIndexOf { it.contains('file0.sv') }
+        lineWithFile0 != -1
+
+        def lineWithFile1 = lines.findIndexOf { it.contains('file1.sv') }
+        lineWithFile1 != -1
+
+        def lineWithFile2 = lines.findIndexOf { it.contains('file2.sv') }
+        lineWithFile2 != -1
+
+        lineWithFile1 < lineWithFile0
+        lineWithFile1 < lineWithFile2
+        lineWithFile0 > lineWithFile1
+        lineWithFile0 > lineWithFile2
+    }
 }

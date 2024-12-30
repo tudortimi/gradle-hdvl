@@ -131,29 +131,22 @@ public abstract class AbstractGenArgsFile extends SourceTask {
         if (!getSvOrder().isPresent() || (getSvOrder().get().getFirst() == null && getSvOrder().get().getLast() == null))
             return getSource();
 
-        if (getSvOrder().get().getFirst() != null) {
-            String first = getSvOrder().get().getFirst();
-            FileTree firstFiles = getSource().matching(patternFilterable -> patternFilterable.include(first));
+        FileTree firstFiles = getProject().files().getAsFileTree();
+        FileTree lastFiles = getProject().files().getAsFileTree();
 
-            List<File> result = new ArrayList<>();
-            result.addAll(firstFiles.getFiles());
-            result.addAll(getSource().minus(firstFiles).getFiles());
+        String first = getSvOrder().get().getFirst();
+        if (first != null)
+            firstFiles = getSource().matching(patternFilterable -> patternFilterable.include(first));
 
-            return result;
-        }
+        String last = getSvOrder().get().getLast();
+        if (last != null)
+            lastFiles = getSource().matching(patternFilterable -> patternFilterable.include(last));
 
-        if (getSvOrder().get().getLast() != null) {
-            String last = getSvOrder().get().getLast();
-            FileTree lastFiles = getSource().matching(patternFilterable -> patternFilterable.include(last));
+        List<File> result = new ArrayList<>();
+        result.addAll(firstFiles.getFiles());
+        result.addAll(getSource().minus(firstFiles).minus(lastFiles).getFiles());
+        result.addAll(lastFiles.getFiles());
 
-            List<File> result = new ArrayList<>();
-            result.addAll(getSource().minus(lastFiles).getFiles());
-            result.addAll(lastFiles.getFiles());
-
-            return result;
-        }
-
-        // FIXME Implement support for both `first` and `last`
-        return null;
+        return result;
     }
 }
