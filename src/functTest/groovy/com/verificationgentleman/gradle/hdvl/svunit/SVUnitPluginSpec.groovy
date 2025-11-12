@@ -69,17 +69,26 @@ class SVUnitPluginSpec extends Specification  {
     }
 
     def "importing the plugin applies the 'systemverilog' plugin"() {
+        buildFile << """
+            task printPlugins {
+                doLast {
+                    project.plugins.each {
+                        println it
+                    }
+                }
+            }
+        """
+
         when:
         def result = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-            .withArguments(':properties')
+            .withArguments(':printPlugins')
             .build()
 
         then:
-        result.task(":properties").outcome == SUCCESS
-        def pluginsLine = result.output.split('\n').find { it.startsWith('plugins:') }
-        pluginsLine.contains(SystemVerilogPlugin.class.name)
+        result.task(":printPlugins").outcome == SUCCESS
+        result.output.contains(SystemVerilogPlugin.class.name)
     }
 
     def "'test' source set is added by the plugin"() {
