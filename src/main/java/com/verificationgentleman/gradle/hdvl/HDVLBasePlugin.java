@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 the original author or authors.
+ * Copyright 2021-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
                 genArgsFile.setPrivateIncludeDirs(project.files().getAsFileTree());
                 genArgsFile.setExportedIncludeDirs(project.files().getAsFileTree());
                 genArgsFile.setCSource(project.files().getAsFileTree());
-                genArgsFile.getDestination().set(new File(project.getBuildDir(), Names.of(sourceSet.getName()).getArgsFileName(toolName)));
+                genArgsFile.getDestination().set(project.getLayout().getBuildDirectory().file(Names.of(sourceSet.getName()).getArgsFileName(toolName)));
             }
         });
     }
@@ -115,7 +115,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
             public void execute(GenFullArgsFile genFullArgsFile) {
                 genFullArgsFile.setDescription("Generates an argument file for the " + sourceSet.getName() + " source code and its dependencies.");
                 genFullArgsFile.getSource().set(genArgsFile.getDestination());
-                genFullArgsFile.getDestination().set(new File(project.getBuildDir(), Names.of(sourceSet.getName()).getFullArgsFileName(toolName)));
+                genFullArgsFile.getDestination().set(project.getLayout().getBuildDirectory().file(Names.of(sourceSet.getName()).getFullArgsFileName(toolName)));
                 genFullArgsFile.setArgsFiles(project.getConfigurations().getByName(sourceSet.getArgsFilesConfigurationName(toolName)));
             }
         });

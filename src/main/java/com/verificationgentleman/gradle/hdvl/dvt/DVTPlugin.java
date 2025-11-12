@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2024 the original author or authors.
+ * Copyright 2021-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ public class DVTPlugin implements Plugin<Project> {
                 SVUnitSetup svUnitSetup = dvt.getProject().getObjects().newInstance(SVUnitSetup.class);
                 svUnitSetup.getTestsRoot().set(getTestSourceSet(sourceProject).getSv().getSourceDirectories().getSingleFile());
                 svUnitSetup.getSvunitRoot().setFrom(sourceProject.getConfigurations().getByName("svUnitRoot"));
-                svUnitSetup.getWorkingDir().set(new File(sourceProject.getBuildDir(), "dvt/svunit"));
+                svUnitSetup.getWorkingDir().set(sourceProject.getLayout().getBuildDirectory().dir("dvt/svunit"));
                 dvt.getSvUnitSetups().add(svUnitSetup);
             }
 
