@@ -93,5 +93,5 @@ java {
 }
 
 jgitver {
-    regexVersionTag = "v([0-9]+\\.[0-9]+\\.[0-9]+(?:-(alpha|beta|rc)\\.[0-9]+)?)"
+    regexVersionTag = """v([0-9]+\.[0-9]+\.[0-9]+(?:-(alpha|beta|rc)\.[0-9]+)?)"""
 }
