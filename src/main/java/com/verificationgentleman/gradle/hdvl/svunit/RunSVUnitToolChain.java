@@ -3,8 +3,6 @@ package com.verificationgentleman.gradle.hdvl.svunit;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.platform.base.ToolChain;
 
-import java.util.List;
-
 public interface RunSVUnitToolChain extends ToolChain {
     ListProperty<String> getArgs();
 
@@ -14,5 +12,5 @@ public interface RunSVUnitToolChain extends ToolChain {
      * @param args The arg values to append
      * @return this
      */
-    RunSVUnitToolChain args(String... args);
+    RunSVUnitToolChain args(Object... args);
 }
