@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2022-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,7 +102,7 @@ public abstract class AbstractGenArgsFile extends SourceTask {
         FileWriter writer = new FileWriter(destination.get().getAsFile());
         writeExportedHeaders(writer);
         writer.write("-makelib " + getLibName() + "\n");
-        for (File f: getPrivateIncludeDirs().filter((File::exists)))
+        for (File f: getPrivateIncludeDirs().filter(AbstractGenArgsFile::hasFiles))
             writer.write("  " + getIncdirOpt(f.getAbsolutePath()) + "\n");
         for (File f: getOrderedSystemVerilogSourceFiles())
             writer.write("  " + f.getAbsolutePath() + "\n");
@@ -118,8 +118,27 @@ public abstract class AbstractGenArgsFile extends SourceTask {
     // a dependency on this project. If such projects include headers from this project, there will be no compile error.
     // This isn't consistent with what would happen in a multi-step compilation flow, where an error would be issued.
     private void writeExportedHeaders(FileWriter writer) throws IOException {
-        for (File f: getExportedIncludeDirs().filter(File::exists))
+        for (File f: getExportedIncludeDirs().filter(AbstractGenArgsFile::hasFiles))
             writer.write(getIncdirOpt(f.getAbsolutePath()) + "\n");
+    }
+
+    private static boolean hasFiles(File dir) {
+        if (!dir.exists() || !dir.isDirectory()) {
+            return false;
+        }
+        File[] contents = dir.listFiles();
+        if (contents == null) {
+            return false;
+        }
+        for (File f : contents) {
+            if (f.isFile()) {
+                return true;
+            }
+            if (f.isDirectory() && hasFiles(f)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Internal

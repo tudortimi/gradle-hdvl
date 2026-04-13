@@ -62,11 +62,17 @@ public abstract class WriteXrunArgsFile implements TransformAction<TransformPara
 
     private static void writeXrunArgsFile(File xrunArgsFile, HDVLCompileSpec compileSpec) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(xrunArgsFile, true))) {
-            for (File svExportedHeaderDir: compileSpec.getSvExportedHeaderDirs())
-                writer.write("-incdir " + svExportedHeaderDir + "\n");
+            for (File svExportedHeaderDir: compileSpec.getSvExportedHeaderDirs()) {
+                if (hasFiles(svExportedHeaderDir)) {
+                    writer.write("-incdir " + svExportedHeaderDir + "\n");
+                }
+            }
             writer.write("-makelib worklib\n");
-            for (File svPrivateIncludeDir: compileSpec.getSvPrivateIncludeDirs())
-                writer.write("  -incdir " + svPrivateIncludeDir + "\n");
+            for (File svPrivateIncludeDir: compileSpec.getSvPrivateIncludeDirs()) {
+                if (hasFiles(svPrivateIncludeDir)) {
+                    writer.write("  -incdir " + svPrivateIncludeDir + "\n");
+                }
+            }
             for (File svSourceFile : compileSpec.getSvSourceFiles())
                 writer.write("  " + svSourceFile + "\n");
             for (File cSourceFile : compileSpec.getCSourceFiles())
@@ -76,5 +82,24 @@ public abstract class WriteXrunArgsFile implements TransformAction<TransformPara
         catch (IOException ex) {
             ex.printStackTrace();  // TODO Implement better exception handling
         }
+    }
+
+    private static boolean hasFiles(File dir) {
+        if (!dir.exists() || !dir.isDirectory()) {
+            return false;
+        }
+        File[] contents = dir.listFiles();
+        if (contents == null) {
+            return false;
+        }
+        for (File f : contents) {
+            if (f.isFile()) {
+                return true;
+            }
+            if (f.isDirectory() && hasFiles(f)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
