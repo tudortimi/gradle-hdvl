@@ -16,6 +16,7 @@
 
 package com.verificationgentleman.gradle.hdvl;
 
+import com.verificationgentleman.gradle.hdvl.internal.FileUtils;
 import com.verificationgentleman.gradle.hdvl.systemverilog.FileOrder;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
@@ -102,7 +103,7 @@ public abstract class AbstractGenArgsFile extends SourceTask {
         FileWriter writer = new FileWriter(destination.get().getAsFile());
         writeExportedHeaders(writer);
         writer.write("-makelib " + getLibName() + "\n");
-        for (File f: getPrivateIncludeDirs().filter(AbstractGenArgsFile::hasFiles))
+        for (File f: getPrivateIncludeDirs().filter(FileUtils::hasFiles))
             writer.write("  " + getIncdirOpt(f.getAbsolutePath()) + "\n");
         for (File f: getOrderedSystemVerilogSourceFiles())
             writer.write("  " + f.getAbsolutePath() + "\n");
@@ -118,27 +119,8 @@ public abstract class AbstractGenArgsFile extends SourceTask {
     // a dependency on this project. If such projects include headers from this project, there will be no compile error.
     // This isn't consistent with what would happen in a multi-step compilation flow, where an error would be issued.
     private void writeExportedHeaders(FileWriter writer) throws IOException {
-        for (File f: getExportedIncludeDirs().filter(AbstractGenArgsFile::hasFiles))
+        for (File f: getExportedIncludeDirs().filter(FileUtils::hasFiles))
             writer.write(getIncdirOpt(f.getAbsolutePath()) + "\n");
-    }
-
-    private static boolean hasFiles(File dir) {
-        if (!dir.exists() || !dir.isDirectory()) {
-            return false;
-        }
-        File[] contents = dir.listFiles();
-        if (contents == null) {
-            return false;
-        }
-        for (File f : contents) {
-            if (f.isFile()) {
-                return true;
-            }
-            if (f.isDirectory() && hasFiles(f)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Internal
