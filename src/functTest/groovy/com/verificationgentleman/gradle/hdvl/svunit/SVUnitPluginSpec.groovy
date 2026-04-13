@@ -22,8 +22,6 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
-import java.nio.file.Files
-
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
 class SVUnitPluginSpec extends Specification  {
@@ -114,7 +112,7 @@ class SVUnitPluginSpec extends Specification  {
         new File(testProjectDir.root, 'build/dummy.sv').exists()
     }
 
-    def "'testWithXrun' task creates link in build directory to tests"() {
+    def "'testWithXrun' task passes tests directory to 'runSVUnit'"() {
         File sv = testProjectDir.newFolder('src', 'test', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
@@ -127,10 +125,8 @@ class SVUnitPluginSpec extends Specification  {
 
         then:
         result.task(":testWithXrun").outcome == SUCCESS
-        def testsLink = new File(testProjectDir.root, 'build/svunit/tests')
-        testsLink.exists()
-        Files.isSymbolicLink(testsLink.toPath())
-        testsLink.toPath().toRealPath() == sv.toPath()
+        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
+        dummyLog.text.contains "--directory ../../src/test/sv"
     }
 
     def "'testWithXrun' task executes 'runSVUnit'"() {
