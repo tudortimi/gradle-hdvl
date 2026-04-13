@@ -38,7 +38,7 @@ public class TestTask extends DefaultTask {
 
     private RegularFileProperty mainArgsFile;
     private RegularFileProperty testArgsFile;
-    private File testsRoot;
+    private DirectoryProperty testsRoot;
     private FileCollection svunitRoot;
     private Property<String> toolName;
     private DirectoryProperty workingDir;
@@ -49,6 +49,7 @@ public class TestTask extends DefaultTask {
         toolName = objectFactory.property(String.class);
         mainArgsFile = objectFactory.fileProperty();
         testArgsFile = objectFactory.fileProperty();
+        testsRoot = objectFactory.directoryProperty();
         workingDir = objectFactory.directoryProperty();
         extraArgs = objectFactory.listProperty(String.class);
     }
@@ -69,12 +70,8 @@ public class TestTask extends DefaultTask {
     }
 
     @InputDirectory
-    public File getTestsRoot() {
+    public DirectoryProperty getTestsRoot() {
         return testsRoot;
-    }
-
-    public void setTestsRoot(File testsRoot) {
-        this.testsRoot = testsRoot;
     }
 
     @InputFiles
@@ -106,7 +103,7 @@ public class TestTask extends DefaultTask {
         try {
             File testsLink = new File(workingDir.get().getAsFile(), "tests");
             Files.deleteIfExists(testsLink.toPath());
-            Files.createSymbolicLink(testsLink.toPath(), getTestsRoot().toPath());
+            Files.createSymbolicLink(testsLink.toPath(), testsRoot.get().getAsFile().toPath());
         } catch (IOException e) {
             throw new RuntimeException("Could not create 'tests' link.\n\n" + e.toString());
         }
