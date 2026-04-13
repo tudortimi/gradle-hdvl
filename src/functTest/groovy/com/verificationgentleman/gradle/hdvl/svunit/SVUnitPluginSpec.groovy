@@ -303,6 +303,31 @@ class SVUnitPluginSpec extends Specification  {
         dummyLog.text.contains "--uvm"
     }
 
+    def "'testWithXrun' task passes args containing spaces to 'runSVUnit' as single arguments"() {
+        File testSv = testProjectDir.newFolder('src', 'test', 'sv')
+        new File(testSv, 'dummy_test.sv').createNewFile()
+
+        buildFile << """
+            toolChains {
+                runSVUnit {
+                    args.addAll(['-c_arg', '-xmerror RECOMP'])
+                }
+            }
+        """
+
+        when:
+        def result = newGradleRunnerWithFakeRunSVunit()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('testWithXrun')
+            .build()
+
+        then:
+        result.task(":testWithXrun").outcome == SUCCESS
+        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
+        dummyLog.text.contains "-xmerror RECOMP"
+    }
+
     def "sources in 'src/test/sv' are written to args file"() {
         given:
         File testSv = testProjectDir.newFolder('src', 'test', 'sv')

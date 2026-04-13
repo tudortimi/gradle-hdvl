@@ -31,6 +31,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.stream.Collectors;
 
 public class TestTask extends DefaultTask {
 
@@ -125,7 +126,9 @@ public class TestTask extends DefaultTask {
                         "--sim", toolName.get(),
                         "-f", mainArgsFile.getAsFile().get().getAbsolutePath(),
                         "-f", testArgsFile.getAsFile().get().getAbsolutePath(),
-                    String.join(" ", extraArgs.get()));
+                        extraArgs.get().stream()
+                            .map(arg -> "'" + arg.replace("'", "'\\''") + "'")
+                            .collect(Collectors.joining(" ")));
                 String cArg = String.join("; ", sourceCommands, runSVUnitCommand);
                 execSpec.args("-c", cArg);
                 execSpec.workingDir(workingDir.get().getAsFile());
