@@ -83,16 +83,11 @@ public class SVUnitPlugin implements Plugin<Project> {
         Configuration svUnitRoot = project.getConfigurations().create("svUnitRoot");
         svUnitRoot.setCanBeConsumed(false);
         svUnitRoot.setCanBeResolved(true);
-        project.getConfigurations().getByName("testCompile").getDependencies().whenObjectAdded(dependency -> {
-            if (isSVUnit(dependency)) {
-                svUnitRoot.getDependencies().add(dependency);
-            }
-        });
-        project.getConfigurations().getByName("testCompile").getDependencies().whenObjectRemoved(dependency -> {
-            if (isSVUnit(dependency)) {
-                svUnitRoot.getDependencies().remove(dependency);
-            }
-        });
+        svUnitRoot.getDependencies().addAllLater(project.provider(() ->
+            project.getConfigurations().getByName("testCompile")
+                .getDependencies()
+                .matching(this::isSVUnit)
+        ));
     }
 
     private boolean isSVUnit(Dependency dependency) {

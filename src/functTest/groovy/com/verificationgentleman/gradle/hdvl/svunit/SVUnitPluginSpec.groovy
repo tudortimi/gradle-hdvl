@@ -463,6 +463,30 @@ class SVUnitPluginSpec extends Specification  {
         result.task(":testWithQrun").outcome == SUCCESS
     }
 
+    def "can use provider in testCompile for svunit dependency"() {
+        setup:
+        buildFile.text = """
+            plugins {
+                id 'com.verificationgentleman.gradle.hdvl.svunit'
+            }
+            dependencies {
+                testCompile providers.provider { "org.svunit:svunit:v3.34.2" }
+            }
+        """
+        File testSv = testProjectDir.newFolder('src', 'test', 'sv')
+        new File(testSv, 'dummy_test.sv').createNewFile()
+
+        when:
+        def result = newGradleRunnerWithFakeRunSVunit()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('testWithXrun')
+            .build()
+
+        then:
+        result.task(":testWithXrun").outcome == SUCCESS
+    }
+
     def newGradleRunnerWithFakeRunSVunit() {
         def runSVUnitFake = new File(getClass().getResource('/runSVUnit').toURI())
         def env = System.getenv()
