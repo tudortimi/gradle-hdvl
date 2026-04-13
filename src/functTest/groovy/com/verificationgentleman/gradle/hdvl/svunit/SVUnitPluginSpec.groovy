@@ -388,6 +388,31 @@ class SVUnitPluginSpec extends Specification  {
         testFullXrunArgsFile.text.contains "-f ${testProjectDir.root}/build/mocks_xrun_args.f"
     }
 
+    def "plugin adds constraint to require minimum SVUnit version"() {
+        buildFile << """
+            task printConstraints {
+                doLast {
+                    configurations.testCompile.dependencyConstraints.each {
+                        if (it.group == 'org.svunit' && it.name == 'svunit') {
+                            println "Constraint: \${it.group}:\${it.name}:\${it.versionConstraint.requiredVersion}"
+                        }
+                    }
+                }
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('printConstraints')
+            .build()
+
+        then:
+        result.task(":printConstraints").outcome == SUCCESS
+        result.output.contains "Constraint: org.svunit:svunit:v3.36.1"
+    }
+
     def "'check' task executes test tasks"() {
         File testSv = testProjectDir.newFolder('src', 'test', 'sv')
         new File(testSv, 'dummy_test.sv').createNewFile()

@@ -54,6 +54,7 @@ public class SVUnitPlugin implements Plugin<Project> {
         final SourceSet testSourceSet = sourceSets.create("test");
 
         configureSVUnitRootConfiguration(project);
+        addSVUnitVersionConstraint(project);
 
         String[] toolNames = {"Xrun", "Qrun"};
         for (String toolName: toolNames) {
@@ -76,6 +77,13 @@ public class SVUnitPlugin implements Plugin<Project> {
                     configureTestTask(project, sourceSets.getByName("main"), sourceSet, svSourceSet, toolName);
                 }
             }
+        });
+    }
+
+    private void addSVUnitVersionConstraint(Project project) {
+        project.getDependencies().getConstraints().add("testCompile", "org.svunit:svunit", c -> {
+            c.version(v -> v.require("v3.36.1"));
+            c.because("The --directory option required by this plugin was added in v3.36.1");
         });
     }
 
