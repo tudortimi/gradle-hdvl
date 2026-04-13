@@ -1,10 +1,10 @@
 package com.verificationgentleman.gradle.hdvl;
 
 import org.gradle.api.DefaultTask;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
@@ -21,13 +21,13 @@ import static java.util.Collections.reverse;
 public class GenFullArgsFile extends DefaultTask {
 
     private final RegularFileProperty destination;
-    private final RegularFileProperty source;
+    private final ConfigurableFileCollection source;
     private FileCollection argsFiles;
 
     @Inject
     public GenFullArgsFile(ObjectFactory objectFactory) {
         destination = objectFactory.fileProperty();
-        source = objectFactory.fileProperty();
+        source = objectFactory.fileCollection();
     }
 
     @OutputFile
@@ -35,9 +35,13 @@ public class GenFullArgsFile extends DefaultTask {
         return destination;
     }
 
-    @InputFile
-    public RegularFileProperty getSource() {
+    @InputFiles
+    public FileCollection getSource() {
         return source;
+    }
+
+    public void setSource(Object sourceFile) {
+        source.setFrom(sourceFile);
     }
 
     @InputFiles
@@ -63,7 +67,9 @@ public class GenFullArgsFile extends DefaultTask {
         for (File argsFile: getArgsFilesInDependencyOrder()) {
             writer.write("-f " + argsFile.getAbsolutePath() + "\n");
         }
-        writer.write("-f " + source.get().getAsFile().getAbsolutePath() + "\n");
+        for (File sourceFile : source.filter(File::exists)) {
+            writer.write("-f " + sourceFile.getAbsolutePath() + "\n");
+        }
         writer.close();
     }
 
