@@ -29,8 +29,7 @@ import org.gradle.process.ExecSpec;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class TestTask extends DefaultTask {
 
@@ -96,19 +95,7 @@ public class TestTask extends DefaultTask {
 
     @TaskAction
     protected void run() {
-        createLinkToTests();
         runTests();
-    }
-
-    private void createLinkToTests() {
-        try {
-            File testsLink = new File(workingDir.get().getAsFile(), "tests");
-            Files.deleteIfExists(testsLink.toPath());
-            Files.createSymbolicLink(testsLink.toPath(), getTestsRoot().toPath());
-        } catch (IOException e) {
-            throw new RuntimeException("Could not create 'tests' link.\n\n" + e.toString());
-        }
-
     }
 
     private void runTests() {
@@ -120,11 +107,13 @@ public class TestTask extends DefaultTask {
                         "cd " + svunitRoot.getSingleFile(),
                         "source Setup.bsh",
                         "cd -");
+                Path relativeTestsPath = workingDir.get().getAsFile().toPath().relativize(testsRoot.toPath());
                 String runSVUnitCommand = String.join(" ",
                         "runSVUnit",
                         "--sim", toolName.get(),
                         "-f", mainArgsFile.getAsFile().get().getAbsolutePath(),
                         "-f", testArgsFile.getAsFile().get().getAbsolutePath(),
+                        "--directory", relativeTestsPath.toString(),
                     String.join(" ", extraArgs.get()));
                 String cArg = String.join("; ", sourceCommands, runSVUnitCommand);
                 execSpec.args("-c", cArg);
