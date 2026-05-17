@@ -65,7 +65,7 @@ gradlePlugin {
 
 dependencies {
     implementation(libs.jackson.databind)
-    implementation("org.apache.commons:commons-text:1.13.1")
+    implementation(libs.commons.text)
 
     testImplementation("org.spockframework:spock-core:2.2-groovy-3.0") {
         exclude(group = "org.codehaus.groovy")
