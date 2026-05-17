@@ -1,2 +1,6 @@
+[versions]
+commons-text = "1.13.1"
+
 [libraries]
 jackson-databind = "com.fasterxml.jackson.core:jackson-databind:2.14.3"
+commons-text = { module = "org.apache.commons:commons-text", version.ref = "commons-text" }

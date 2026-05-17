@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 the original author or authors.
+ * Copyright 2021-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,13 @@ import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.*;
 import org.gradle.process.ExecSpec;
+import org.apache.commons.text.StringEscapeUtils;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.stream.Collectors;
 
 public class TestTask extends DefaultTask {
 
@@ -125,7 +127,9 @@ public class TestTask extends DefaultTask {
                         "--sim", toolName.get(),
                         "-f", mainArgsFile.getAsFile().get().getAbsolutePath(),
                         "-f", testArgsFile.getAsFile().get().getAbsolutePath(),
-                    String.join(" ", extraArgs.get()));
+                        extraArgs.get().stream()
+                            .map(StringEscapeUtils::escapeXSI)
+                            .collect(Collectors.joining(" ")));
                 String cArg = String.join("; ", sourceCommands, runSVUnitCommand);
                 execSpec.args("-c", cArg);
                 execSpec.workingDir(workingDir.get().getAsFile());
