@@ -302,30 +302,6 @@ class SVUnitPluginSpec extends Specification  {
         result.output.contains 'some_other_arg'
     }
 
-    def "can add a file as arg to 'runSVUnit' tool chain"() {
-        buildFile << """
-            toolChains {
-                runSVUnit {
-                    args '-f', project.file('some_file')
-                }
-            }
-
-            println toolChains.runSVUnit.args.get()
-        """
-
-        when:
-        def result = newGradleRunnerWithFakeRunSVunit()
-            .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
-            .withArguments('help')
-            .build()
-
-        then:
-        result.task(":help").outcome == SUCCESS
-        result.output.contains '-f'
-        result.output.contains 'some_file'
-    }
-
     def "'testWithXrun' task passes custom args to 'runSVUnit'"() {
         File testSv = testProjectDir.newFolder('src', 'test', 'sv')
         new File(testSv, 'dummy_test.sv').createNewFile()

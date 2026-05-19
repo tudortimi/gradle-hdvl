@@ -12,5 +12,5 @@ public interface RunSVUnitToolChain extends ToolChain {
      * @param args The arg values to append
      * @return this
      */
-    RunSVUnitToolChain args(Object... args);
+    RunSVUnitToolChain args(String... args);
 }
