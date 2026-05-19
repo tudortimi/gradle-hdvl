@@ -30,12 +30,9 @@ public class DefaultRunSVUnitToolChain implements RunSVUnitToolChain {
     }
 
     @Override
-    public RunSVUnitToolChain args(Object... args) {
-        for (Object arg : args) {
-            if (arg == null) {
-                throw new IllegalArgumentException("null argument is not allowed");
-            }
-            this.args.add(arg.toString());
+    public RunSVUnitToolChain args(String... args) {
+        for (String arg : args) {
+            this.args.add(arg);
         }
         return this;
     }
