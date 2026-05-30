@@ -2,6 +2,7 @@ plugins {
     id("java-gradle-plugin")
     id("groovy")
     id("maven-publish")
+    id("org.asciidoctor.jvm.convert") version "3.3.2"
     id("com.gradle.plugin-publish") version "0.20.0"
     id("fr.brouillard.oss.gradle.jgitver") version "0.9.1"
 }
@@ -76,6 +77,14 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.named<org.asciidoctor.gradle.jvm.AsciidoctorTask>("asciidoctor") {
+    sourceDir(file("src/docs/asciidoc"))
+    sources {
+        include("index.adoc")
+    }
+    baseDirFollowsSourceDir()
 }
 
 repositories {
