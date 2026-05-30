@@ -4,3 +4,7 @@
 == User guide
 
 include::user-guide/index.adoc[]
+
+== API reference
+
+The generated Java API documentation is available in the `api` section of the built docs output.

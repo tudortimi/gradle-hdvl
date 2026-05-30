@@ -87,6 +87,23 @@ tasks.named<org.asciidoctor.gradle.jvm.AsciidoctorTask>("asciidoctor") {
     baseDirFollowsSourceDir()
 }
 
+tasks.register<Sync>("docsHtml") {
+    description = "Generates the user guide and API docs as HTML."
+    group = "documentation"
+
+    dependsOn(tasks.named("asciidoctor"))
+    dependsOn(tasks.named("javadoc"))
+
+    from(layout.buildDirectory.dir("docs/asciidoc")) {
+        into("user-guide")
+    }
+    from(tasks.named<Javadoc>("javadoc").map { it.destinationDir ?: layout.buildDirectory.dir("docs/javadoc").get().asFile }) {
+        into("api")
+    }
+
+    into(layout.buildDirectory.dir("docs/html"))
+}
+
 repositories {
     mavenCentral()
 }

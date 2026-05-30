@@ -12,6 +12,18 @@ Currently supports Xcelium and QuestaSim.
 Also supports testing using SVUnit and generating DVT projects.
 
 
+## Documentation
+
+Generate HTML documentation locally with:
+
+    ./gradlew docsHtml
+
+Output is written to:
+
+- User guide: `build/docs/html/user-guide/index.html`
+- API docs: `build/docs/html/api/index.html`
+
+
 ## Notes
 
 The DSL is not yet stable and parts will most definitely change in the future.
