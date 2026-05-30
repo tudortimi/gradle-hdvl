@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+echo "Dummy qrun"
+
+touch qrun.log
+
+echo 'args:' >> qrun.log
+echo $@ >> qrun.log
+
+echo 'cwd:' >> qrun.log
+echo $PWD >> qrun.log

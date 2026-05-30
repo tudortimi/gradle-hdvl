@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+echo "Dummy xrun"
+
+touch xrun.log
+
+echo 'args:' >> xrun.log
+echo $@ >> xrun.log
+
+echo 'cwd:' >> xrun.log
+echo $PWD >> xrun.log
