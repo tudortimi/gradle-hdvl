@@ -59,7 +59,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
 
         extension.getSourceSets().all(sourceSet -> configureCompileConfiguration(project, sourceSet));
 
-        String[] toolNames = {"Xrun", "Qrun"};
+        String[] toolNames = {"Xrun", "Qrun", "Verilator"};
         for (String toolName: toolNames) {
             extension.getSourceSets().all(new Action<SourceSet>() {
                 @Override
@@ -103,6 +103,8 @@ public class HDVLBasePlugin implements Plugin<Project> {
                 return GenXrunArgsFile.class;
             case "Qrun":
                 return GenQrunArgsFile.class;
+            case "Verilator":
+                return GenVerilatorArgsFile.class;
         }
         throw new IllegalArgumentException("Unexpected tool name: " + toolName);
     }
@@ -167,6 +169,13 @@ public class HDVLBasePlugin implements Plugin<Project> {
             public void execute(TransformSpec<TransformParameters.None> transformSpec) {
                 transformSpec.getFrom().attribute(TOOL_ATTRIBUTE, "None").attribute(ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, "hdvl-sources-directory");
                 transformSpec.getTo().attribute(TOOL_ATTRIBUTE, "Xrun");
+            }
+        });
+        project.getDependencies().registerTransform(WriteVerilatorArgsFile.class, new Action<TransformSpec<TransformParameters.None>>() {
+            @Override
+            public void execute(TransformSpec<TransformParameters.None> transformSpec) {
+                transformSpec.getFrom().attribute(TOOL_ATTRIBUTE, "None").attribute(ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, "hdvl-sources-directory");
+                transformSpec.getTo().attribute(TOOL_ATTRIBUTE, "Verilator");
             }
         });
     }

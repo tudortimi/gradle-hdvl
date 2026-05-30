@@ -182,6 +182,21 @@ class CPluginSpec extends Specification {
         new File(testProjectDir.root, 'build/qrun_args.f').text.contains('src/main/c/dummy.c')
     }
 
+    def "'genVerilatorArgsFile' task writes C files to args file"() {
+        File c = testProjectDir.newFolder('src', 'main', 'c')
+        new File(c, 'dummy.c').createNewFile()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genVerilatorArgsFile')
+            .build()
+
+        then:
+        new File(testProjectDir.root, 'build/verilator_args.f').text.contains('src/main/c/dummy.c')
+    }
+
     def "'genXrunArgsFile' task indents entries in makelib block"() {
         File c = testProjectDir.newFolder('src', 'main', 'c')
         new File(c, 'dummy.c').createNewFile()

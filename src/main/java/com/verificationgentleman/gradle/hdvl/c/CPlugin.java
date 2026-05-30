@@ -44,7 +44,7 @@ public class CPlugin implements Plugin<Project> {
                 // XXX WORKAROUND Not part of the public API
                 new DslObject(sourceSet).getConvention().getPlugins().put("c", cSourceSet);
 
-                String[] toolNames = {"Xrun", "Qrun"};
+                String[] toolNames = {"Xrun", "Qrun", "Verilator"};
                 for (String toolName: toolNames) {
                     AbstractGenArgsFile genArgsFile
                             = (AbstractGenArgsFile) project.getTasks().getByName(sourceSet.getGenArgsFileTaskName(toolName));

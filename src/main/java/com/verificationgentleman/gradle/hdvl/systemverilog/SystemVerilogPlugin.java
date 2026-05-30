@@ -47,7 +47,7 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                 // XXX WORKAROUND Not part of the public API
                 new DslObject(sourceSet).getConvention().getPlugins().put("sv", svSourceSet);
 
-                String[] toolNames = {"Xrun", "Qrun"};
+                String[] toolNames = {"Xrun", "Qrun", "Verilator"};
                 for (String toolName: toolNames) {
                     AbstractGenArgsFile genArgsFile
                         = (AbstractGenArgsFile) project.getTasks().getByName(sourceSet.getGenArgsFileTaskName(toolName));

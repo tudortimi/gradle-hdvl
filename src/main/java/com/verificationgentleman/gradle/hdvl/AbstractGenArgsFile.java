@@ -101,14 +101,16 @@ public abstract class AbstractGenArgsFile extends SourceTask {
     private void writeArgsFile() throws IOException {
         FileWriter writer = new FileWriter(destination.get().getAsFile());
         writeExportedHeaders(writer);
-        writer.write("-makelib " + getLibName() + "\n");
+        if (isMakelibBlockEnabled())
+            writer.write("-makelib " + getLibName() + "\n");
         for (File f: getPrivateIncludeDirs().filter((File::exists)))
-            writer.write("  " + getIncdirOpt(f.getAbsolutePath()) + "\n");
+            writer.write(getIndentedEntry(getIncdirOpt(f.getAbsolutePath())) + "\n");
         for (File f: getOrderedSystemVerilogSourceFiles())
-            writer.write("  " + f.getAbsolutePath() + "\n");
+            writer.write(getIndentedEntry(f.getAbsolutePath()) + "\n");
         for (File f: getCSource())
-            writer.write("  " + f.getAbsolutePath() + "\n");
-        writer.write("-endlib\n");
+            writer.write(getIndentedEntry(f.getAbsolutePath()) + "\n");
+        if (isMakelibBlockEnabled())
+            writer.write("-endlib\n");
         writer.close();
     }
 
@@ -126,6 +128,17 @@ public abstract class AbstractGenArgsFile extends SourceTask {
     protected abstract String getLibName();
 
     protected abstract String getIncdirOpt(String incdirPath);
+
+    @Internal
+    protected boolean isMakelibBlockEnabled() {
+        return true;
+    }
+
+    private String getIndentedEntry(String entry) {
+        if (isMakelibBlockEnabled())
+            return "  " + entry;
+        return entry;
+    }
 
     private Iterable<File> getOrderedSystemVerilogSourceFiles() {
         if (!getSvOrder().isPresent() || (getSvOrder().get().getFirst() == null && getSvOrder().get().getLast() == null))

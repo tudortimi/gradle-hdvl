@@ -868,6 +868,59 @@ class SystemVerilogPluginSpec extends Specification {
         }
     }
 
+    def "'genVerilatorArgsFile' task produces output"() {
+        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(sv, 'dummy.sv').createNewFile()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genVerilatorArgsFile')
+            .build()
+
+        then:
+        result.task(":genVerilatorArgsFile").outcome == SUCCESS
+        new File(testProjectDir.root, 'build/verilator_args.f').exists()
+    }
+
+    def "'genVerilatorArgsFile' task writes source and include dirs without makelib block"() {
+        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(sv, 'dummy.sv').createNewFile()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genVerilatorArgsFile')
+            .build()
+
+        then:
+        def argsFile = new File(testProjectDir.root, 'build/verilator_args.f')
+        argsFile.text.contains('src/main/sv/dummy.sv')
+        argsFile.text.contains('+incdir+')
+        !argsFile.text.contains('-makelib')
+        !argsFile.text.contains('-endlib')
+    }
+
+    def "'genFullVerilatorArgsFile' task consumes output of 'genVerilatorArgsFile"() {
+        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(sv, 'dummy.sv').createNewFile()
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genFullVerilatorArgsFile')
+            .build()
+
+        then:
+        result.task(":genVerilatorArgsFile").outcome == SUCCESS
+        result.task(":genFullVerilatorArgsFile").outcome == SUCCESS
+        new File(testProjectDir.root, 'build/full_verilator_args.f').exists()
+        new File(testProjectDir.root, 'build/full_verilator_args.f').text.contains('build/verilator_args.f')
+    }
+
     def "can write sv source to compile spec file"() {
         File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
         new File(mainSv, "main.sv").createNewFile()
