@@ -1,0 +1,3 @@
+=== Getting started
+
+This is a placeholder section for the future user guide.

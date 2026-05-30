@@ -1,0 +1,6 @@
+= gradle-hdvl documentation
+:toc: left
+
+== User guide
+
+include::user-guide/index.adoc[]
