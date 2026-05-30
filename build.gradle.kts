@@ -30,6 +30,12 @@ gradlePlugin {
             description = "A plugin that adds support for compiling and running SystemVerilog code in HDL simulators"
             implementationClass = "com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogPlugin"
         }
+        create("systemverilog-application") {
+            id = "com.verificationgentleman.gradle.hdvl.systemverilog-application"
+            displayName = "Plugin for SystemVerilog simulation applications"
+            description = "A plugin that adds support for running SystemVerilog applications with HDL simulators"
+            implementationClass = "com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogApplicationPlugin"
+        }
         create("c") {
             id = "com.verificationgentleman.gradle.hdvl.c"
             displayName = "Plugin for C support in HDL simulators"
