@@ -10,5 +10,6 @@
 			"installMaven": "false",
 			"installGradle": "false"
 		}
-	}
+	},
+	"postCreateCommand": "bash .devcontainer/install-edapack-verilator.sh"
 }
