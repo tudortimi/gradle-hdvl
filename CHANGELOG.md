@@ -16,7 +16,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **`base`**: Fixed race conditions when reconfiguring the build directory in multi-task scenarios ([#172]).
-- **Versioning / publishing**: Fixed extraction of pre-release versions that include dot-separated suffixes (for example `beta.1`) ([#173]).
 
 ## [0.2.8] - 2025-01-04
 
@@ -121,7 +120,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.1.0]: https://github.com/tudortimi/gradle-hdvl/releases/tag/v0.1.0
 
 [#176]: https://github.com/tudortimi/gradle-hdvl/pull/176
-[#173]: https://github.com/tudortimi/gradle-hdvl/pull/173
 [#172]: https://github.com/tudortimi/gradle-hdvl/pull/172
 [#167]: https://github.com/tudortimi/gradle-hdvl/pull/167
 [#165]: https://github.com/tudortimi/gradle-hdvl/pull/165
