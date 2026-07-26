@@ -20,3 +20,11 @@ Push the tag to GitHub and draft a release manually based on this tag:
 Publishing to the plugin portal still has to be done manually:
 
     ./gradlew publishPlugins
+
+## Changelog policy
+
+Use [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format in `CHANGELOG.md`.
+
+- Keep PR links next to each user-visible change; do not list internal-only changes.
+- For active pre-release trains (for example `0.3.0-beta.1`, `0.3.0-beta.2`), keep separate entries while iterating.
+- When the corresponding stable version is released, fold pre-release items into the stable entry to keep the changelog lean.
