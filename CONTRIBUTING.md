@@ -1,5 +1,18 @@
 # Contribution Guidelines
 
+## Code Style
+
+Java code should adhere to the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html).
+
+### Copyright Headers
+
+Every source file carries an Apache 2.0 copyright header.
+When you modify a file, make sure the year range in its header covers the current year.
+
+- Single year (e.g. `2021`) — extend to a range: `2021-<current year>`.
+- Existing range (e.g. `2020-2024`) — update the end year: `2020-<current year>`.
+- If the header already ends with the current year, no change is needed.
+
 ## Releasing
 
 The Gradle build relies on annotated tags to compute the version.
