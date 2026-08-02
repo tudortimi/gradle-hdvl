@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0-beta.2] - 2026-08-02
+
 ### Fixed
 
 - **`svunit`**: Fixed argument forwarding in SVUnit toolchain execution so multiple arguments are passed correctly ([#176]).
@@ -109,7 +111,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`c`**: Initial C source directory integration for DPI-oriented builds ([#22]).
 - **`svunit`** and **`svunit-build`**: Initial SVUnit integration and build plugin split/toolchain support ([#29], [#30], [#31]).
 
-[Unreleased]: https://github.com/tudortimi/gradle-hdvl/compare/v0.3.0-beta.1...HEAD
+[Unreleased]: https://github.com/tudortimi/gradle-hdvl/compare/v0.3.0-beta.2...HEAD
+[0.3.0-beta.2]: https://github.com/tudortimi/gradle-hdvl/compare/v0.3.0-beta.1...v0.3.0-beta.2
 [0.3.0-beta.1]: https://github.com/tudortimi/gradle-hdvl/compare/v0.2.8...v0.3.0-beta.1
 [0.2.8]: https://github.com/tudortimi/gradle-hdvl/compare/v0.2.7...v0.2.8
 [0.2.7]: https://github.com/tudortimi/gradle-hdvl/compare/v0.2.6...v0.2.7
