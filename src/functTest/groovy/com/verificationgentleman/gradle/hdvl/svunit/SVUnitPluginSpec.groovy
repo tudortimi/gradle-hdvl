@@ -133,6 +133,35 @@ class SVUnitPluginSpec extends Specification  {
         testsLink.toPath().toRealPath() == sv.toPath()
     }
 
+    def "'testWithXrun' task creates link in build directory to custom tests location"() {
+        File sv = testProjectDir.newFolder('tests')
+        new File(sv, 'dummy.sv').createNewFile()
+
+        buildFile << """
+            sourceSets {
+                test {
+                    sv {
+                        srcDirs = ['tests']
+                    }
+                }
+            }
+        """
+
+        when:
+        def result = newGradleRunnerWithFakeRunSVunit()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('testWithXrun')
+            .build()
+
+        then:
+        result.task(":testWithXrun").outcome == SUCCESS
+        def testsLink = new File(testProjectDir.root, 'build/svunit/tests')
+        testsLink.exists()
+        Files.isSymbolicLink(testsLink.toPath())
+        testsLink.toPath().toRealPath() == sv.toPath()
+    }
+
     def "'testWithXrun' task executes 'runSVUnit'"() {
         File sv = testProjectDir.newFolder('src', 'test', 'sv')
         new File(sv, 'dummy.sv').createNewFile()

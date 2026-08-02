@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **`svunit`**: Fixed argument forwarding in SVUnit toolchain execution so multiple arguments are passed correctly ([#176]).
+- **`svunit`**: Fixed a crash when changing test locations by using lazy configuration ([#180]).
 
 ## [0.3.0-beta.1] - 2025-11-13
 
@@ -119,6 +120,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.2.0]: https://github.com/tudortimi/gradle-hdvl/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/tudortimi/gradle-hdvl/compare/511ccf6...v0.1.0
 
+[#180]: https://github.com/tudortimi/gradle-hdvl/pull/180
 [#176]: https://github.com/tudortimi/gradle-hdvl/pull/176
 [#172]: https://github.com/tudortimi/gradle-hdvl/pull/172
 [#167]: https://github.com/tudortimi/gradle-hdvl/pull/167

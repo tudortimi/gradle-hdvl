@@ -133,7 +133,11 @@ public class SVUnitPlugin implements Plugin<Project> {
                 testTask.getToolName().set(toolName.toLowerCase());
                 testTask.getMainArgsFile().set(genFullArgsFile.getDestination());
                 testTask.getTestArgsFile().set(genFullTestArgsFile.getDestination());
-                testTask.setTestsRoot(testSvSourceSet.getSv().getSourceDirectories().getSingleFile());
+                testTask.getTestsRoot().set(
+                        project.getLayout().dir(
+                                project.provider(() -> testSvSourceSet.getSv().getSourceDirectories().getSingleFile())
+                        )
+                );
                 testTask.setSvunitRoot(svUnitRoot);
                 testTask.getWorkingDir().set(project.getLayout().getBuildDirectory().dir("svunit"));
                 testTask.getExtraArgs().set(toolChains.getRunSVUnit().getArgs());

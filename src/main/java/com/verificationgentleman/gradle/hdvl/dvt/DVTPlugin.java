@@ -56,7 +56,12 @@ public class DVTPlugin implements Plugin<Project> {
 
             private void maybeConfigureTests(DVTTask dvt, Project sourceProject) {
                 SVUnitSetup svUnitSetup = dvt.getProject().getObjects().newInstance(SVUnitSetup.class);
-                svUnitSetup.getTestsRoot().set(getTestSourceSet(sourceProject).getSv().getSourceDirectories().getSingleFile());
+                SystemVerilogSourceSet testSvSourceSet = getTestSourceSet(sourceProject);
+                svUnitSetup.getTestsRoot().set(
+                        sourceProject.getLayout().dir(
+                                sourceProject.provider(() -> testSvSourceSet.getSv().getSourceDirectories().getSingleFile())
+                        )
+                );
                 svUnitSetup.getSvunitRoot().setFrom(sourceProject.getConfigurations().getByName("svUnitRoot"));
                 svUnitSetup.getWorkingDir().set(sourceProject.getLayout().getBuildDirectory().dir("dvt/svunit"));
                 dvt.getSvUnitSetups().add(svUnitSetup);
