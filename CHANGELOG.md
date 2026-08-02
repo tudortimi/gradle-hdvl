@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`svunit`**: Fixed argument forwarding in SVUnit toolchain execution so multiple arguments are passed correctly ([#176]).
 - **`svunit`**: Fixed a crash when changing test locations by using lazy configuration ([#180]).
 - **`systemverilog`**: Fixed args-file generation to add `-incdir` entries only for directories that actually contain files ([#181]).
+- **`svunit`**: Fixed `testCompile` handling so provider-backed SVUnit dependencies are recognized correctly ([#182]).
 
 ## [0.3.0-beta.1] - 2025-11-13
 
@@ -121,6 +122,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.2.0]: https://github.com/tudortimi/gradle-hdvl/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/tudortimi/gradle-hdvl/compare/511ccf6...v0.1.0
 
+[#182]: https://github.com/tudortimi/gradle-hdvl/pull/182
 [#181]: https://github.com/tudortimi/gradle-hdvl/pull/181
 [#180]: https://github.com/tudortimi/gradle-hdvl/pull/180
 [#176]: https://github.com/tudortimi/gradle-hdvl/pull/176
