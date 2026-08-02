@@ -1,5 +1,9 @@
 # Contribution Guidelines
 
+## Code Style
+
+Java code should adhere to the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html).
+
 ## Releasing
 
 The Gradle build relies on annotated tags to compute the version.
