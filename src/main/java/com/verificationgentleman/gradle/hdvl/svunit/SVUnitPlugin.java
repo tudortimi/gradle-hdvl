@@ -139,7 +139,7 @@ public class SVUnitPlugin implements Plugin<Project> {
                         )
                 );
                 testTask.setSvunitRoot(svUnitRoot);
-                testTask.getWorkingDir().set(project.getLayout().getBuildDirectory().dir("svunit"));
+                testTask.getWorkingDir().set(project.getLayout().getBuildDirectory().dir("svunit/" + toolName.toLowerCase()));
                 testTask.getExtraArgs().set(toolChains.getRunSVUnit().getArgs());
 
                 // TODO Implement proper up-to-date checking
