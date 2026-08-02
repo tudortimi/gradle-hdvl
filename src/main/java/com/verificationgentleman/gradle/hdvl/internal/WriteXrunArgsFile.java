@@ -62,11 +62,17 @@ public abstract class WriteXrunArgsFile implements TransformAction<TransformPara
 
     private static void writeXrunArgsFile(File xrunArgsFile, HDVLCompileSpec compileSpec) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(xrunArgsFile, true))) {
-            for (File svExportedHeaderDir: compileSpec.getSvExportedHeaderDirs())
-                writer.write("-incdir " + svExportedHeaderDir + "\n");
+            for (File svExportedHeaderDir: compileSpec.getSvExportedHeaderDirs()) {
+                if (FileUtils.hasFiles(svExportedHeaderDir)) {
+                    writer.write("-incdir " + svExportedHeaderDir + "\n");
+                }
+            }
             writer.write("-makelib worklib\n");
-            for (File svPrivateIncludeDir: compileSpec.getSvPrivateIncludeDirs())
-                writer.write("  -incdir " + svPrivateIncludeDir + "\n");
+            for (File svPrivateIncludeDir: compileSpec.getSvPrivateIncludeDirs()) {
+                if (FileUtils.hasFiles(svPrivateIncludeDir)) {
+                    writer.write("  -incdir " + svPrivateIncludeDir + "\n");
+                }
+            }
             for (File svSourceFile : compileSpec.getSvSourceFiles())
                 writer.write("  " + svSourceFile + "\n");
             for (File cSourceFile : compileSpec.getCSourceFiles())
@@ -77,4 +83,5 @@ public abstract class WriteXrunArgsFile implements TransformAction<TransformPara
             ex.printStackTrace();  // TODO Implement better exception handling
         }
     }
+
 }

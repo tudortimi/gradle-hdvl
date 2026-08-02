@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2020-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -436,8 +436,38 @@ class SystemVerilogPluginSpec extends Specification {
         !lines.any { it.contains('src/main/sv') }
     }
 
+    def "'genXrunArgsFile' task doesn't write private include directories to args file if they have no SV files"() {
+        File sv = testProjectDir.newFolder('sv')
+        new File(sv, 'dummy.sv').createNewFile()
+        testProjectDir.newFolder('src', 'main', 'sv')
+
+        buildFile << """
+            sourceSets {
+                main {
+                    sv {
+                        srcDirs 'sv', 'src/main/sv'
+                    }
+                }
+            }
+        """
+
+        // `src/main/sv` directory exists but is empty
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genXrunArgsFile')
+            .build()
+
+        then:
+        def lines = new File(testProjectDir.root, 'build/xrun_args.f').text.split("\n")
+        !lines.any { it.contains('src/main/sv') }
+    }
+
     def "'genXrunArgsFile' task writes exported header directories to args file"() {
         File svHeaders = testProjectDir.newFolder('src', 'main', 'sv_headers')
+        new File(svHeaders, 'dummy.svh').createNewFile()
 
         when:
         def result = GradleRunner.create()
@@ -451,6 +481,25 @@ class SystemVerilogPluginSpec extends Specification {
         def linesWithIncdir = lines.findAll { it.contains('-incdir') }
         !linesWithIncdir.isEmpty()
         linesWithIncdir.any { it.endsWith("src/main/sv_headers") }
+    }
+
+    def "'genXrunArgsFile' task doesn't write exported header directories to args file if they have no SV files"() {
+        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(sv, 'dummy.sv').createNewFile()
+        testProjectDir.newFolder('src', 'main', 'sv_headers')
+
+        // 'src/main/sv_headers' exists but is empty
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genXrunArgsFile')
+            .build()
+
+        then:
+        def lines = new File(testProjectDir.root, 'build/xrun_args.f').text.split("\n")
+        !lines.any { it.contains('src/main/sv_headers') }
     }
 
     def "'genXrunArgsFile' task doesn't write exported header directories to args file if none exist"() {
@@ -761,6 +810,7 @@ class SystemVerilogPluginSpec extends Specification {
 
     def "'genQrunArgsFile' task writes exported header directories to args file"() {
         File svHeaders = testProjectDir.newFolder('src', 'main', 'sv_headers')
+        new File(svHeaders, 'dummy.svh').createNewFile()
 
         when:
         def result = GradleRunner.create()
@@ -775,6 +825,25 @@ class SystemVerilogPluginSpec extends Specification {
         !linesWithIncdir.isEmpty()
         linesWithIncdir.any { it.endsWith("src/main/sv_headers") }
         !linesWithIncdir.any { it.contains('+ ') }
+    }
+
+    def "'genQrunArgsFile' task doesn't write exported header directories to args file if they have no SV files"() {
+        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        new File(sv, 'dummy.sv').createNewFile()
+        testProjectDir.newFolder('src', 'main', 'sv_headers')
+
+        // 'src/main/sv_headers' exists but is empty
+
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genQrunArgsFile')
+            .build()
+
+        then:
+        def lines = new File(testProjectDir.root, 'build/qrun_args.f').text.split("\n")
+        !lines.any { it.contains('src/main/sv_headers') }
     }
 
     def "'genFullQrunArgsFile' task consumes output of 'genQrunArgsFile"() {
