@@ -20,6 +20,8 @@ import java.io.File;
 
 public class FileUtils {
 
+    private FileUtils() {}
+
     /**
      * Returns true if the given directory contains at least one file (recursively).
      * Returns false if the argument does not exist or is not a directory.
