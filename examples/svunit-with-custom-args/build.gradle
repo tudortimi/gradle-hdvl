@@ -13,5 +13,9 @@ toolChains {
 
         // Arguments with spaces are passed through by `runSVUnit`
         args '--c_arg', '-nowarn BADPRF'
+
+        // Workaround needed with previous plugin versions that didn't handle args with spaces correctly
+        // Do not use anymore
+        args '--c_arg', '"-nowarn SPDUSD"'
     }
 }
