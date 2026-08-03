@@ -10,5 +10,8 @@ dependencies {
 toolChains {
     runSVUnit {
         args '--c_arg', '-linedebug'
+
+        // Arguments with spaces are passed through by `runSVUnit`
+        args '--c_arg', '-nowarn BADPRF'
     }
 }
