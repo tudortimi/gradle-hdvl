@@ -114,7 +114,7 @@ public class HDVLBasePlugin implements Plugin<Project> {
             @Override
             public void execute(GenFullArgsFile genFullArgsFile) {
                 genFullArgsFile.setDescription("Generates an argument file for the " + sourceSet.getName() + " source code and its dependencies.");
-                genFullArgsFile.getSource().set(genArgsFile.getDestination());
+                genFullArgsFile.setSource(genArgsFile.getDestination());
                 genFullArgsFile.getDestination().set(project.getLayout().getBuildDirectory().file(Names.of(sourceSet.getName()).getFullArgsFileName(toolName)));
                 genFullArgsFile.setArgsFiles(project.getConfigurations().getByName(sourceSet.getArgsFilesConfigurationName(toolName)));
             }
