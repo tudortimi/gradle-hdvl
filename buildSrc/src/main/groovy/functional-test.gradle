@@ -7,15 +7,17 @@ sourceSets {
     }
 }
 
-task functionalTest(type: Test) {
+tasks.register('functionalTest', Test) {
     description = 'Runs the functional tests.'
     group = 'verification'
     testClassesDirs = sourceSets.functionalTest.output.classesDirs
     classpath = sourceSets.functionalTest.runtimeClasspath
-    mustRunAfter test
+    mustRunAfter tasks.named('test')
 }
 
-check.dependsOn functionalTest
+tasks.named('check') {
+    dependsOn tasks.named('functionalTest')
+}
 
 gradlePlugin {
     testSourceSets sourceSets.functionalTest

@@ -4,6 +4,7 @@ plugins {
     id("maven-publish")
     id("com.gradle.plugin-publish") version "0.20.0"
     id("fr.brouillard.oss.gradle.jgitver") version "0.9.1"
+    id("functional-test")
 }
 
 pluginBundle {
@@ -11,8 +12,6 @@ pluginBundle {
     vcsUrl = "https://github.com/tudortimi/gradle-hdvl"
     tags = listOf("SystemVerilog", "HDL", "hardware", "verification", "Xcelium", "QuestaSim", "SVUnit")
 }
-
-apply(from = "$rootDir/gradle/functional-test.gradle")
 
 group = "com.verificationgentleman.gradle"
 
