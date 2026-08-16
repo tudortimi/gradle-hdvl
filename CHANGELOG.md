@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.3.0-beta.2] - 2026-08-02
+## [0.3.0] - 2026-08-16
 
 ### Fixed
 
@@ -15,11 +15,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`svunit`**: Fixed a crash when changing test locations by using lazy configuration ([#180]).
 - **`systemverilog`**: Fixed args-file generation to add `-incdir` entries only for directories that actually contain files ([#181]).
 - **`svunit`**: Fixed `testCompile` handling so provider-backed SVUnit dependencies are recognized correctly ([#182]).
-
-## [0.3.0-beta.1] - 2025-11-13
-
-### Fixed
-
 - **`base`**: Fixed race conditions when reconfiguring the build directory in multi-task scenarios ([#172]).
 
 ## [0.2.8] - 2025-01-04
@@ -111,9 +106,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`c`**: Initial C source directory integration for DPI-oriented builds ([#22]).
 - **`svunit`** and **`svunit-build`**: Initial SVUnit integration and build plugin split/toolchain support ([#29], [#30], [#31]).
 
-[Unreleased]: https://github.com/tudortimi/gradle-hdvl/compare/v0.3.0-beta.2...HEAD
-[0.3.0-beta.2]: https://github.com/tudortimi/gradle-hdvl/compare/v0.3.0-beta.1...v0.3.0-beta.2
-[0.3.0-beta.1]: https://github.com/tudortimi/gradle-hdvl/compare/v0.2.8...v0.3.0-beta.1
+[Unreleased]: https://github.com/tudortimi/gradle-hdvl/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/tudortimi/gradle-hdvl/compare/v0.2.8...v0.3.0
 [0.2.8]: https://github.com/tudortimi/gradle-hdvl/compare/v0.2.7...v0.2.8
 [0.2.7]: https://github.com/tudortimi/gradle-hdvl/compare/v0.2.6...v0.2.7
 [0.2.6]: https://github.com/tudortimi/gradle-hdvl/compare/v0.2.5...v0.2.6
