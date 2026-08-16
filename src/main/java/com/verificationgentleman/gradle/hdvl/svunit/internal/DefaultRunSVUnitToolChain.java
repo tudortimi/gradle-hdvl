@@ -5,8 +5,6 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DefaultRunSVUnitToolChain implements RunSVUnitToolChain {
     private ListProperty<String> args;
@@ -32,9 +30,12 @@ public class DefaultRunSVUnitToolChain implements RunSVUnitToolChain {
     }
 
     @Override
-    public RunSVUnitToolChain args(String... args) {
-        for (String arg : args) {
-            this.args.add(arg);
+    public RunSVUnitToolChain args(Object... args) {
+        for (Object arg : args) {
+            if (arg == null) {
+                throw new IllegalArgumentException("null argument is not allowed");
+            }
+            this.args.add(arg.toString());
         }
         return this;
     }
