@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2021-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package com.verificationgentleman.gradle.hdvl.c
 
-import org.gradle.testkit.runner.GradleRunner
+import com.verificationgentleman.gradle.hdvl.FunctionalTestRunner
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Ignore
@@ -65,9 +65,8 @@ class CPluginSpec extends Specification {
 
     def "can successfully import the plugin"() {
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
                 .withProjectDir(testProjectDir.root)
-                .withPluginClasspath()
                 .build()
 
         then:
@@ -94,9 +93,8 @@ class CPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('copy')
             .build()
 
@@ -142,9 +140,8 @@ class CPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('copy')
             .build()
 
@@ -157,9 +154,8 @@ class CPluginSpec extends Specification {
         new File(c, 'dummy.c').createNewFile()
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genXrunArgsFile')
             .build()
 
@@ -172,9 +168,8 @@ class CPluginSpec extends Specification {
         new File(c, 'dummy.c').createNewFile()
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genQrunArgsFile')
             .build()
 
@@ -187,9 +182,8 @@ class CPluginSpec extends Specification {
         new File(c, 'dummy.c').createNewFile()
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genXrunArgsFile')
             .build()
 
@@ -215,9 +209,8 @@ class CPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genDummyXrunArgsFile')
             .build()
 
@@ -232,9 +225,8 @@ class CPluginSpec extends Specification {
         new File(mainSv, "main.c").createNewFile()
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments(':hdvlSourcesArchive')
             .build()
 
@@ -255,9 +247,8 @@ class CPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments(':hdvlSourcesArchive')
             .build()
 
@@ -289,9 +280,8 @@ class CPluginSpec extends Specification {
             }
         """
 
-        GradleRunner.create()
+        FunctionalTestRunner.create()
             .withProjectDir(dependencyProjectBuildFile.parentFile)
-            .withPluginClasspath()
             .withArguments(':publish')
             .build()
 
@@ -309,9 +299,8 @@ class CPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(mainProjectBuildFile.parentFile)
-            .withPluginClasspath()
             .withDebug(true)
             .withArguments(':genFullXrunArgsFile')
             .build()
