@@ -1,3 +1,5 @@
+import org.gradle.api.attributes.plugin.GradlePluginApiVersion
+
 plugins {
     id("java-gradle-plugin")
     id("groovy")
@@ -90,6 +92,15 @@ tasks.withType(JavaCompile::class) {
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(8))
+    }
+}
+
+listOf(configurations.apiElements, configurations.runtimeElements).forEach { configuration ->
+    configuration.configure {
+        attributes.attribute(
+            GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE,
+            objects.named(GradlePluginApiVersion::class.java, "8.14")
+        )
     }
 }
 

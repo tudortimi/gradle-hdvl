@@ -12,6 +12,12 @@ Currently supports Xcelium and QuestaSim.
 Also supports testing using SVUnit and generating DVT projects.
 
 
+## Requirements
+
+Gradle 8.14 or later.
+Gradle 9 is supported as well.
+
+
 ## Notes
 
 The DSL is not yet stable and parts will most definitely change in the future.
