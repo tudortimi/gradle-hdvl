@@ -25,6 +25,7 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.*;
+import org.gradle.process.ExecOperations;
 import org.gradle.process.ExecSpec;
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -34,7 +35,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.stream.Collectors;
 
-public class TestTask extends DefaultTask {
+public abstract class TestTask extends DefaultTask {
 
     private RegularFileProperty mainArgsFile;
     private RegularFileProperty testArgsFile;
@@ -110,8 +111,11 @@ public class TestTask extends DefaultTask {
 
     }
 
+    @Inject
+    protected abstract ExecOperations getExecOperations();
+
     private void runTests() {
-        getProject().exec(new Action<ExecSpec>() {
+        getExecOperations().exec(new Action<ExecSpec>() {
             @Override
             public void execute(ExecSpec execSpec) {
                 execSpec.executable("bash");

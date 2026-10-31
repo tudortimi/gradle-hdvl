@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2024 the original author or authors.
+ * Copyright 2021-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.process.ExecOperations;
 import org.gradle.process.ExecSpec;
 
 import javax.inject.Inject;
@@ -86,8 +87,11 @@ public abstract class DVTTask extends DefaultTask {
         }
     }
 
+    @Inject
+    protected abstract ExecOperations getExecOperations();
+
     private void buildTestInfrastructure(SVUnitSetup svUnitSetup) {
-        getProject().exec(new Action<ExecSpec>() {
+        getExecOperations().exec(new Action<ExecSpec>() {
             @Override
             public void execute(ExecSpec execSpec) {
                 execSpec.executable("bash");
