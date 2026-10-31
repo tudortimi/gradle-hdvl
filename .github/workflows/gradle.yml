@@ -31,7 +31,7 @@ jobs:
         id: matrix
         run: echo "matrix=$(./gradlew -q printCompatibilityMatrix)" >> "$GITHUB_OUTPUT"
 
-  compatibility:
+  compatibility-test:
     needs: compatibility-matrix
     runs-on: ubuntu-latest
     name: compatibility (Gradle ${{ matrix.gradle }})
@@ -47,3 +47,11 @@ jobs:
           java-version: 8
       - name: Test against Gradle ${{ matrix.gradle }}
         run: ./gradlew ${{ matrix.task }}
+
+  compatibility:
+    needs: compatibility-test
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: test "${{ needs.compatibility-test.result }}" = "success"
