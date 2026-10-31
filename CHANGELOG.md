@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added support for Gradle 9.
+- Added the minimum supported Gradle version (8.14) to the plugin metadata.
 
 ### Changed
 
