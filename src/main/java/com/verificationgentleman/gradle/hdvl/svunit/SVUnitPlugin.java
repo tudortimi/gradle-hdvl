@@ -23,14 +23,13 @@ import com.verificationgentleman.gradle.hdvl.SourceSet;
 import com.verificationgentleman.gradle.hdvl.internal.Names;
 import com.verificationgentleman.gradle.hdvl.svunit.internal.DefaultToolChains;
 import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogPlugin;
-import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogSourceSet;
+import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogSourceDirectorySet;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.internal.HasConvention;
 import org.gradle.api.reflect.TypeOf;
 import org.gradle.api.specs.Specs;
 import org.gradle.api.tasks.TaskProvider;
@@ -64,15 +63,13 @@ public class SVUnitPlugin implements Plugin<Project> {
         sourceSets.named("test", new Action<SourceSet>() {
             @Override
             public void execute(SourceSet sourceSet) {
-                HasConvention sourceSetWithConvention = (HasConvention) sourceSet;
-                SystemVerilogSourceSet svSourceSet
-                        = (SystemVerilogSourceSet) sourceSetWithConvention.getConvention().getPlugins().get("sv");
+                SystemVerilogSourceDirectorySet svSources = sourceSet.getExtensions().getByType(SystemVerilogSourceDirectorySet.class);
 
-                ignoreUnitTests(svSourceSet);
+                ignoreUnitTests(svSources);
 
                 String[] toolNames = {"Xrun", "Qrun"};
                 for (String toolName: toolNames) {
-                    configureTestTask(project, sourceSets.getByName("main"), sourceSet, svSourceSet, toolName);
+                    configureTestTask(project, sourceSets.getByName("main"), sourceSet, svSources, toolName);
                 }
             }
         });
@@ -109,11 +106,11 @@ public class SVUnitPlugin implements Plugin<Project> {
         toolChains = project.getExtensions().create(ToolChains.class, "toolChains", DefaultToolChains.class);
     }
 
-    private void ignoreUnitTests(SystemVerilogSourceSet svSourceSet) {
-        svSourceSet.getSv().exclude("**/*_unit_test.sv");
+    private void ignoreUnitTests(SystemVerilogSourceDirectorySet svSources) {
+        svSources.exclude("**/*_unit_test.sv");
     }
 
-    private void configureTestTask(Project project, SourceSet mainSourceSet, SourceSet testSourceSet, SystemVerilogSourceSet testSvSourceSet, String toolName) {
+    private void configureTestTask(Project project, SourceSet mainSourceSet, SourceSet testSourceSet, SystemVerilogSourceDirectorySet testSvSources, String toolName) {
         GenFullArgsFile genFullArgsFile
                 = (GenFullArgsFile) project.getTasks().getByName(mainSourceSet.getGenFullArgsFileTaskName(toolName));
         GenFullArgsFile genFullTestArgsFile
@@ -129,7 +126,7 @@ public class SVUnitPlugin implements Plugin<Project> {
                 testTask.getTestArgsFile().set(genFullTestArgsFile.getDestination());
                 testTask.getTestsRoot().set(
                         project.getLayout().dir(
-                                project.provider(() -> testSvSourceSet.getSv().getSourceDirectories().getSingleFile())
+                                project.provider(() -> testSvSources.getSourceDirectories().getSingleFile())
                         )
                 );
                 testTask.setSvunitRoot(svUnitRoot);

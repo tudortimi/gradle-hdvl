@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2025 the original author or authors.
+ * Copyright 2021-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,8 @@ package com.verificationgentleman.gradle.hdvl.dvt;
 import com.verificationgentleman.gradle.hdvl.GenFullArgsFile;
 import com.verificationgentleman.gradle.hdvl.SourceSet;
 import com.verificationgentleman.gradle.hdvl.dvt.internal.SVUnitSetup;
-import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogSourceSet;
+import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogSourceDirectorySet;
 import org.gradle.api.*;
-import org.gradle.api.internal.HasConvention;
 import org.gradle.api.reflect.TypeOf;
 
 import java.io.File;
@@ -56,10 +55,10 @@ public class DVTPlugin implements Plugin<Project> {
 
             private void maybeConfigureTests(DVTTask dvt, Project sourceProject) {
                 SVUnitSetup svUnitSetup = dvt.getProject().getObjects().newInstance(SVUnitSetup.class);
-                SystemVerilogSourceSet testSvSourceSet = getTestSourceSet(sourceProject);
+                SystemVerilogSourceDirectorySet testSvSources = getTestSources(sourceProject);
                 svUnitSetup.getTestsRoot().set(
                         sourceProject.getLayout().dir(
-                                sourceProject.provider(() -> testSvSourceSet.getSv().getSourceDirectories().getSingleFile())
+                                sourceProject.provider(() -> testSvSources.getSourceDirectories().getSingleFile())
                         )
                 );
                 svUnitSetup.getSvunitRoot().setFrom(sourceProject.getConfigurations().getByName("svUnitRoot"));
@@ -67,11 +66,10 @@ public class DVTPlugin implements Plugin<Project> {
                 dvt.getSvUnitSetups().add(svUnitSetup);
             }
 
-            private SystemVerilogSourceSet getTestSourceSet(Project sourceProject) {
+            private SystemVerilogSourceDirectorySet getTestSources(Project sourceProject) {
                 NamedDomainObjectContainer<SourceSet> sourceSets = sourceProject.getExtensions()
                     .getByType(new TypeOf<NamedDomainObjectContainer<SourceSet>>() {});
-                HasConvention sourceSetWithConvention = (HasConvention) sourceSets.getByName("test");
-                return (SystemVerilogSourceSet) sourceSetWithConvention.getConvention().getPlugins().get("sv");
+                return sourceSets.getByName("test").getExtensions().getByType(SystemVerilogSourceDirectorySet.class);
             }
         });
     }
