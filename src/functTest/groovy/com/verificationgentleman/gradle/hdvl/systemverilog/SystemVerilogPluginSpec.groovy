@@ -17,7 +17,7 @@ package com.verificationgentleman.gradle.hdvl.systemverilog
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.gradle.testkit.runner.GradleRunner
+import com.verificationgentleman.gradle.hdvl.FunctionalTestRunner
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Ignore
@@ -66,9 +66,8 @@ class SystemVerilogPluginSpec extends Specification {
 
     def "can successfully import the plugin"() {
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
                 .withProjectDir(testProjectDir.root)
-                .withPluginClasspath()
                 .build()
 
         then:
@@ -85,9 +84,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
                 .withProjectDir(testProjectDir.root)
-                .withPluginClasspath()
                 .withArguments('assertProps')
                 .build()
 
@@ -111,9 +109,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
                 .withProjectDir(testProjectDir.root)
-                .withPluginClasspath()
                 .withArguments('copy')
                 .build()
 
@@ -139,9 +136,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
                 .withProjectDir(testProjectDir.root)
-                .withPluginClasspath()
                 .withArguments('copy')
                 .build()
 
@@ -170,9 +166,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
                 .withProjectDir(testProjectDir.root)
-                .withPluginClasspath()
                 .withArguments('copy')
                 .build()
 
@@ -201,9 +196,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('copy')
             .build()
 
@@ -224,9 +218,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
                 .withProjectDir(testProjectDir.root)
-                .withPluginClasspath()
                 .withArguments('copy')
                 .build()
 
@@ -272,9 +265,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
                 .withProjectDir(testProjectDir.root)
-                .withPluginClasspath()
                 .withArguments('copy')
                 .build()
 
@@ -319,9 +311,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('copy')
             .build()
 
@@ -334,9 +325,8 @@ class SystemVerilogPluginSpec extends Specification {
         new File(sv, 'dummy.sv').createNewFile()
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genXrunArgsFile')
             .build()
 
@@ -350,9 +340,8 @@ class SystemVerilogPluginSpec extends Specification {
         new File(sv, 'dummy.sv').createNewFile()
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genXrunArgsFile')
             .build()
 
@@ -365,9 +354,8 @@ class SystemVerilogPluginSpec extends Specification {
         new File(sv, 'dummy.sv').createNewFile()
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genXrunArgsFile')
             .build()
 
@@ -393,9 +381,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genXrunArgsFile')
             .build()
 
@@ -425,9 +412,8 @@ class SystemVerilogPluginSpec extends Specification {
         // No `src/main/sv` directory, but it still is a `srcDir`
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genXrunArgsFile')
             .build()
 
@@ -454,9 +440,8 @@ class SystemVerilogPluginSpec extends Specification {
         // `src/main/sv` directory exists but is empty
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genXrunArgsFile')
             .build()
 
@@ -470,9 +455,8 @@ class SystemVerilogPluginSpec extends Specification {
         new File(svHeaders, 'dummy.svh').createNewFile()
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genXrunArgsFile')
             .build()
 
@@ -491,9 +475,8 @@ class SystemVerilogPluginSpec extends Specification {
         // 'src/main/sv_headers' exists but is empty
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genXrunArgsFile')
             .build()
 
@@ -509,9 +492,8 @@ class SystemVerilogPluginSpec extends Specification {
         // No 'src/main/sv_headers' directory
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genXrunArgsFile')
             .build()
 
@@ -525,9 +507,8 @@ class SystemVerilogPluginSpec extends Specification {
         new File(sv, 'dummy.sv').createNewFile()
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genXrunArgsFile')
             .build()
 
@@ -543,9 +524,8 @@ class SystemVerilogPluginSpec extends Specification {
         new File(sv, 'dummy.sv').createNewFile()
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genFullXrunArgsFile')
             .build()
 
@@ -576,9 +556,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments(':mainProject:genFullXrunArgsFile')
             .build()
 
@@ -618,9 +597,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments(':mainProject:genFullXrunArgsFile')
             .build()
 
@@ -662,9 +640,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments(':mainProject:genFullXrunArgsFile')
             .build()
 
@@ -692,9 +669,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('tasks', '--all')
             .build()
 
@@ -718,9 +694,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genDummyXrunArgsFile')
             .build()
 
@@ -747,9 +722,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genDummyXrunArgsFile', 'genXrunArgsFile')
             .build()
 
@@ -763,9 +737,8 @@ class SystemVerilogPluginSpec extends Specification {
         new File(sv, 'dummy.sv').createNewFile()
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genQrunArgsFile')
             .build()
 
@@ -779,9 +752,8 @@ class SystemVerilogPluginSpec extends Specification {
         new File(sv, 'dummy.sv').createNewFile()
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genQrunArgsFile')
             .build()
 
@@ -794,9 +766,8 @@ class SystemVerilogPluginSpec extends Specification {
         new File(sv, 'dummy.sv').createNewFile()
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genQrunArgsFile')
             .build()
 
@@ -813,9 +784,8 @@ class SystemVerilogPluginSpec extends Specification {
         new File(svHeaders, 'dummy.svh').createNewFile()
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genQrunArgsFile')
             .build()
 
@@ -835,9 +805,8 @@ class SystemVerilogPluginSpec extends Specification {
         // 'src/main/sv_headers' exists but is empty
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genQrunArgsFile')
             .build()
 
@@ -851,9 +820,8 @@ class SystemVerilogPluginSpec extends Specification {
         new File(sv, 'dummy.sv').createNewFile()
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genFullQrunArgsFile')
             .build()
 
@@ -884,9 +852,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments(':mainProject:genFullQrunArgsFile')
             .build()
 
@@ -920,9 +887,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments(':mainProject:genFullQrunArgsFile')
             .build()
 
@@ -942,9 +908,8 @@ class SystemVerilogPluginSpec extends Specification {
         new File(mainSv, "main.sv").createNewFile()
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments(':writeCompileSpecFile')
             .build()
 
@@ -963,9 +928,8 @@ class SystemVerilogPluginSpec extends Specification {
         new File(mainSv, "main.sv").createNewFile()
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments(':hdvlSourcesArchive')
             .build()
 
@@ -982,9 +946,8 @@ class SystemVerilogPluginSpec extends Specification {
         new File(mainSv, "main.sv").createNewFile()
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments(':hdvlSourcesArchive')
             .build()
 
@@ -1005,9 +968,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments(':hdvlSourcesArchive')
             .build()
 
@@ -1025,9 +987,8 @@ class SystemVerilogPluginSpec extends Specification {
         new File(mainSv, "private_header.svh").createNewFile()
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments(':hdvlSourcesArchive')
             .build()
 
@@ -1050,9 +1011,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments(':hdvlSourcesArchive')
             .build()
 
@@ -1070,9 +1030,8 @@ class SystemVerilogPluginSpec extends Specification {
         new File(mainSvHeaders, "exported_header.svh").createNewFile()
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments(':hdvlSourcesArchive')
             .build()
 
@@ -1093,9 +1052,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments(':hdvlSourcesArchive')
             .build()
 
@@ -1122,9 +1080,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments(':generateMetadataFileForHdvlLibraryPublication')
             .build()
 
@@ -1166,9 +1123,8 @@ class SystemVerilogPluginSpec extends Specification {
             }
         """
 
-        GradleRunner.create()
+        FunctionalTestRunner.create()
                 .withProjectDir(dependencyProjectBuildFile.parentFile)
-                .withPluginClasspath()
                 .withArguments(':publish')
                 .build()
 
@@ -1186,9 +1142,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
                 .withProjectDir(mainProjectBuildFile.parentFile)
-                .withPluginClasspath()
                 .withDebug(true)
                 .withArguments(':genFullXrunArgsFile')
                 .build()
@@ -1224,9 +1179,8 @@ class SystemVerilogPluginSpec extends Specification {
         File dependencyProjectPrivateHeader = new File(dependencyProjectBuildFile.parentFile, 'src/main/sv/dependency-project-private-header.svh')
         dependencyProjectPrivateHeader.text = "dummy"
 
-        GradleRunner.create()
+        FunctionalTestRunner.create()
             .withProjectDir(dependencyProjectBuildFile.parentFile)
-            .withPluginClasspath()
             .withArguments(':publish')
             .build()
 
@@ -1244,9 +1198,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(mainProjectBuildFile.parentFile)
-            .withPluginClasspath()
             .withDebug(true)
             .withArguments(':genFullXrunArgsFile')
             .build()
@@ -1284,9 +1237,8 @@ class SystemVerilogPluginSpec extends Specification {
         File dependencyProjectPrivateHeader = new File(dependencyProjectExportedHeaderDir, 'dependency-project-exported-header.svh')
         dependencyProjectPrivateHeader.text = "dummy"
 
-        GradleRunner.create()
+        FunctionalTestRunner.create()
             .withProjectDir(dependencyProjectBuildFile.parentFile)
-            .withPluginClasspath()
             .withArguments(':publish')
             .build()
 
@@ -1304,9 +1256,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(mainProjectBuildFile.parentFile)
-            .withPluginClasspath()
             .withDebug(true)
             .withArguments(':genFullXrunArgsFile')
             .build()
@@ -1347,9 +1298,8 @@ class SystemVerilogPluginSpec extends Specification {
         File dependencyProjectPrivateHeader = new File(dependencyProjectExportedHeaderDir, 'dependency-project-exported-header.svh')
         dependencyProjectPrivateHeader.text = "dummy"
 
-        GradleRunner.create()
+        FunctionalTestRunner.create()
             .withProjectDir(dependencyProjectBuildFile.parentFile)
-            .withPluginClasspath()
             .withArguments(':publish')
             .build()
 
@@ -1367,9 +1317,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(mainProjectBuildFile.parentFile)
-            .withPluginClasspath()
             .withDebug(true)
             .withArguments(':genFullXrunArgsFile')
             .build()
@@ -1402,9 +1351,8 @@ class SystemVerilogPluginSpec extends Specification {
             }
         """
 
-        GradleRunner.create()
+        FunctionalTestRunner.create()
             .withProjectDir(dependencyProjectBuildFile.parentFile)
-            .withPluginClasspath()
             .withArguments(':publish')
             .build()
 
@@ -1429,9 +1377,8 @@ class SystemVerilogPluginSpec extends Specification {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(dependentProjectBuildFile.parentFile)
-            .withPluginClasspath()
             .withArguments(':generateMetadataFileForHdvlLibraryPublication')
             .build()
 

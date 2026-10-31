@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2024 the original author or authors.
+ * Copyright 2021-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package com.verificationgentleman.gradle.hdvl.dvt
 
-import org.gradle.testkit.runner.GradleRunner
+import com.verificationgentleman.gradle.hdvl.FunctionalTestRunner
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
@@ -28,9 +28,8 @@ import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 class DVTPluginSpec extends AbstractDVTPluginSpec {
     def "can successfully import the plugin"() {
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
                 .withProjectDir(testProjectDir.root)
-                .withPluginClasspath()
                 .build()
 
         then:
@@ -39,9 +38,8 @@ class DVTPluginSpec extends AbstractDVTPluginSpec {
 
     def "adds a 'dvt' task"() {
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments(':tasks', '--all')
             .build()
 
@@ -58,9 +56,8 @@ class DVTPluginSpec extends AbstractDVTPluginSpec {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments(':dvt')
             .build()
 
@@ -79,9 +76,8 @@ class DVTPluginSpec extends AbstractDVTPluginSpec {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments(':dvt')
             .build()
 

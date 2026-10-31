@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 the original author or authors.
+ * Copyright 2023-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package com.verificationgentleman.gradle.hdvl
 
-import org.gradle.testkit.runner.GradleRunner
 import spock.lang.Specification
 import spock.lang.TempDir
 import spock.util.io.FileSystemFixture
@@ -39,9 +38,8 @@ class HDVLBasePluginSpec extends Specification {
 
     def "can successfully import the plugin"() {
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
                 .withProjectDir(fsFixture.currentPath.toFile())
-                .withPluginClasspath()
                 .build()
 
         then:
@@ -84,9 +82,8 @@ class HDVLBasePluginSpec extends Specification {
         }
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(fsFixture.resolve('consumer').toFile())
-            .withPluginClasspath()
             .withArguments('genFullXrunArgsFile')
             .build()
         println result.output

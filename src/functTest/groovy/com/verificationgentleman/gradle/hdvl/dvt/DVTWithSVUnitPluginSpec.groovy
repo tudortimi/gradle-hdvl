@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package com.verificationgentleman.gradle.hdvl.dvt
 
-import org.gradle.testkit.runner.GradleRunner
+import com.verificationgentleman.gradle.hdvl.FunctionalTestRunner
 
 import java.nio.file.Files
 
@@ -53,9 +53,8 @@ class DVTWithSVUnitPluginSpec extends AbstractDVTPluginSpec {
 
     def "'dvt' task task creates link in build directory to tests"() {
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments(':dvt')
             .build()
 
@@ -69,9 +68,8 @@ class DVTWithSVUnitPluginSpec extends AbstractDVTPluginSpec {
 
     def "'dvt' task executes 'buildSVUnit'"() {
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('dvt')
             .build()
 
@@ -84,9 +82,8 @@ class DVTWithSVUnitPluginSpec extends AbstractDVTPluginSpec {
 
     def "'dvt' task includes SVUnit args file in 'default.build'"() {
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('dvt')
             .build()
 
