@@ -151,7 +151,7 @@ class SVUnitPluginSpec extends Specification  {
 
         then:
         result.task(":testWithXrun").outcome == SUCCESS
-        def testsLink = new File(testProjectDir.root, 'build/svunit/tests')
+        def testsLink = new File(testProjectDir.root, 'build/svunit/xrun/tests')
         testsLink.exists()
         Files.isSymbolicLink(testsLink.toPath())
         testsLink.toPath().toRealPath() == sv.toPath()
@@ -169,7 +169,7 @@ class SVUnitPluginSpec extends Specification  {
 
         then:
         result.task(":testWithXrun").outcome == SUCCESS
-        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
+        def dummyLog = new File(testProjectDir.root, 'build/svunit/xrun/runSVUnit.log')
         dummyLog.exists()
     }
 
@@ -185,7 +185,7 @@ class SVUnitPluginSpec extends Specification  {
 
         then:
         result.task(":testWithXrun").outcome == SUCCESS
-        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
+        def dummyLog = new File(testProjectDir.root, 'build/svunit/xrun/runSVUnit.log')
         dummyLog.text.contains "-f ${testProjectDir.root}/build/full_xrun_args.f"
     }
 
@@ -201,7 +201,7 @@ class SVUnitPluginSpec extends Specification  {
 
         then:
         result.task(":testWithQrun").outcome == SUCCESS
-        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
+        def dummyLog = new File(testProjectDir.root, 'build/svunit/qrun/runSVUnit.log')
         dummyLog.text.contains "-f ${testProjectDir.root}/build/full_qrun_args.f"
     }
 
@@ -217,7 +217,7 @@ class SVUnitPluginSpec extends Specification  {
 
         then:
         result.task(":testWithXrun").outcome == SUCCESS
-        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
+        def dummyLog = new File(testProjectDir.root, 'build/svunit/xrun/runSVUnit.log')
         dummyLog.text.contains "-sim xrun"
     }
 
@@ -233,7 +233,7 @@ class SVUnitPluginSpec extends Specification  {
 
         then:
         result.task(":testWithQrun").outcome == SUCCESS
-        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
+        def dummyLog = new File(testProjectDir.root, 'build/svunit/qrun/runSVUnit.log')
         dummyLog.text.contains "-sim qrun"
     }
 
@@ -314,7 +314,7 @@ class SVUnitPluginSpec extends Specification  {
 
         then:
         result.task(":testWithXrun").outcome == SUCCESS
-        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
+        def dummyLog = new File(testProjectDir.root, 'build/svunit/xrun/runSVUnit.log')
         dummyLog.text.contains "--uvm"
     }
 
@@ -397,7 +397,7 @@ class SVUnitPluginSpec extends Specification  {
 
         then:
         result.task(":testWithXrun").outcome == SUCCESS
-        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
+        def dummyLog = new File(testProjectDir.root, 'build/svunit/xrun/runSVUnit.log')
         dummyLog.text.contains "-f ${testProjectDir.root}/build/full_test_xrun_args.f"
     }
 
