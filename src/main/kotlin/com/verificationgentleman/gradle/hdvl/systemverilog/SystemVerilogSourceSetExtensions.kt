@@ -17,9 +17,16 @@
 package com.verificationgentleman.gradle.hdvl.systemverilog
 
 import com.verificationgentleman.gradle.hdvl.SourceSet
+import org.gradle.api.file.SourceDirectorySet
 
 /**
  * The SystemVerilog sources of this source set. Requires the SystemVerilog plugin.
  */
 val SourceSet.sv: SystemVerilogSourceDirectorySet
     get() = extensions.getByType(SystemVerilogSourceDirectorySet::class.java)
+
+/**
+ * The exported SystemVerilog header sources of this source set. Requires the SystemVerilog plugin.
+ */
+val SourceSet.svHeaders: SourceDirectorySet
+    get() = extensions.getByName("svHeaders") as SourceDirectorySet
