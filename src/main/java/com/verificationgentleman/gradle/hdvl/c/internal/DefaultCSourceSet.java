@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2021-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import org.gradle.api.model.ObjectFactory;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static org.gradle.util.ConfigureUtil.configure;
+import static com.verificationgentleman.gradle.hdvl.internal.Closures.configure;
 
 public class DefaultCSourceSet implements CSourceSet {
     private final SourceDirectorySet c;
@@ -44,7 +44,6 @@ public class DefaultCSourceSet implements CSourceSet {
 
     @Override
     public DefaultCSourceSet c(@Nullable Closure configureClosure) {
-        // XXX This is not part of the public Gradle API
         configure(configureClosure, getC());
         return this;
     }
