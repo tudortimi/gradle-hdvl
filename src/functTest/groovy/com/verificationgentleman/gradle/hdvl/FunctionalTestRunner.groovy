@@ -24,8 +24,19 @@ final class FunctionalTestRunner {
     private FunctionalTestRunner() {
     }
 
+    /**
+     * Name of the system property holding the Gradle version to run the tests with. When it isn't set, the tests
+     * run with the Gradle version that executes them.
+     */
+    static final String TESTED_GRADLE_VERSION_PROPERTY = 'testedGradleVersion'
+
     static GradleRunner create() {
-        return GradleRunner.create()
+        GradleRunner runner = GradleRunner.create()
                 .withPluginClasspath()
+        String testedGradleVersion = System.getProperty(TESTED_GRADLE_VERSION_PROPERTY)
+        if (testedGradleVersion) {
+            runner.withGradleVersion(testedGradleVersion)
+        }
+        return runner
     }
 }
