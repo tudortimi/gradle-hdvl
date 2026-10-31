@@ -115,7 +115,7 @@ class CPluginSpec extends Specification {
 
         File buildFile = testProjectDir.newFile('build.gradle.kts')
         buildFile << """
-            import com.verificationgentleman.gradle.hdvl.c.CSourceSet
+            import org.gradle.api.file.SourceDirectorySet
 
             plugins {
                 id("com.verificationgentleman.gradle.hdvl.c")
@@ -123,8 +123,8 @@ class CPluginSpec extends Specification {
 
             sourceSets {
                 main {
-                    withConvention(CSourceSet::class) {
-                        c.exclude("**/dummy.c")
+                    extensions.configure<SourceDirectorySet>("c") {
+                        exclude("**/dummy.c")
                     }
                 }
             }
@@ -133,7 +133,7 @@ class CPluginSpec extends Specification {
                 // XXX Not clear why we can't just do 'sourceSets.main.sv'.
                 // 'sourceSets.main' doesn't return an object of type 'SourceSet', but a
                 // 'NamedDomainObjectProvider<SourceSet'. The Java plugin has the same issue.
-                from(sourceSets.main.withConvention(CSourceSet::class) { c })
+                from(sourceSets.main.get().extensions.getByName("c") as SourceDirectorySet)
                 include("*")
                 into("build")
             }

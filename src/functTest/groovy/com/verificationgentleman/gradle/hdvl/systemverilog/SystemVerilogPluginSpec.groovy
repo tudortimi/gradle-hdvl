@@ -240,7 +240,7 @@ class SystemVerilogPluginSpec extends Specification {
 
         File buildFile = testProjectDir.newFile('build.gradle.kts')
         buildFile << """
-            import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogSourceSet
+            import org.gradle.api.file.SourceDirectorySet
 
             plugins {
                 id("com.verificationgentleman.gradle.hdvl.systemverilog")
@@ -248,8 +248,8 @@ class SystemVerilogPluginSpec extends Specification {
 
             sourceSets {
                 main {
-                    withConvention(SystemVerilogSourceSet::class) {
-                        sv.exclude("**/dummy.sv")
+                    extensions.configure<SourceDirectorySet>("sv") {
+                        exclude("**/dummy.sv")
                     }
                 }
             }
@@ -258,7 +258,7 @@ class SystemVerilogPluginSpec extends Specification {
                 // XXX Not clear why we can't just do 'sourceSets.main.sv'.
                 // 'sourceSets.main' doesn't return an object of type 'SourceSet', but a
                 // 'NamedDomainObjectProvider<SourceSet'. The Java plugin has the same issue.
-                from(sourceSets.main.withConvention(SystemVerilogSourceSet::class) { sv }.files)
+                from((sourceSets.main.get().extensions.getByName("sv") as SourceDirectorySet).files)
                 include("*")
                 into("build")
             }
@@ -286,7 +286,7 @@ class SystemVerilogPluginSpec extends Specification {
 
         File buildFile = testProjectDir.newFile('build.gradle.kts')
         buildFile << """
-            import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogSourceSet
+            import org.gradle.api.file.SourceDirectorySet
 
             plugins {
                 id("com.verificationgentleman.gradle.hdvl.systemverilog")
@@ -294,8 +294,8 @@ class SystemVerilogPluginSpec extends Specification {
 
             sourceSets {
                 main {
-                    withConvention(SystemVerilogSourceSet::class) {
-                        svHeaders.exclude("**/dummy.svh")
+                    extensions.configure<SourceDirectorySet>("svHeaders") {
+                        exclude("**/dummy.svh")
                     }
                 }
             }
@@ -304,7 +304,7 @@ class SystemVerilogPluginSpec extends Specification {
                 // XXX Not clear why we can't just do 'sourceSets.main.sv'.
                 // 'sourceSets.main' doesn't return an object of type 'SourceSet', but a
                 // 'NamedDomainObjectProvider<SourceSet'. The Java plugin has the same issue.
-                from(sourceSets.main.withConvention(SystemVerilogSourceSet::class) { svHeaders }.files)
+                from((sourceSets.main.get().extensions.getByName("svHeaders") as SourceDirectorySet).files)
                 include("*")
                 into("build")
             }

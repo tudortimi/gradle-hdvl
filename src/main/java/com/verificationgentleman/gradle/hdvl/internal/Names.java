@@ -1,7 +1,5 @@
 package com.verificationgentleman.gradle.hdvl.internal;
 
-import org.gradle.util.GUtil;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -100,10 +98,19 @@ public abstract class Names {
     }
 
     private static String toLowerCamelCase(String ... words) {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (String word: words)
-            stringBuilder.append(word).append(" ");
-        return GUtil.toLowerCamelCase(stringBuilder.toString());
+        StringBuilder result = new StringBuilder();
+        for (String word: words) {
+            for (String part: word.split("[^A-Za-z0-9]+")) {
+                if (part.isEmpty())
+                    continue;
+                if (result.length() == 0)
+                    result.append(Character.toLowerCase(part.charAt(0)));
+                else
+                    result.append(Character.toUpperCase(part.charAt(0)));
+                result.append(part, 1, part.length());
+            }
+        }
+        return result.toString();
     }
 
     private static String toLowerSnakeCase(String ... words) {

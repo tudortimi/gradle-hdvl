@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2024 the original author or authors.
+ * Copyright 2021-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import org.gradle.api.model.ObjectFactory;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static org.gradle.util.ConfigureUtil.configure;
+import static com.verificationgentleman.gradle.hdvl.internal.Closures.configure;
 
 public class DefaultSystemVerilogSourceSet implements SystemVerilogSourceSet {
     private final DefaultSystemVerilogSourceDirectorySet sv;
@@ -49,7 +49,6 @@ public class DefaultSystemVerilogSourceSet implements SystemVerilogSourceSet {
 
     @Override
     public DefaultSystemVerilogSourceSet sv(@Nullable Closure configureClosure) {
-        // XXX This is not part of the public Gradle API
         configure(configureClosure, getSv());
         return this;
     }
@@ -67,7 +66,6 @@ public class DefaultSystemVerilogSourceSet implements SystemVerilogSourceSet {
 
     @Override
     public DefaultSystemVerilogSourceSet svHeaders(@Nullable Closure configureClosure) {
-        // XXX This is not part of the public Gradle API
         configure(configureClosure, getSvHeaders());
         return this;
     }

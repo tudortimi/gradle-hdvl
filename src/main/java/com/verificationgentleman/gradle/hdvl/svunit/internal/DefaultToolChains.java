@@ -8,7 +8,7 @@ import org.gradle.api.model.ObjectFactory;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static org.gradle.util.ConfigureUtil.configure;
+import static com.verificationgentleman.gradle.hdvl.internal.Closures.configure;
 
 public class DefaultToolChains implements ToolChains {
     private DefaultRunSVUnitToolChain runSVUnit;
@@ -25,7 +25,6 @@ public class DefaultToolChains implements ToolChains {
 
     @Override
     public ToolChains runSVUnit(@Nullable Closure configureClosure) {
-        // XXX This is not part of the public Gradle API
         configure(configureClosure, getRunSVUnit());
         return this;
     }

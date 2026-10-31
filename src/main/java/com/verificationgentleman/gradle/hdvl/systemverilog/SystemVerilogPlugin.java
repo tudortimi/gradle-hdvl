@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 the original author or authors.
+ * Copyright 2020-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.file.DuplicatesStrategy;
-import org.gradle.api.internal.plugins.DslObject;
+import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.tasks.bundling.Zip;
 
 import java.io.File;
@@ -44,8 +44,8 @@ public class SystemVerilogPlugin implements Plugin<Project> {
                 final DefaultSystemVerilogSourceSet svSourceSet = new DefaultSystemVerilogSourceSet(
                         sourceSet.getName(), project.getObjects());
 
-                // XXX WORKAROUND Not part of the public API
-                new DslObject(sourceSet).getConvention().getPlugins().put("sv", svSourceSet);
+                sourceSet.getExtensions().add(SystemVerilogSourceDirectorySet.class, "sv", svSourceSet.getSv());
+                sourceSet.getExtensions().add(SourceDirectorySet.class, "svHeaders", svSourceSet.getSvHeaders());
 
                 String[] toolNames = {"Xrun", "Qrun"};
                 for (String toolName: toolNames) {
