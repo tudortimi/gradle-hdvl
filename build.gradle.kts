@@ -3,6 +3,7 @@ import org.gradle.api.attributes.plugin.GradlePluginApiVersion
 plugins {
     id("java-gradle-plugin")
     id("groovy")
+    id("org.jetbrains.kotlin.jvm") version "2.0.21"
     id("maven-publish")
     id("com.gradle.plugin-publish") version "0.20.0"
     id("fr.brouillard.oss.gradle.jgitver") version "0.9.1"
@@ -68,6 +69,7 @@ gradlePlugin {
 dependencies {
     implementation(libs.jackson.databind)
     implementation(libs.commons.text)
+    compileOnly(kotlin("stdlib"))
 
     testImplementation("org.spockframework:spock-core:2.2-groovy-3.0") {
         exclude(group = "org.codehaus.groovy")
