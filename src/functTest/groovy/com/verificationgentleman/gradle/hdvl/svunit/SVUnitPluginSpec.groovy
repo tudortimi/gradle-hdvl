@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2021-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package com.verificationgentleman.gradle.hdvl.svunit
 
+import com.verificationgentleman.gradle.hdvl.FunctionalTestRunner
 import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogPlugin
-import org.gradle.testkit.runner.GradleRunner
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
@@ -59,9 +59,8 @@ class SVUnitPluginSpec extends Specification  {
 
     def "can successfully import the plugin"() {
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .build()
 
         then:
@@ -80,9 +79,8 @@ class SVUnitPluginSpec extends Specification  {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments(':printPlugins')
             .build()
 
@@ -103,9 +101,8 @@ class SVUnitPluginSpec extends Specification  {
         """
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('copy')
             .build()
 
@@ -121,7 +118,6 @@ class SVUnitPluginSpec extends Specification  {
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('testWithXrun')
             .build()
 
@@ -150,7 +146,6 @@ class SVUnitPluginSpec extends Specification  {
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('testWithXrun')
             .build()
 
@@ -169,7 +164,6 @@ class SVUnitPluginSpec extends Specification  {
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('testWithXrun')
             .build()
 
@@ -186,7 +180,6 @@ class SVUnitPluginSpec extends Specification  {
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('testWithXrun')
             .build()
 
@@ -203,7 +196,6 @@ class SVUnitPluginSpec extends Specification  {
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('testWithQrun')
             .build()
 
@@ -220,7 +212,6 @@ class SVUnitPluginSpec extends Specification  {
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('testWithXrun')
             .build()
 
@@ -237,7 +228,6 @@ class SVUnitPluginSpec extends Specification  {
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('testWithQrun')
             .build()
 
@@ -256,7 +246,6 @@ class SVUnitPluginSpec extends Specification  {
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('help')
             .build()
 
@@ -274,7 +263,6 @@ class SVUnitPluginSpec extends Specification  {
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('help')
             .build()
 
@@ -297,7 +285,6 @@ class SVUnitPluginSpec extends Specification  {
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('help')
             .build()
 
@@ -322,7 +309,6 @@ class SVUnitPluginSpec extends Specification  {
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('testWithXrun')
             .build()
 
@@ -347,7 +333,6 @@ class SVUnitPluginSpec extends Specification  {
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('testWithXrun')
             .build()
 
@@ -363,9 +348,8 @@ class SVUnitPluginSpec extends Specification  {
         new File(testSv, 'some_test_package.sv').createNewFile()
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genTestXrunArgsFile')
             .build()
 
@@ -387,9 +371,8 @@ class SVUnitPluginSpec extends Specification  {
 
 
         when:
-        def result = GradleRunner.create()
+        def result = FunctionalTestRunner.create()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('genTestXrunArgsFile')
             .build()
 
@@ -409,7 +392,6 @@ class SVUnitPluginSpec extends Specification  {
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('testWithXrun')
             .build()
 
@@ -436,7 +418,6 @@ class SVUnitPluginSpec extends Specification  {
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('testWithXrun')
             .build()
 
@@ -453,7 +434,6 @@ class SVUnitPluginSpec extends Specification  {
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('check')
             .build()
 
@@ -479,7 +459,6 @@ class SVUnitPluginSpec extends Specification  {
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
             .withProjectDir(testProjectDir.root)
-            .withPluginClasspath()
             .withArguments('testWithXrun')
             .build()
 
@@ -491,7 +470,7 @@ class SVUnitPluginSpec extends Specification  {
         def runSVUnitFake = new File(getClass().getResource('/runSVUnit').toURI())
         def env = System.getenv()
 
-        return GradleRunner.create()
+        return FunctionalTestRunner.create()
             .withEnvironment(["PATH": [runSVUnitFake.parent, env.PATH].join(':')])
     }
 }
