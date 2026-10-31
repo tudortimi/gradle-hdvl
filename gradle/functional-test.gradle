@@ -17,6 +17,27 @@ task functionalTest(type: Test) {
 
 check.dependsOn functionalTest
 
+// Gradle versions the plugin is tested against, in addition to the one running the build.
+// The plugin relies on Gradle internals, so the oldest supported version is 8.14 (8.13 and older fail).
+def testedGradleVersions = ['8.14', '8.14.6']
+
+def compatibilityTest = tasks.register('compatibilityTest') {
+    description = 'Runs the functional tests against all supported Gradle versions.'
+    group = 'verification'
+}
+
+(testedGradleVersions + gradle.gradleVersion).unique().each { String version ->
+    def versionTask = tasks.register("functionalTestGradle_${version.replaceAll(/[^A-Za-z0-9]/, '_')}", Test) {
+        description = "Runs the functional tests against Gradle ${version}."
+        group = 'verification'
+        testClassesDirs = sourceSets.functionalTest.output.classesDirs
+        classpath = sourceSets.functionalTest.runtimeClasspath
+        systemProperty 'testedGradleVersion', version
+        mustRunAfter functionalTest
+    }
+    compatibilityTest.configure { dependsOn versionTask }
+}
+
 gradlePlugin {
     testSourceSets sourceSets.functionalTest
 }
