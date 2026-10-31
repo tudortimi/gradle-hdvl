@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added support for Gradle 9.
+
+### Changed
+
+- **`c`**, **`systemverilog`**: The `c`, `sv` and `svHeaders` source directory sets are now exposed as extensions of the source set instead of conventions, which Gradle 9 removed. Groovy build scripts are unaffected. Kotlin build scripts must replace `withConvention(...)` with `extensions.configure<SourceDirectorySet>("sv")` (or `"svHeaders"`, `"c"`).
+
 ## [0.3.0] - 2026-08-16
 
 ### Fixed
