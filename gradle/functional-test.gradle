@@ -19,7 +19,7 @@ check.dependsOn functionalTest
 
 // Gradle versions the plugin is tested against, in addition to the one running the build.
 // The plugin relies on Gradle internals, so the oldest supported version is 8.14 (8.13 and older fail).
-def testedGradleVersions = ['8.14', '8.14.6']
+def testedGradleVersions = ['8.14', '8.14.6', '9.0.0', '9.1.0', '9.2.0', '9.2.1', '9.3.0', '9.3.1', '9.4.0', '9.4.1', '9.5.0', '9.5.1', '9.6.0', '9.6.1', '9.7.0', '9.7.1', '9.8.0', '9.8.2']
 
 def compatibilityTest = tasks.register('compatibilityTest') {
     description = 'Runs the functional tests against all supported Gradle versions.'
@@ -37,6 +37,9 @@ def compatibilityMatrix = []
         classpath = sourceSets.functionalTest.runtimeClasspath
         systemProperty 'testedGradleVersion', version
         mustRunAfter functionalTest
+        // Gradle 9 requires Java 17+ to run
+        def javaVersion = version.tokenize('.').first().toInteger() >= 9 ? 17 : 8
+        javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(javaVersion) }
     }
     compatibilityTest.configure { dependsOn versionTask }
     compatibilityMatrix << [gradle: version, task: taskName]
