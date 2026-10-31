@@ -18,13 +18,10 @@ package com.verificationgentleman.gradle.hdvl.svunit.internal;
 
 import com.verificationgentleman.gradle.hdvl.svunit.RunSVUnitToolChain;
 import com.verificationgentleman.gradle.hdvl.svunit.ToolChains;
-import groovy.lang.Closure;
+import org.gradle.api.Action;
 import org.gradle.api.model.ObjectFactory;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
-
-import static com.verificationgentleman.gradle.hdvl.internal.Closures.configure;
 
 public class DefaultToolChains implements ToolChains {
     private DefaultRunSVUnitToolChain runSVUnit;
@@ -40,8 +37,8 @@ public class DefaultToolChains implements ToolChains {
     }
 
     @Override
-    public ToolChains runSVUnit(@Nullable Closure configureClosure) {
-        configure(configureClosure, getRunSVUnit());
+    public ToolChains runSVUnit(Action<? super RunSVUnitToolChain> configureAction) {
+        configureAction.execute(getRunSVUnit());
         return this;
     }
 }
