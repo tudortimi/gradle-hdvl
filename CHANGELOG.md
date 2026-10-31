@@ -11,10 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added support for Gradle 9.
 - Added the minimum supported Gradle version (8.14) to the plugin metadata.
+- **`c`**, **`systemverilog`**: Added Kotlin accessors for the `c`, `sv` and `svHeaders` source directory sets.
 
 ### Changed
 
-- **`c`**, **`systemverilog`**: The `c`, `sv` and `svHeaders` source directory sets are now exposed as extensions of the source set instead of conventions, which Gradle 9 removed. Groovy build scripts are unaffected. Kotlin build scripts must replace `withConvention(...)` with `extensions.configure<SourceDirectorySet>("sv")` (or `"svHeaders"`, `"c"`).
+- **`c`**, **`systemverilog`**: The `c`, `sv` and `svHeaders` source directory sets are now exposed as extensions of the source set instead of conventions, which Gradle 9 removed. Groovy build scripts are unaffected. Kotlin build scripts must replace `withConvention(...)` with the new accessors.
 
 ## [0.3.0] - 2026-08-16
 
