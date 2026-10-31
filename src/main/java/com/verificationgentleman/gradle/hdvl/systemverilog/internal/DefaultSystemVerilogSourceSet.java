@@ -18,15 +18,11 @@ package com.verificationgentleman.gradle.hdvl.systemverilog.internal;
 
 import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogSourceDirectorySet;
 import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogSourceSet;
-import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.model.ObjectFactory;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
-
-import static com.verificationgentleman.gradle.hdvl.internal.Closures.configure;
 
 public class DefaultSystemVerilogSourceSet implements SystemVerilogSourceSet {
     private final DefaultSystemVerilogSourceDirectorySet sv;
@@ -48,12 +44,6 @@ public class DefaultSystemVerilogSourceSet implements SystemVerilogSourceSet {
     }
 
     @Override
-    public DefaultSystemVerilogSourceSet sv(@Nullable Closure configureClosure) {
-        configure(configureClosure, getSv());
-        return this;
-    }
-
-    @Override
     public DefaultSystemVerilogSourceSet sv(Action<? super SystemVerilogSourceDirectorySet> configureAction) {
         configureAction.execute(getSv());
         return this;
@@ -62,12 +52,6 @@ public class DefaultSystemVerilogSourceSet implements SystemVerilogSourceSet {
     @Override
     public SourceDirectorySet getSvHeaders() {
         return svHeaders;
-    }
-
-    @Override
-    public DefaultSystemVerilogSourceSet svHeaders(@Nullable Closure configureClosure) {
-        configure(configureClosure, getSvHeaders());
-        return this;
     }
 
     @Override

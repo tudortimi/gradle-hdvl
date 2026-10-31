@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2021-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,12 @@
 
 package com.verificationgentleman.gradle.hdvl.c;
 
-import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.file.SourceDirectorySet;
-
-import javax.annotation.Nullable;
 
 public interface CSourceSet {
 
     SourceDirectorySet getC();
-
-    CSourceSet c(@Nullable Closure configureClosure);
 
     CSourceSet c(Action<? super SourceDirectorySet> configureAction);
 

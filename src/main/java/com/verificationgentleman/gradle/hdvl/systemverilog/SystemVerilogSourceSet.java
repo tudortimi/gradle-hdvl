@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2024 the original author or authors.
+ * Copyright 2021-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,16 @@
 
 package com.verificationgentleman.gradle.hdvl.systemverilog;
 
-import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.file.SourceDirectorySet;
-
-import javax.annotation.Nullable;
 
 public interface SystemVerilogSourceSet {
 
     SystemVerilogSourceDirectorySet getSv();
 
-    SystemVerilogSourceSet sv(@Nullable Closure configureClosure);
-
     SystemVerilogSourceSet sv(Action<? super SystemVerilogSourceDirectorySet> configureAction);
 
     SourceDirectorySet getSvHeaders();
-
-    SystemVerilogSourceSet svHeaders(@Nullable Closure configureClosure);
 
     SystemVerilogSourceSet svHeaders(Action<? super SourceDirectorySet> configureAction);
 
