@@ -26,8 +26,11 @@ def compatibilityTest = tasks.register('compatibilityTest') {
     group = 'verification'
 }
 
+def compatibilityMatrix = []
+
 (testedGradleVersions + gradle.gradleVersion).unique().each { String version ->
-    def versionTask = tasks.register("functionalTestGradle_${version.replaceAll(/[^A-Za-z0-9]/, '_')}", Test) {
+    def taskName = "functionalTestGradle_${version.replaceAll(/[^A-Za-z0-9]/, '_')}"
+    def versionTask = tasks.register(taskName, Test) {
         description = "Runs the functional tests against Gradle ${version}."
         group = 'verification'
         testClassesDirs = sourceSets.functionalTest.output.classesDirs
@@ -36,6 +39,15 @@ def compatibilityTest = tasks.register('compatibilityTest') {
         mustRunAfter functionalTest
     }
     compatibilityTest.configure { dependsOn versionTask }
+    compatibilityMatrix << [gradle: version, task: taskName]
+}
+
+tasks.register('printCompatibilityMatrix') {
+    description = 'Prints the compatibility test matrix as JSON, for use by CI.'
+    group = 'help'
+    doLast {
+        println groovy.json.JsonOutput.toJson(compatibilityMatrix)
+    }
 }
 
 gradlePlugin {

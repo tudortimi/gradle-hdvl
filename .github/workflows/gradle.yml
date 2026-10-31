@@ -17,13 +17,33 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
-  compatibility:
+  compatibility-matrix:
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
 
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-java@v1
         with:
           java-version: 8
-      - name: Test against supported Gradle versions
-        run: ./gradlew compatibilityTest
+      - name: Determine tested Gradle versions
+        id: matrix
+        run: echo "matrix=$(./gradlew -q printCompatibilityMatrix)" >> "$GITHUB_OUTPUT"
+
+  compatibility:
+    needs: compatibility-matrix
+    runs-on: ubuntu-latest
+    name: compatibility (Gradle ${{ matrix.gradle }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.compatibility-matrix.outputs.matrix) }}
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Test against Gradle ${{ matrix.gradle }}
+        run: ./gradlew ${{ matrix.task }}
