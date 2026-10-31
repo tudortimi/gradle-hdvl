@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 the original author or authors.
+ * Copyright 2021-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,7 @@
 
 package com.verificationgentleman.gradle.hdvl.svunit;
 
-import groovy.lang.Closure;
-
-import javax.annotation.Nullable;
+import org.gradle.api.Action;
 
 public interface ToolChains {
     RunSVUnitToolChain getRunSVUnit();
@@ -26,8 +24,8 @@ public interface ToolChains {
     /**
      * Configures the 'runSVUnit' tool chain.
      *
-     * @param configureClosure The closure to use to configure the tool chain
+     * @param configureAction The action to use to configure the tool chain
      * @return this
      */
-    ToolChains runSVUnit(@Nullable Closure configureClosure);
+    ToolChains runSVUnit(Action<? super RunSVUnitToolChain> configureAction);
 }
