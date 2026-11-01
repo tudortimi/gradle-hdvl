@@ -1,0 +1,65 @@
+= gradle-hdvl User Guide
+:toc: left
+
+Family of Gradle plugins that provide support for hardware design and verification languages.
+
+WARNING: The DSL and plugin API are not yet stable.
+
+== Requirements
+
+Gradle 8.14 or later.
+Gradle 9 is supported as well.
+
+== Getting Started
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+=== Installation
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+=== Your first build
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+== SystemVerilog
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+== C
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+== SVUnit
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+== DVT
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+== Examples
+
+Runnable examples are in the https://github.com/tudortimi/gradle-hdvl/tree/master/examples[examples] directory.
+
+== API Reference
+
+* link:api/javadoc/index.html[Javadoc] (Java API)
+* link:api/kotlin/index.html[Dokka] (Kotlin extensions)
+
+=== Plugins
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+[cols="1,3"]
+|===
+| Plugin ID | Description
+
+| `base` | Placeholder.
+| `systemverilog` | Placeholder.
+| `c` | Placeholder.
+| `svunit` | Placeholder.
+| `svunit-build` | Placeholder.
+| `svunit-build-injector` | Placeholder.
+| `dvt` | Placeholder.
+|===
