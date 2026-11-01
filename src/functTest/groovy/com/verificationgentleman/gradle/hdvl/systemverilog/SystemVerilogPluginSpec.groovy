@@ -246,7 +246,6 @@ class SystemVerilogPluginSpec extends Specification {
         testProjectDir.resolve('build/dummy.sv').toFile().exists()
     }
 
-    @Ignore("Complains that the source set doesn't support conventions")
     def "can specify a source set source exclude using an action"() {
         // XXX Most tests use 'build.gradle', but in this test we want to use a Kotlin build script. It seems like
         // overkill to create a new test class just fo this.
@@ -258,7 +257,7 @@ class SystemVerilogPluginSpec extends Specification {
                 file('dummy.sv') << ''
             }
             file('build.gradle.kts') << """
-                import org.gradle.api.file.SourceDirectorySet
+                import com.verificationgentleman.gradle.hdvl.systemverilog.sv
 
                 plugins {
                     id("com.verificationgentleman.gradle.hdvl.systemverilog")
@@ -266,17 +265,12 @@ class SystemVerilogPluginSpec extends Specification {
 
                 sourceSets {
                     main {
-                        extensions.configure<SourceDirectorySet>("sv") {
-                            exclude("**/dummy.sv")
-                        }
+                        sv.exclude("**/dummy.sv")
                     }
                 }
 
                 tasks.register<Copy>("copy") {
-                    // XXX Not clear why we can't just do 'sourceSets.main.sv'.
-                    // 'sourceSets.main' doesn't return an object of type 'SourceSet', but a
-                    // 'NamedDomainObjectProvider<SourceSet'. The Java plugin has the same issue.
-                    from((sourceSets.main.get().extensions.getByName("sv") as SourceDirectorySet).files)
+                    from(sourceSets.main.get().sv.files)
                     include("*")
                     into("build")
                 }
@@ -293,7 +287,6 @@ class SystemVerilogPluginSpec extends Specification {
         result.task(":copy").outcome == NO_SOURCE
     }
 
-    @Ignore("Complains that the source set doesn't support conventions")
     def "can specify a source set exported header source exclude using an action"() {
         // XXX Most tests use 'build.gradle', but in this test we want to use a Kotlin build script. It seems like
         // overkill to create a new test class just fo this.
@@ -305,7 +298,7 @@ class SystemVerilogPluginSpec extends Specification {
                 file('dummy.svh') << ''
             }
             file('build.gradle.kts') << """
-                import org.gradle.api.file.SourceDirectorySet
+                import com.verificationgentleman.gradle.hdvl.systemverilog.svHeaders
 
                 plugins {
                     id("com.verificationgentleman.gradle.hdvl.systemverilog")
@@ -313,17 +306,12 @@ class SystemVerilogPluginSpec extends Specification {
 
                 sourceSets {
                     main {
-                        extensions.configure<SourceDirectorySet>("svHeaders") {
-                            exclude("**/dummy.svh")
-                        }
+                        svHeaders.exclude("**/dummy.svh")
                     }
                 }
 
                 tasks.register<Copy>("copy") {
-                    // XXX Not clear why we can't just do 'sourceSets.main.sv'.
-                    // 'sourceSets.main' doesn't return an object of type 'SourceSet', but a
-                    // 'NamedDomainObjectProvider<SourceSet'. The Java plugin has the same issue.
-                    from((sourceSets.main.get().extensions.getByName("svHeaders") as SourceDirectorySet).files)
+                    from(sourceSets.main.get().svHeaders.files)
                     include("*")
                     into("build")
                 }

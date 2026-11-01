@@ -1,10 +1,10 @@
-import org.gradle.api.file.SourceDirectorySet
+import com.verificationgentleman.gradle.hdvl.systemverilog.sv
 
 plugins {
     id("com.verificationgentleman.gradle.hdvl.systemverilog")
 }
 
 tasks.register<Copy>("copy") {
-    from((sourceSets.main.get().extensions.getByName("sv") as SourceDirectorySet).files)
+    from(sourceSets.main.get().sv.files)
     into("build")
 }
