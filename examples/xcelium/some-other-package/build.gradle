@@ -16,7 +16,3 @@ task run(type: Exec) {
     workingDir xrunDir
     mkdir workingDir
 }
-
-tasks.named('clean') {
-    delete xrunDir
-}

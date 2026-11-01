@@ -12,7 +12,3 @@ task run(type: Exec) {
     workingDir qrunDir
     mkdir workingDir
 }
-
-tasks.named('clean') {
-    delete qrunDir
-}
