@@ -17,27 +17,27 @@
 package com.verificationgentleman.gradle.hdvl.dvt
 
 import com.verificationgentleman.gradle.hdvl.FunctionalTestRunner
-import com.verificationgentleman.gradle.hdvl.TestProjectDir
 import spock.lang.Specification
 import spock.lang.TempDir
+import spock.util.io.FileSystemFixture
 
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
 class DVTPluginInMultiProjectBuildSpec extends Specification {
-    @TempDir File testProjectDir
+    @TempDir FileSystemFixture testProjectDir
 
     def setup() {
-        File sv0 = TestProjectDir.newFolder(testProjectDir, 'proj0', 'src', 'main', 'sv')
+        File sv0 = testProjectDir.dir('proj0/src/main/sv').toFile()
         new File(sv0, 'proj0.sv').createNewFile()
-        File testSv0 = TestProjectDir.newFolder(testProjectDir, 'proj0', 'src', 'test', 'sv')
+        File testSv0 = testProjectDir.dir('proj0/src/test/sv').toFile()
         new File(testSv0, 'proj0_unit_test.sv').createNewFile()
 
-        File sv1 = TestProjectDir.newFolder(testProjectDir, 'proj1', 'src', 'main', 'sv')
+        File sv1 = testProjectDir.dir('proj1/src/main/sv').toFile()
         new File(sv1, 'proj1.sv').createNewFile()
-        File testSv1= TestProjectDir.newFolder(testProjectDir, 'proj1', 'src', 'test', 'sv')
+        File testSv1= testProjectDir.dir('proj1/src/test/sv').toFile()
         new File(testSv1, 'proj1_unit_test.sv').createNewFile()
 
-        File buildFile = TestProjectDir.newFile(testProjectDir, 'build.gradle')
+        File buildFile = testProjectDir.file('build.gradle').toFile()
         buildFile << """
             plugins {
                 id 'com.verificationgentleman.gradle.hdvl.systemverilog' apply false
@@ -53,7 +53,7 @@ class DVTPluginInMultiProjectBuildSpec extends Specification {
             }
         """
 
-        File settingsFile = TestProjectDir.newFile(testProjectDir, 'settings.gradle')
+        File settingsFile = testProjectDir.file('settings.gradle').toFile()
         settingsFile << """
             include 'proj0'
             include 'proj1'
@@ -71,13 +71,13 @@ class DVTPluginInMultiProjectBuildSpec extends Specification {
     def "'dvt' task includes args files of both projects in 'default.build'"() {
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir)
+            .withProjectDir(testProjectDir.currentPath.toFile())
             .withArguments('dvt')
             .build()
 
         then:
         result.task(":dvt").outcome == SUCCESS
-        def defaultBuild = new File(testProjectDir, '.dvt/default.build')
+        def defaultBuild = testProjectDir.resolve('.dvt/default.build').toFile()
         defaultBuild.text.contains "proj0"
         defaultBuild.text.contains "proj1"
     }
@@ -85,13 +85,13 @@ class DVTPluginInMultiProjectBuildSpec extends Specification {
     def "'dvt' task includes SVUnit args files of both projects in 'default.build'"() {
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir)
+            .withProjectDir(testProjectDir.currentPath.toFile())
             .withArguments('dvt')
             .build()
 
         then:
         result.task(":dvt").outcome == SUCCESS
-        def defaultBuild = new File(testProjectDir, '.dvt/default.build')
+        def defaultBuild = testProjectDir.resolve('.dvt/default.build').toFile()
         def svunitLines = defaultBuild.readLines().findAll() { it.contains('.svunit.f') }
         svunitLines.size() == 2
     }
