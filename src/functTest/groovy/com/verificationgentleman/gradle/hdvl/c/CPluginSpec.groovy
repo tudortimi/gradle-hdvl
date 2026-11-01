@@ -33,12 +33,14 @@ class CPluginSpec extends Specification {
     File buildFile
 
     def setup() {
-        buildFile = testProjectDir.file('build.gradle').toFile()
-        buildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.c'
-            }
-        """
+        testProjectDir.create {
+            file('build.gradle') << """
+                plugins {
+                    id 'com.verificationgentleman.gradle.hdvl.c'
+                }
+            """
+        }
+        buildFile = testProjectDir.resolve('build.gradle').toFile()
     }
 
     /**
@@ -48,19 +50,20 @@ class CPluginSpec extends Specification {
      * @return The build file of the project
      */
     def newStandardProject(String name) {
-        File folder = testProjectDir.dir(name).toFile()
-
-        File sv = testProjectDir.dir("$name/src/main/c").toFile()
-        new File(sv, "${name}.c").createNewFile()
-
-        File buildFile = new File(folder, "build.gradle")
-        buildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.c'
+        testProjectDir.create {
+            dir(name) {
+                file('build.gradle') << """
+                    plugins {
+                        id 'com.verificationgentleman.gradle.hdvl.c'
+                    }
+                """
+                dir('src/main/c') {
+                    file("${name}.c") << ''
+                }
             }
-        """
+        }
 
-        return buildFile
+        return testProjectDir.resolve("$name/build.gradle").toFile()
     }
 
     def "can successfully import the plugin"() {
@@ -74,8 +77,11 @@ class CPluginSpec extends Specification {
     }
 
     def "can specify a source set C source directory using a closure"() {
-        File sv = testProjectDir.dir('c').toFile()
-        new File(sv, 'dummy.c').createNewFile()
+        testProjectDir.create {
+            dir('c') {
+                file('dummy.c') << ''
+            }
+        }
 
         buildFile << """
             sourceSets {
@@ -110,34 +116,35 @@ class CPluginSpec extends Specification {
         setup:
         testProjectDir.resolve('build.gradle').toFile().delete()
 
-        File sv = testProjectDir.dir('src/main/c').toFile()
-        new File(sv, 'dummy.c').createNewFile()
-
-        File buildFile = testProjectDir.file('build.gradle.kts').toFile()
-        buildFile << """
-            import org.gradle.api.file.SourceDirectorySet
-
-            plugins {
-                id("com.verificationgentleman.gradle.hdvl.c")
+        testProjectDir.create {
+            dir('src/main/c') {
+                file('dummy.c') << ''
             }
+            file('build.gradle.kts') << """
+                import org.gradle.api.file.SourceDirectorySet
 
-            sourceSets {
-                main {
-                    extensions.configure<SourceDirectorySet>("c") {
-                        exclude("**/dummy.c")
+                plugins {
+                    id("com.verificationgentleman.gradle.hdvl.c")
+                }
+
+                sourceSets {
+                    main {
+                        extensions.configure<SourceDirectorySet>("c") {
+                            exclude("**/dummy.c")
+                        }
                     }
                 }
-            }
 
-            tasks.register<Copy>("copy") {
-                // XXX Not clear why we can't just do 'sourceSets.main.sv'.
-                // 'sourceSets.main' doesn't return an object of type 'SourceSet', but a
-                // 'NamedDomainObjectProvider<SourceSet'. The Java plugin has the same issue.
-                from(sourceSets.main.get().extensions.getByName("c") as SourceDirectorySet)
-                include("*")
-                into("build")
-            }
-        """
+                tasks.register<Copy>("copy") {
+                    // XXX Not clear why we can't just do 'sourceSets.main.sv'.
+                    // 'sourceSets.main' doesn't return an object of type 'SourceSet', but a
+                    // 'NamedDomainObjectProvider<SourceSet'. The Java plugin has the same issue.
+                    from(sourceSets.main.get().extensions.getByName("c") as SourceDirectorySet)
+                    include("*")
+                    into("build")
+                }
+            """
+        }
 
         when:
         def result = FunctionalTestRunner.create()
@@ -150,8 +157,11 @@ class CPluginSpec extends Specification {
     }
 
     def "'genXrunArgsFile' task writes C files to args file"() {
-        File c = testProjectDir.dir('src/main/c').toFile()
-        new File(c, 'dummy.c').createNewFile()
+        testProjectDir.create {
+            dir('src/main/c') {
+                file('dummy.c') << ''
+            }
+        }
 
         when:
         def result = FunctionalTestRunner.create()
@@ -164,8 +174,11 @@ class CPluginSpec extends Specification {
     }
 
     def "'genQrunArgsFile' task writes C files to args file"() {
-        File c = testProjectDir.dir('src/main/c').toFile()
-        new File(c, 'dummy.c').createNewFile()
+        testProjectDir.create {
+            dir('src/main/c') {
+                file('dummy.c') << ''
+            }
+        }
 
         when:
         def result = FunctionalTestRunner.create()
@@ -178,8 +191,11 @@ class CPluginSpec extends Specification {
     }
 
     def "'genXrunArgsFile' task indents entries in makelib block"() {
-        File c = testProjectDir.dir('src/main/c').toFile()
-        new File(c, 'dummy.c').createNewFile()
+        testProjectDir.create {
+            dir('src/main/c') {
+                file('dummy.c') << ''
+            }
+        }
 
         when:
         def result = FunctionalTestRunner.create()
@@ -195,8 +211,11 @@ class CPluginSpec extends Specification {
     }
 
     def "'genXrunArgsFile' task for custom source set produces args file"() {
-        File sv = testProjectDir.dir('src/dummy/c').toFile()
-        new File(sv, "dummy.c").createNewFile()
+        testProjectDir.create {
+            dir('src/dummy/c') {
+                file('dummy.c') << ''
+            }
+        }
 
         buildFile << """
             sourceSets {
@@ -221,8 +240,11 @@ class CPluginSpec extends Specification {
     }
 
     def "can produce archive with source file"() {
-        File mainSv = testProjectDir.dir('src/main/c').toFile()
-        new File(mainSv, "main.c").createNewFile()
+        testProjectDir.create {
+            dir('src/main/c') {
+                file('main.c') << ''
+            }
+        }
 
         when:
         def result = FunctionalTestRunner.create()
@@ -239,8 +261,11 @@ class CPluginSpec extends Specification {
     }
 
     def "can produce archive with source file in custom location"() {
-        File mainSv = testProjectDir.dir('c').toFile()
-        new File(mainSv, "main.c").createNewFile()
+        testProjectDir.create {
+            dir('c') {
+                file('main.c') << ''
+            }
+        }
 
         buildFile << """
         sourceSets.main.c.srcDirs = ['c']
