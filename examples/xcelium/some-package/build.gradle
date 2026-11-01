@@ -4,15 +4,9 @@ plugins {
 
 group 'com.verificationgentleman'
 
-extensions.xrunDir = file("$buildDir/xrun")
-
 task run(type: Exec) {
     dependsOn genFullXrunArgsFile
     commandLine 'xrun', '-compile', '-f', genFullXrunArgsFile.destination.get().asFile
-    workingDir xrunDir
+    workingDir layout.buildDirectory.dir('xrun')
     mkdir workingDir
-}
-
-tasks.named('clean') {
-    delete xrunDir
 }

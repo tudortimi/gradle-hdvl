@@ -4,15 +4,9 @@ plugins {
 
 group 'com.verificationgentleman'
 
-extensions.qrunDir = file("$buildDir/qrun")
-
 task run(type: Exec) {
     dependsOn genFullQrunArgsFile
     commandLine 'qrun', '-compile', '-f', genFullQrunArgsFile.destination.get().asFile
-    workingDir qrunDir
+    workingDir layout.buildDirectory.dir('qrun')
     mkdir workingDir
-}
-
-tasks.named('clean') {
-    delete qrunDir
 }
