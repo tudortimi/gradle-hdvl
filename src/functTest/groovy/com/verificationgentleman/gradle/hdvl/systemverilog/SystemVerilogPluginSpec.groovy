@@ -557,6 +557,21 @@ class SystemVerilogPluginSpec extends Specification {
         }
     }
 
+    def "'genFullXrunArgsFile' task succeeds when there are no source files"() {
+        when:
+        def result = GradleRunner.create()
+            .withProjectDir(testProjectDir.root)
+            .withPluginClasspath()
+            .withArguments('genFullXrunArgsFile')
+            .build()
+
+        then:
+        result.task(":genXrunArgsFile").outcome == NO_SOURCE
+        result.task(":genFullXrunArgsFile").outcome == SUCCESS
+        new File(testProjectDir.root, 'build/full_xrun_args.f').exists()
+        !new File(testProjectDir.root, 'build/full_xrun_args.f').text.contains('build/xrun_args.f')
+    }
+
     def "'genFullXrunArgsFile' task consumes output of 'genXrunArgsFile"() {
         testProjectDir.create {
             dir('src/main/sv') {
