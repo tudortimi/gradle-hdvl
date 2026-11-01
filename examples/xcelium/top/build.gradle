@@ -13,13 +13,13 @@ dependencies {
 task compile(type: Exec) {
     dependsOn genFullXrunArgsFile
     commandLine 'xrun', '-compile', '-f', genFullXrunArgsFile.destination.get().asFile
-    workingDir "$buildDir/xrun"
+    workingDir layout.buildDirectory.dir('xrun')
     mkdir workingDir
 }
 
 task run(type: Exec) {
     dependsOn compile
     commandLine 'xrun', '-top', 'top'
-    workingDir "$buildDir/xrun"
+    workingDir layout.buildDirectory.dir('xrun')
     mkdir workingDir
 }

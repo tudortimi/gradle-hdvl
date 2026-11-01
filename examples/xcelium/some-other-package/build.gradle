@@ -11,6 +11,6 @@ dependencies {
 task run(type: Exec) {
     dependsOn genFullXrunArgsFile
     commandLine 'xrun', '-compile', '-f', genFullXrunArgsFile.destination.get().asFile
-    workingDir "$buildDir/xrun"
+    workingDir layout.buildDirectory.dir('xrun')
     mkdir workingDir
 }

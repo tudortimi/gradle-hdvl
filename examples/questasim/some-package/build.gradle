@@ -7,6 +7,6 @@ group 'com.verificationgentleman'
 task run(type: Exec) {
     dependsOn genFullQrunArgsFile
     commandLine 'qrun', '-compile', '-f', genFullQrunArgsFile.destination.get().asFile
-    workingDir "$buildDir/qrun"
+    workingDir layout.buildDirectory.dir('qrun')
     mkdir workingDir
 }

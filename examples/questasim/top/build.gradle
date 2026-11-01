@@ -12,13 +12,13 @@ dependencies {
 task compile(type: Exec) {
     dependsOn genFullQrunArgsFile
     commandLine 'qrun', '-compile', '-f', genFullQrunArgsFile.destination.get().asFile
-    workingDir "$buildDir/qrun"
+    workingDir layout.buildDirectory.dir('qrun')
     mkdir workingDir
 }
 
 task run(type: Exec) {
     dependsOn compile
     commandLine 'qrun', '-top', 'top'
-    workingDir "$buildDir/qrun"
+    workingDir layout.buildDirectory.dir('qrun')
     mkdir workingDir
 }
