@@ -9,3 +9,35 @@ WARNING: The DSL and plugin API are not yet stable.
 
 Gradle 8.14 or later.
 Gradle 9 is supported as well.
+
+== Getting Started
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+=== Installation
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+=== Your first build
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+== SystemVerilog
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+== C
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+== SVUnit
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+== DVT
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+== Examples
+
+Runnable examples are in the https://github.com/tudortimi/gradle-hdvl/tree/master/examples[examples] directory.
