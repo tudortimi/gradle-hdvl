@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,20 @@
 
 package com.verificationgentleman.gradle.hdvl.dvt
 
+import com.verificationgentleman.gradle.hdvl.TestProjectDir
 
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
+import spock.lang.TempDir
 
 abstract class AbstractDVTPluginSpec extends Specification {
-    @Rule TemporaryFolder testProjectDir = new TemporaryFolder()
+    @TempDir File testProjectDir
     File buildFile
 
     def setup() {
-        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
         new File(sv, 'dummy_main.sv').createNewFile()
 
-        buildFile = testProjectDir.newFile('build.gradle')
+        buildFile = TestProjectDir.newFile(testProjectDir, 'build.gradle')
         buildFile << """
             plugins {
                 id 'com.verificationgentleman.gradle.hdvl.dvt'
