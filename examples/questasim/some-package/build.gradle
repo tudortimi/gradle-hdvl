@@ -13,8 +13,6 @@ task run(type: Exec) {
     mkdir workingDir
 }
 
-task clean {
-    doLast {
-        delete qrunDir
-    }
+tasks.named('clean') {
+    delete qrunDir
 }
