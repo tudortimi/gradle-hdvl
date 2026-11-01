@@ -17,10 +17,10 @@
 package com.verificationgentleman.gradle.hdvl.c
 
 import com.verificationgentleman.gradle.hdvl.FunctionalTestRunner
-import com.verificationgentleman.gradle.hdvl.TestProjectDir
 import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.TempDir
+import spock.util.io.FileSystemFixture
 
 import java.nio.file.Files
 import java.util.zip.ZipFile
@@ -29,11 +29,11 @@ import static org.gradle.testkit.runner.TaskOutcome.NO_SOURCE
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
 class CPluginSpec extends Specification {
-    @TempDir File testProjectDir
+    @TempDir FileSystemFixture testProjectDir
     File buildFile
 
     def setup() {
-        buildFile = TestProjectDir.newFile(testProjectDir, 'build.gradle')
+        buildFile = testProjectDir.file('build.gradle').toFile()
         buildFile << """
             plugins {
                 id 'com.verificationgentleman.gradle.hdvl.c'
@@ -48,9 +48,9 @@ class CPluginSpec extends Specification {
      * @return The build file of the project
      */
     def newStandardProject(String name) {
-        File folder = TestProjectDir.newFolder(testProjectDir, name)
+        File folder = testProjectDir.dir(name).toFile()
 
-        File sv = TestProjectDir.newFolder(testProjectDir, name,'src', 'main', 'c')
+        File sv = testProjectDir.dir("$name/src/main/c").toFile()
         new File(sv, "${name}.c").createNewFile()
 
         File buildFile = new File(folder, "build.gradle")
@@ -66,7 +66,7 @@ class CPluginSpec extends Specification {
     def "can successfully import the plugin"() {
         when:
         def result = FunctionalTestRunner.create()
-                .withProjectDir(testProjectDir)
+                .withProjectDir(testProjectDir.currentPath.toFile())
                 .build()
 
         then:
@@ -74,7 +74,7 @@ class CPluginSpec extends Specification {
     }
 
     def "can specify a source set C source directory using a closure"() {
-        File sv = TestProjectDir.newFolder(testProjectDir, 'c')
+        File sv = testProjectDir.dir('c').toFile()
         new File(sv, 'dummy.c').createNewFile()
 
         buildFile << """
@@ -94,13 +94,13 @@ class CPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir)
+            .withProjectDir(testProjectDir.currentPath.toFile())
             .withArguments('copy')
             .build()
 
         then:
         result.task(":copy").outcome == SUCCESS
-        new File(testProjectDir, 'build/dummy.c').exists()
+        testProjectDir.resolve('build/dummy.c').toFile().exists()
     }
 
     @Ignore("Complains that the source set doesn't support conventions")
@@ -108,12 +108,12 @@ class CPluginSpec extends Specification {
         // XXX Most tests use 'build.gradle', but in this test we want to use a Kotlin build script. It seems like
         // overkill to create a new test class just fo this.
         setup:
-        new File(testProjectDir, 'build.gradle').delete()
+        testProjectDir.resolve('build.gradle').toFile().delete()
 
-        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'c')
+        File sv = testProjectDir.dir('src/main/c').toFile()
         new File(sv, 'dummy.c').createNewFile()
 
-        File buildFile = TestProjectDir.newFile(testProjectDir, 'build.gradle.kts')
+        File buildFile = testProjectDir.file('build.gradle.kts').toFile()
         buildFile << """
             import org.gradle.api.file.SourceDirectorySet
 
@@ -141,7 +141,7 @@ class CPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir)
+            .withProjectDir(testProjectDir.currentPath.toFile())
             .withArguments('copy')
             .build()
 
@@ -150,52 +150,52 @@ class CPluginSpec extends Specification {
     }
 
     def "'genXrunArgsFile' task writes C files to args file"() {
-        File c = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'c')
+        File c = testProjectDir.dir('src/main/c').toFile()
         new File(c, 'dummy.c').createNewFile()
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir)
+            .withProjectDir(testProjectDir.currentPath.toFile())
             .withArguments('genXrunArgsFile')
             .build()
 
         then:
-        new File(testProjectDir, 'build/xrun_args.f').text.contains('src/main/c/dummy.c')
+        testProjectDir.resolve('build/xrun_args.f').toFile().text.contains('src/main/c/dummy.c')
     }
 
     def "'genQrunArgsFile' task writes C files to args file"() {
-        File c = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'c')
+        File c = testProjectDir.dir('src/main/c').toFile()
         new File(c, 'dummy.c').createNewFile()
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir)
+            .withProjectDir(testProjectDir.currentPath.toFile())
             .withArguments('genQrunArgsFile')
             .build()
 
         then:
-        new File(testProjectDir, 'build/qrun_args.f').text.contains('src/main/c/dummy.c')
+        testProjectDir.resolve('build/qrun_args.f').toFile().text.contains('src/main/c/dummy.c')
     }
 
     def "'genXrunArgsFile' task indents entries in makelib block"() {
-        File c = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'c')
+        File c = testProjectDir.dir('src/main/c').toFile()
         new File(c, 'dummy.c').createNewFile()
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir)
+            .withProjectDir(testProjectDir.currentPath.toFile())
             .withArguments('genXrunArgsFile')
             .build()
 
         then:
-        def lines = new File(testProjectDir, 'build/xrun_args.f').text.split('\n')
+        def lines = testProjectDir.resolve('build/xrun_args.f').toFile().text.split('\n')
         lines.findAll { !it.contains('-makelib') && !it.contains('-endlib') }.each {
             assert it.startsWith('  ')
         }
     }
 
     def "'genXrunArgsFile' task for custom source set produces args file"() {
-        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'dummy', 'c')
+        File sv = testProjectDir.dir('src/dummy/c').toFile()
         new File(sv, "dummy.c").createNewFile()
 
         buildFile << """
@@ -210,36 +210,36 @@ class CPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir)
+            .withProjectDir(testProjectDir.currentPath.toFile())
             .withArguments('genDummyXrunArgsFile')
             .build()
 
         then:
         result.task(":genDummyXrunArgsFile").outcome == SUCCESS
-        new File(testProjectDir, "build/dummy_xrun_args.f").exists()
-        new File(testProjectDir, "build/dummy_xrun_args.f").text.contains('dummy.c')
+        testProjectDir.resolve('build/dummy_xrun_args.f').toFile().exists()
+        testProjectDir.resolve('build/dummy_xrun_args.f').toFile().text.contains('dummy.c')
     }
 
     def "can produce archive with source file"() {
-        File mainSv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'c')
+        File mainSv = testProjectDir.dir('src/main/c').toFile()
         new File(mainSv, "main.c").createNewFile()
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir)
+            .withProjectDir(testProjectDir.currentPath.toFile())
             .withArguments(':hdvlSourcesArchive')
             .build()
 
         then:
-        new File(testProjectDir, 'build/hdvl-sources.zip').exists()
-        def zipFile = new ZipFile(new File(testProjectDir, 'build/hdvl-sources.zip'))
+        testProjectDir.resolve('build/hdvl-sources.zip').toFile().exists()
+        def zipFile = new ZipFile(testProjectDir.resolve('build/hdvl-sources.zip').toFile())
         def entries = zipFile.entries().findAll { !it.directory }
         entries.size() == 2
         entries[1].name == 'src/main/c/main.c'
     }
 
     def "can produce archive with source file in custom location"() {
-        File mainSv = TestProjectDir.newFolder(testProjectDir, 'c')
+        File mainSv = testProjectDir.dir('c').toFile()
         new File(mainSv, "main.c").createNewFile()
 
         buildFile << """
@@ -248,13 +248,13 @@ class CPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir)
+            .withProjectDir(testProjectDir.currentPath.toFile())
             .withArguments(':hdvlSourcesArchive')
             .build()
 
         then:
-        new File(testProjectDir, 'build/hdvl-sources.zip').exists()
-        def zipFile = new ZipFile(new File(testProjectDir, 'build/hdvl-sources.zip'))
+        testProjectDir.resolve('build/hdvl-sources.zip').toFile().exists()
+        def zipFile = new ZipFile(testProjectDir.resolve('build/hdvl-sources.zip').toFile())
         def entries = zipFile.entries().findAll { !it.directory }
         entries.size() == 2
         entries[1].name == 'c/main.c'
