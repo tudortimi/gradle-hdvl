@@ -17,8 +17,6 @@
 package com.verificationgentleman.gradle.hdvl.dvt
 
 import com.verificationgentleman.gradle.hdvl.FunctionalTestRunner
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
 import java.nio.file.Files
@@ -29,7 +27,7 @@ class DVTPluginSpec extends AbstractDVTPluginSpec {
     def "can successfully import the plugin"() {
         when:
         def result = FunctionalTestRunner.create()
-                .withProjectDir(testProjectDir.root)
+                .withProjectDir(testProjectDir)
                 .build()
 
         then:
@@ -39,7 +37,7 @@ class DVTPluginSpec extends AbstractDVTPluginSpec {
     def "adds a 'dvt' task"() {
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments(':tasks', '--all')
             .build()
 
@@ -57,13 +55,13 @@ class DVTPluginSpec extends AbstractDVTPluginSpec {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments(':dvt')
             .build()
 
         then:
         result.task(":dvt").outcome == SUCCESS
-        def defaultBuild = new File(testProjectDir.root, '.dvt/default.build')
+        def defaultBuild = new File(testProjectDir, '.dvt/default.build')
         defaultBuild.exists()
         defaultBuild.text.contains('+dvt_init+xcelium.xrun')
     }
@@ -77,13 +75,13 @@ class DVTPluginSpec extends AbstractDVTPluginSpec {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments(':dvt')
             .build()
 
         then:
         result.task(":dvt").outcome == SUCCESS
-        def defaultBuild = new File(testProjectDir.root, '.dvt/default.build')
+        def defaultBuild = new File(testProjectDir, '.dvt/default.build')
         defaultBuild.exists()
         defaultBuild.text.contains('-f')
         defaultBuild.text.contains('full_xrun_args.f')
