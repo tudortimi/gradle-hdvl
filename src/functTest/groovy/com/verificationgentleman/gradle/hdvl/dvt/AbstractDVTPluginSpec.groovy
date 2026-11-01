@@ -25,14 +25,16 @@ abstract class AbstractDVTPluginSpec extends Specification {
     File buildFile
 
     def setup() {
-        File sv = testProjectDir.dir('src/main/sv').toFile()
-        new File(sv, 'dummy_main.sv').createNewFile()
-
-        buildFile = testProjectDir.file('build.gradle').toFile()
-        buildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.dvt'
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('dummy_main.sv') << ''
             }
-        """
+            file('build.gradle') << """
+                plugins {
+                    id 'com.verificationgentleman.gradle.hdvl.dvt'
+                }
+            """
+        }
+        buildFile = testProjectDir.resolve('build.gradle').toFile()
     }
 }
