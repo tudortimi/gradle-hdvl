@@ -27,22 +27,25 @@ import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 class SystemVerilogPluginCompileOrderSpec extends Specification {
     @TempDir FileSystemFixture testProjectDir
     File buildFile
-    File mainSv
 
     def setup() {
-        buildFile = testProjectDir.file('build.gradle').toFile()
-        buildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
-            }
-        """
-
-        mainSv = testProjectDir.dir('src/main/sv').toFile()
+        testProjectDir.create {
+            file('build.gradle') << """
+                plugins {
+                    id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+                }
+            """
+        }
+        buildFile = testProjectDir.resolve('build.gradle').toFile()
     }
 
     def "can compile a given sv source file first"() {
-        new File(mainSv, "file0.sv").createNewFile()
-        new File(mainSv, "file1.sv").createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('file0.sv') << ''
+                file('file1.sv') << ''
+            }
+        }
 
         buildFile << """
             sourceSets.main.sv.order.first 'file1.sv'
@@ -69,9 +72,13 @@ class SystemVerilogPluginCompileOrderSpec extends Specification {
     }
 
     def "can compile matching source files first"() {
-        new File(mainSv, 'another_file.sv').createNewFile()
-        new File(mainSv, 'file0.sv').createNewFile()
-        new File(mainSv, 'file1.sv').createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('another_file.sv') << ''
+                file('file0.sv') << ''
+                file('file1.sv') << ''
+            }
+        }
 
         buildFile << """
             sourceSets.main.sv.order.first 'file*.sv'
@@ -102,8 +109,12 @@ class SystemVerilogPluginCompileOrderSpec extends Specification {
     }
 
     def "can compile a given source file last"() {
-        new File(mainSv, "file0.sv").createNewFile()
-        new File(mainSv, "file1.sv").createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('file0.sv') << ''
+                file('file1.sv') << ''
+            }
+        }
 
         buildFile << """
             sourceSets.main.sv.order.last 'file0.sv'
@@ -130,9 +141,13 @@ class SystemVerilogPluginCompileOrderSpec extends Specification {
     }
 
     def "can specify both first and last for compile order"() {
-        new File(mainSv, "file0.sv").createNewFile()
-        new File(mainSv, "file1.sv").createNewFile()
-        new File(mainSv, "file2.sv").createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('file0.sv') << ''
+                file('file1.sv') << ''
+                file('file2.sv') << ''
+            }
+        }
 
         buildFile << """
             sourceSets.main.sv.order.first 'file1.sv'
@@ -166,9 +181,13 @@ class SystemVerilogPluginCompileOrderSpec extends Specification {
     }
 
     def "compile spec considers source file order"() {
-        new File(mainSv, "file0.sv").createNewFile()
-        new File(mainSv, "file1.sv").createNewFile()
-        new File(mainSv, "file2.sv").createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('file0.sv') << ''
+                file('file1.sv') << ''
+                file('file2.sv') << ''
+            }
+        }
 
         buildFile << """
             sourceSets.main.sv.order.first 'file1.sv'
