@@ -18,26 +18,26 @@ package com.verificationgentleman.gradle.hdvl.systemverilog
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.verificationgentleman.gradle.hdvl.FunctionalTestRunner
-import com.verificationgentleman.gradle.hdvl.TestProjectDir
 import spock.lang.Specification
 import spock.lang.TempDir
+import spock.util.io.FileSystemFixture
 
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
 class SystemVerilogPluginCompileOrderSpec extends Specification {
-    @TempDir File testProjectDir
+    @TempDir FileSystemFixture testProjectDir
     File buildFile
     File mainSv
 
     def setup() {
-        buildFile = TestProjectDir.newFile(testProjectDir, 'build.gradle')
+        buildFile = testProjectDir.file('build.gradle').toFile()
         buildFile << """
             plugins {
                 id 'com.verificationgentleman.gradle.hdvl.systemverilog'
             }
         """
 
-        mainSv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
+        mainSv = testProjectDir.dir('src/main/sv').toFile()
     }
 
     def "can compile a given sv source file first"() {
@@ -50,13 +50,13 @@ class SystemVerilogPluginCompileOrderSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir)
+            .withProjectDir(testProjectDir.currentPath.toFile())
             .withArguments(':genXrunArgsFile')
             .build()
 
         then:
         result.task(":genXrunArgsFile").outcome == SUCCESS
-        def xrunArgsFile = new File(testProjectDir, 'build/xrun_args.f')
+        def xrunArgsFile = testProjectDir.resolve('build/xrun_args.f').toFile()
         def lines = xrunArgsFile.text.split('\n')
 
         def lineWithFile0 = lines.findIndexOf { it.contains('file0.sv') }
@@ -79,13 +79,13 @@ class SystemVerilogPluginCompileOrderSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir)
+            .withProjectDir(testProjectDir.currentPath.toFile())
             .withArguments(':genXrunArgsFile')
             .build()
 
         then:
         result.task(":genXrunArgsFile").outcome == SUCCESS
-        def xrunArgsFile = new File(testProjectDir, 'build/xrun_args.f')
+        def xrunArgsFile = testProjectDir.resolve('build/xrun_args.f').toFile()
         def lines = xrunArgsFile.text.split('\n')
 
         def lineWithFile0 = lines.findIndexOf { it.contains('file0.sv') }
@@ -111,13 +111,13 @@ class SystemVerilogPluginCompileOrderSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir)
+            .withProjectDir(testProjectDir.currentPath.toFile())
             .withArguments(':genXrunArgsFile')
             .build()
 
         then:
         result.task(":genXrunArgsFile").outcome == SUCCESS
-        def xrunArgsFile = new File(testProjectDir, 'build/xrun_args.f')
+        def xrunArgsFile = testProjectDir.resolve('build/xrun_args.f').toFile()
         def lines = xrunArgsFile.text.split('\n')
 
         def lineWithFile0 = lines.findIndexOf { it.contains('file0.sv') }
@@ -141,13 +141,13 @@ class SystemVerilogPluginCompileOrderSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir)
+            .withProjectDir(testProjectDir.currentPath.toFile())
             .withArguments(':genXrunArgsFile')
             .build()
 
         then:
         result.task(":genXrunArgsFile").outcome == SUCCESS
-        def xrunArgsFile = new File(testProjectDir, 'build/xrun_args.f')
+        def xrunArgsFile = testProjectDir.resolve('build/xrun_args.f').toFile()
         def lines = xrunArgsFile.text.split('\n')
 
         def lineWithFile0 = lines.findIndexOf { it.contains('file0.sv') }
@@ -177,13 +177,13 @@ class SystemVerilogPluginCompileOrderSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir)
+            .withProjectDir(testProjectDir.currentPath.toFile())
             .withArguments(':writeCompileSpecFile')
             .build()
 
         then:
         result.task(":writeCompileSpecFile").outcome == SUCCESS
-        def compileSpecFile = new File(testProjectDir, 'build/compile-spec.json')
+        def compileSpecFile = testProjectDir.resolve('build/compile-spec.json').toFile()
         JsonNode compileSpec = new ObjectMapper().readTree(compileSpecFile)
         JsonNode svSourceFiles = compileSpec.get("svSourceFiles")
         svSourceFiles.get(0).asText().contains 'file1.sv'
