@@ -16,20 +16,19 @@
 
 package com.verificationgentleman.gradle.hdvl.dvt
 
-import com.verificationgentleman.gradle.hdvl.TestProjectDir
-
 import spock.lang.Specification
 import spock.lang.TempDir
+import spock.util.io.FileSystemFixture
 
 abstract class AbstractDVTPluginSpec extends Specification {
-    @TempDir File testProjectDir
+    @TempDir FileSystemFixture testProjectDir
     File buildFile
 
     def setup() {
-        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
+        File sv = testProjectDir.dir('src/main/sv').toFile()
         new File(sv, 'dummy_main.sv').createNewFile()
 
-        buildFile = TestProjectDir.newFile(testProjectDir, 'build.gradle')
+        buildFile = testProjectDir.file('build.gradle').toFile()
         buildFile << """
             plugins {
                 id 'com.verificationgentleman.gradle.hdvl.dvt'

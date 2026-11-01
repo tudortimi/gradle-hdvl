@@ -17,7 +17,6 @@
 package com.verificationgentleman.gradle.hdvl.dvt
 
 import com.verificationgentleman.gradle.hdvl.FunctionalTestRunner
-import com.verificationgentleman.gradle.hdvl.TestProjectDir
 
 import java.nio.file.Files
 
@@ -27,7 +26,7 @@ class DVTWithSVUnitPluginSpec extends AbstractDVTPluginSpec {
     File testSv
 
     def setup() {
-        testSv = TestProjectDir.newFolder(testProjectDir, 'src', 'test', 'sv')
+        testSv = testProjectDir.dir('src/test/sv').toFile()
         new File(testSv, 'dummy_unit_test.sv').createNewFile()
 
         buildFile << """
@@ -39,7 +38,7 @@ class DVTWithSVUnitPluginSpec extends AbstractDVTPluginSpec {
             }
         """
 
-        File settingsFile = TestProjectDir.newFile(testProjectDir, 'settings.gradle')
+        File settingsFile = testProjectDir.file('settings.gradle').toFile()
         settingsFile << """
             sourceControl {
                 gitRepository("https://github.com/tudortimi/svunit.git") {
@@ -55,13 +54,13 @@ class DVTWithSVUnitPluginSpec extends AbstractDVTPluginSpec {
     def "'dvt' task task creates link in build directory to tests"() {
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir)
+            .withProjectDir(testProjectDir.currentPath.toFile())
             .withArguments(':dvt')
             .build()
 
         then:
         result.task(":dvt").outcome == SUCCESS
-        def testsLink = new File(testProjectDir, 'build/dvt/svunit/tests')
+        def testsLink = testProjectDir.resolve('build/dvt/svunit/tests').toFile()
         testsLink.exists()
         Files.isSymbolicLink(testsLink.toPath())
         testsLink.toPath().toRealPath() == testSv.toPath()
@@ -70,13 +69,13 @@ class DVTWithSVUnitPluginSpec extends AbstractDVTPluginSpec {
     def "'dvt' task executes 'buildSVUnit'"() {
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir)
+            .withProjectDir(testProjectDir.currentPath.toFile())
             .withArguments('dvt')
             .build()
 
         then:
         result.task(":dvt").outcome == SUCCESS
-        def svunitArgsFile = new File(testProjectDir, 'build/dvt/svunit/.svunit.f')
+        def svunitArgsFile = testProjectDir.resolve('build/dvt/svunit/.svunit.f').toFile()
         svunitArgsFile.exists()
         svunitArgsFile.text.contains 'dummy_unit_test.sv'
     }
@@ -84,14 +83,14 @@ class DVTWithSVUnitPluginSpec extends AbstractDVTPluginSpec {
     def "'dvt' task includes SVUnit args file in 'default.build'"() {
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir)
+            .withProjectDir(testProjectDir.currentPath.toFile())
             .withArguments('dvt')
             .build()
 
         then:
         result.task(":dvt").outcome == SUCCESS
-        def svunitArgsFile = new File(testProjectDir, 'build/dvt/svunit/.svunit.f')
-        def defaultBuild = new File(testProjectDir, '.dvt/default.build')
+        def svunitArgsFile = testProjectDir.resolve('build/dvt/svunit/.svunit.f').toFile()
+        def defaultBuild = testProjectDir.resolve('.dvt/default.build').toFile()
         defaultBuild.text.contains "-F $svunitArgsFile"
     }
 }
