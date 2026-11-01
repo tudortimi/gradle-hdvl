@@ -8,6 +8,7 @@ class GenerateRepoTask extends DefaultTask {
         initializeGitRepo()
     }
 
+    @OutputDirectory
     def getRepo() {
         return project.file("$project.buildDir/$packageName")
     }
