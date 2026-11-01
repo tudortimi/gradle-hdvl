@@ -4,6 +4,7 @@ plugins {
     id("java-gradle-plugin")
     id("groovy")
     id("org.jetbrains.kotlin.jvm") version "2.0.21"
+    id("org.asciidoctor.jvm.convert") version "4.0.4"
     id("maven-publish")
     id("com.gradle.plugin-publish") version "0.20.0"
     id("fr.brouillard.oss.gradle.jgitver") version "0.9.1"

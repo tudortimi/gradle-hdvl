@@ -1,0 +1,11 @@
+= gradle-hdvl User Guide
+:toc: left
+
+Family of Gradle plugins that provide support for hardware design and verification languages.
+
+WARNING: The DSL and plugin API are not yet stable.
+
+== Requirements
+
+Gradle 8.14 or later.
+Gradle 9 is supported as well.
