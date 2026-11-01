@@ -22,6 +22,9 @@ Gradle 9 is supported as well.
 
 The DSL is not yet stable and parts will most definitely change in the future.
 The examples serve as de-facto documentation.
+The (work-in-progress) user guide and API reference are in `src/docs`.
+Build them with `./gradlew docs`;
+the result is in `build/docs/site`.
 
 The plugin API is also not yet stable,
 so it's probably not a good idea to start writing extensions to it just yet.
