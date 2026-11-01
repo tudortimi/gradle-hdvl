@@ -41,3 +41,25 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 == Examples
 
 Runnable examples are in the https://github.com/tudortimi/gradle-hdvl/tree/master/examples[examples] directory.
+
+== API Reference
+
+* link:api/javadoc/index.html[Javadoc] (Java API)
+* link:api/kotlin/index.html[Dokka] (Kotlin extensions)
+
+=== Plugins
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+[cols="1,3"]
+|===
+| Plugin ID | Description
+
+| `base` | Placeholder.
+| `systemverilog` | Placeholder.
+| `c` | Placeholder.
+| `svunit` | Placeholder.
+| `svunit-build` | Placeholder.
+| `svunit-build-injector` | Placeholder.
+| `dvt` | Placeholder.
+|===
