@@ -1,0 +1,8 @@
+tasks.register('docs', Sync) {
+    group = 'documentation'
+    description = 'Builds the documentation site.'
+
+    into layout.buildDirectory.dir('docs/site')
+    from(tasks.named('asciidoctor'))
+    from(tasks.named('javadoc')) { into 'api/javadoc' }
+}

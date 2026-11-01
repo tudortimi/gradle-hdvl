@@ -17,6 +17,7 @@ pluginBundle {
 }
 
 apply(from = "$rootDir/gradle/functional-test.gradle")
+apply(from = "$rootDir/gradle/docs.gradle")
 
 group = "com.verificationgentleman.gradle"
 
