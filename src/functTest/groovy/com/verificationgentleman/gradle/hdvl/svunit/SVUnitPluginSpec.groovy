@@ -17,25 +17,25 @@
 package com.verificationgentleman.gradle.hdvl.svunit
 
 import com.verificationgentleman.gradle.hdvl.FunctionalTestRunner
+import com.verificationgentleman.gradle.hdvl.TestProjectDir
 import com.verificationgentleman.gradle.hdvl.systemverilog.SystemVerilogPlugin
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
+import spock.lang.TempDir
 
 import java.nio.file.Files
 
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
 class SVUnitPluginSpec extends Specification  {
-    @Rule TemporaryFolder testProjectDir = new TemporaryFolder()
+    @TempDir File testProjectDir
     File buildFile
     File settingsFile
 
     def setup() {
-        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
         new File(sv, 'dummy_main.sv').createNewFile()
 
-        buildFile = testProjectDir.newFile('build.gradle')
+        buildFile = TestProjectDir.newFile(testProjectDir, 'build.gradle')
         buildFile << """
             plugins {
                 id 'com.verificationgentleman.gradle.hdvl.svunit'
@@ -44,7 +44,7 @@ class SVUnitPluginSpec extends Specification  {
                 testCompile "org.svunit:svunit:v3.34.2"
             }
         """
-        settingsFile = testProjectDir.newFile('settings.gradle')
+        settingsFile = TestProjectDir.newFile(testProjectDir, 'settings.gradle')
         settingsFile << """
             sourceControl {
                 gitRepository("https://github.com/tudortimi/svunit.git") {
@@ -60,7 +60,7 @@ class SVUnitPluginSpec extends Specification  {
     def "can successfully import the plugin"() {
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .build()
 
         then:
@@ -80,7 +80,7 @@ class SVUnitPluginSpec extends Specification  {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments(':printPlugins')
             .build()
 
@@ -90,7 +90,7 @@ class SVUnitPluginSpec extends Specification  {
     }
 
     def "'test' source set is added by the plugin"() {
-        File sv = testProjectDir.newFolder('src', 'test', 'sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'test', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
         buildFile << """
@@ -102,35 +102,35 @@ class SVUnitPluginSpec extends Specification  {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('copy')
             .build()
 
         then:
         result.task(":copy").outcome == SUCCESS
-        new File(testProjectDir.root, 'build/dummy.sv').exists()
+        new File(testProjectDir, 'build/dummy.sv').exists()
     }
 
     def "'testWithXrun' task creates link in build directory to tests"() {
-        File sv = testProjectDir.newFolder('src', 'test', 'sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'test', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('testWithXrun')
             .build()
 
         then:
         result.task(":testWithXrun").outcome == SUCCESS
-        def testsLink = new File(testProjectDir.root, 'build/svunit/tests')
+        def testsLink = new File(testProjectDir, 'build/svunit/tests')
         testsLink.exists()
         Files.isSymbolicLink(testsLink.toPath())
         testsLink.toPath().toRealPath() == sv.toPath()
     }
 
     def "'testWithXrun' task creates link in build directory to custom tests location"() {
-        File sv = testProjectDir.newFolder('tests')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'tests')
         new File(sv, 'dummy.sv').createNewFile()
 
         buildFile << """
@@ -145,95 +145,95 @@ class SVUnitPluginSpec extends Specification  {
 
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('testWithXrun')
             .build()
 
         then:
         result.task(":testWithXrun").outcome == SUCCESS
-        def testsLink = new File(testProjectDir.root, 'build/svunit/tests')
+        def testsLink = new File(testProjectDir, 'build/svunit/tests')
         testsLink.exists()
         Files.isSymbolicLink(testsLink.toPath())
         testsLink.toPath().toRealPath() == sv.toPath()
     }
 
     def "'testWithXrun' task executes 'runSVUnit'"() {
-        File sv = testProjectDir.newFolder('src', 'test', 'sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'test', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('testWithXrun')
             .build()
 
         then:
         result.task(":testWithXrun").outcome == SUCCESS
-        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
+        def dummyLog = new File(testProjectDir, 'build/svunit/runSVUnit.log')
         dummyLog.exists()
     }
 
     def "'testWithXrun' task passes args file to 'runSVUnit'"() {
-        File testSv = testProjectDir.newFolder('src', 'test', 'sv')
+        File testSv = TestProjectDir.newFolder(testProjectDir, 'src', 'test', 'sv')
         new File(testSv, 'dummy_test.sv').createNewFile()
 
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('testWithXrun')
             .build()
 
         then:
         result.task(":testWithXrun").outcome == SUCCESS
-        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
-        dummyLog.text.contains "-f ${testProjectDir.root}/build/full_xrun_args.f"
+        def dummyLog = new File(testProjectDir, 'build/svunit/runSVUnit.log')
+        dummyLog.text.contains "-f ${testProjectDir}/build/full_xrun_args.f"
     }
 
     def "'testWithQrun' task passes args file to 'runSVUnit'"() {
-        File testSv = testProjectDir.newFolder('src', 'test', 'sv')
+        File testSv = TestProjectDir.newFolder(testProjectDir, 'src', 'test', 'sv')
         new File(testSv, 'dummy_test.sv').createNewFile()
 
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('testWithQrun')
             .build()
 
         then:
         result.task(":testWithQrun").outcome == SUCCESS
-        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
-        dummyLog.text.contains "-f ${testProjectDir.root}/build/full_qrun_args.f"
+        def dummyLog = new File(testProjectDir, 'build/svunit/runSVUnit.log')
+        dummyLog.text.contains "-f ${testProjectDir}/build/full_qrun_args.f"
     }
 
     def "'testWithXrun' task passes simulator option to 'runSVUnit'"() {
-        File testSv = testProjectDir.newFolder('src', 'test', 'sv')
+        File testSv = TestProjectDir.newFolder(testProjectDir, 'src', 'test', 'sv')
         new File(testSv, 'dummy_test.sv').createNewFile()
 
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('testWithXrun')
             .build()
 
         then:
         result.task(":testWithXrun").outcome == SUCCESS
-        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
+        def dummyLog = new File(testProjectDir, 'build/svunit/runSVUnit.log')
         dummyLog.text.contains "-sim xrun"
     }
 
     def "'testWithQrun' task passes simulator option to 'runSVUnit'"() {
-        File testSv = testProjectDir.newFolder('src', 'test', 'sv')
+        File testSv = TestProjectDir.newFolder(testProjectDir, 'src', 'test', 'sv')
         new File(testSv, 'dummy_test.sv').createNewFile()
 
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('testWithQrun')
             .build()
 
         then:
         result.task(":testWithQrun").outcome == SUCCESS
-        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
+        def dummyLog = new File(testProjectDir, 'build/svunit/runSVUnit.log')
         dummyLog.text.contains "-sim qrun"
     }
 
@@ -245,7 +245,7 @@ class SVUnitPluginSpec extends Specification  {
 
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('help')
             .build()
 
@@ -262,7 +262,7 @@ class SVUnitPluginSpec extends Specification  {
 
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('help')
             .build()
 
@@ -284,7 +284,7 @@ class SVUnitPluginSpec extends Specification  {
 
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('help')
             .build()
 
@@ -295,7 +295,7 @@ class SVUnitPluginSpec extends Specification  {
     }
 
     def "'testWithXrun' task passes custom args to 'runSVUnit'"() {
-        File testSv = testProjectDir.newFolder('src', 'test', 'sv')
+        File testSv = TestProjectDir.newFolder(testProjectDir, 'src', 'test', 'sv')
         new File(testSv, 'dummy_test.sv').createNewFile()
 
         buildFile << """
@@ -308,18 +308,18 @@ class SVUnitPluginSpec extends Specification  {
 
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('testWithXrun')
             .build()
 
         then:
         result.task(":testWithXrun").outcome == SUCCESS
-        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
+        def dummyLog = new File(testProjectDir, 'build/svunit/runSVUnit.log')
         dummyLog.text.contains "--uvm"
     }
 
     def "'testWithXrun' task passes args containing spaces to 'runSVUnit' as single arguments"() {
-        File testSv = testProjectDir.newFolder('src', 'test', 'sv')
+        File testSv = TestProjectDir.newFolder(testProjectDir, 'src', 'test', 'sv')
         new File(testSv, 'dummy_test.sv').createNewFile()
 
         buildFile << """
@@ -332,30 +332,30 @@ class SVUnitPluginSpec extends Specification  {
 
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('testWithXrun')
             .build()
 
         then:
         result.task(":testWithXrun").outcome == SUCCESS
-        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
+        def dummyLog = new File(testProjectDir, 'build/svunit/runSVUnit.log')
         dummyLog.text.contains "-xmerror RECOMP"
     }
 
     def "sources in 'src/test/sv' are written to args file"() {
         given:
-        File testSv = testProjectDir.newFolder('src', 'test', 'sv')
+        File testSv = TestProjectDir.newFolder(testProjectDir, 'src', 'test', 'sv')
         new File(testSv, 'some_test_package.sv').createNewFile()
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('genTestXrunArgsFile')
             .build()
 
         then:
         result.task(":genTestXrunArgsFile").outcome == SUCCESS
-        def testXrunArgs = new File(testProjectDir.root, 'build/test_xrun_args.f')
+        def testXrunArgs = new File(testProjectDir, 'build/test_xrun_args.f')
         testXrunArgs.exists()
         def lines = testXrunArgs.text.split("\n")
         lines.any { it.contains('some_test_package.sv') }
@@ -363,7 +363,7 @@ class SVUnitPluginSpec extends Specification  {
 
     def "'test' source set excludes SVUnit unit tests"() {
         given:
-        File testSv = testProjectDir.newFolder('src', 'test', 'sv')
+        File testSv = TestProjectDir.newFolder(testProjectDir, 'src', 'test', 'sv')
         new File(testSv, 'some_test_package.sv').createNewFile()
         new File(testSv, 'some_unit_test.sv').createNewFile()
         new File(testSv, 'some_dir').mkdir()
@@ -372,13 +372,13 @@ class SVUnitPluginSpec extends Specification  {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('genTestXrunArgsFile')
             .build()
 
         then:
         result.task(":genTestXrunArgsFile").outcome == SUCCESS
-        def testXrunArgs = new File(testProjectDir.root, 'build/test_xrun_args.f')
+        def testXrunArgs = new File(testProjectDir, 'build/test_xrun_args.f')
         testXrunArgs.exists()
         def lines = testXrunArgs.text.split("\n")
         !lines.any { it.contains('some_unit_test.sv') }
@@ -386,25 +386,25 @@ class SVUnitPluginSpec extends Specification  {
     }
 
     def "'testWithXrun' task passes full args file for 'test' source set to 'runSVUnit'"() {
-        File testSv = testProjectDir.newFolder('src', 'test', 'sv')
+        File testSv = TestProjectDir.newFolder(testProjectDir, 'src', 'test', 'sv')
         new File(testSv, 'dummy_test.sv').createNewFile()
 
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('testWithXrun')
             .build()
 
         then:
         result.task(":testWithXrun").outcome == SUCCESS
-        def dummyLog = new File(testProjectDir.root, 'build/svunit/runSVUnit.log')
-        dummyLog.text.contains "-f ${testProjectDir.root}/build/full_test_xrun_args.f"
+        def dummyLog = new File(testProjectDir, 'build/svunit/runSVUnit.log')
+        dummyLog.text.contains "-f ${testProjectDir}/build/full_test_xrun_args.f"
     }
 
     def "'testWithXrun' uses args file for source set dependency"() {
-        File testSv = testProjectDir.newFolder('src', 'test', 'sv')
+        File testSv = TestProjectDir.newFolder(testProjectDir, 'src', 'test', 'sv')
 
-        File mainSv = testProjectDir.newFolder('src', 'mocks', 'sv')
+        File mainSv = TestProjectDir.newFolder(testProjectDir, 'src', 'mocks', 'sv')
         new File(mainSv, 'dummy_mocks.sv').createNewFile()
 
         buildFile << """
@@ -417,23 +417,23 @@ class SVUnitPluginSpec extends Specification  {
 
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('testWithXrun')
             .build()
 
         then:
         result.task(":testWithXrun").outcome == SUCCESS
-        def testFullXrunArgsFile = new File(testProjectDir.root, 'build/full_test_xrun_args.f')
-        testFullXrunArgsFile.text.contains "-f ${testProjectDir.root}/build/mocks_xrun_args.f"
+        def testFullXrunArgsFile = new File(testProjectDir, 'build/full_test_xrun_args.f')
+        testFullXrunArgsFile.text.contains "-f ${testProjectDir}/build/mocks_xrun_args.f"
     }
 
     def "'check' task executes test tasks"() {
-        File testSv = testProjectDir.newFolder('src', 'test', 'sv')
+        File testSv = TestProjectDir.newFolder(testProjectDir, 'src', 'test', 'sv')
         new File(testSv, 'dummy_test.sv').createNewFile()
 
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('check')
             .build()
 
@@ -453,12 +453,12 @@ class SVUnitPluginSpec extends Specification  {
                 testCompile providers.provider { "org.svunit:svunit:v3.34.2" }
             }
         """
-        File testSv = testProjectDir.newFolder('src', 'test', 'sv')
+        File testSv = TestProjectDir.newFolder(testProjectDir, 'src', 'test', 'sv')
         new File(testSv, 'dummy_test.sv').createNewFile()
 
         when:
         def result = newGradleRunnerWithFakeRunSVunit()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('testWithXrun')
             .build()
 
