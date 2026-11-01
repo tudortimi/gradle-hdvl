@@ -18,10 +18,10 @@ package com.verificationgentleman.gradle.hdvl.systemverilog
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.verificationgentleman.gradle.hdvl.FunctionalTestRunner
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
+import com.verificationgentleman.gradle.hdvl.TestProjectDir
 import spock.lang.Ignore
 import spock.lang.Specification
+import spock.lang.TempDir
 
 import java.nio.file.Files
 import java.util.zip.ZipFile
@@ -30,11 +30,11 @@ import static org.gradle.testkit.runner.TaskOutcome.NO_SOURCE
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
 class SystemVerilogPluginSpec extends Specification {
-    @Rule TemporaryFolder testProjectDir = new TemporaryFolder()
+    @TempDir File testProjectDir
     File buildFile
 
     def setup() {
-        buildFile = testProjectDir.newFile('build.gradle')
+        buildFile = TestProjectDir.newFile(testProjectDir, 'build.gradle')
         buildFile << """
             plugins {
                 id 'com.verificationgentleman.gradle.hdvl.systemverilog'
@@ -49,9 +49,9 @@ class SystemVerilogPluginSpec extends Specification {
      * @return The build file of the project
      */
     def newStandardProject(String name) {
-        File folder = testProjectDir.newFolder(name)
+        File folder = TestProjectDir.newFolder(testProjectDir, name)
 
-        File sv = testProjectDir.newFolder(name,'src', 'main', 'sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, name,'src', 'main', 'sv')
         new File(sv, "${name}.sv").createNewFile()
 
         File buildFile = new File(folder, "build.gradle")
@@ -67,7 +67,7 @@ class SystemVerilogPluginSpec extends Specification {
     def "can successfully import the plugin"() {
         when:
         def result = FunctionalTestRunner.create()
-                .withProjectDir(testProjectDir.root)
+                .withProjectDir(testProjectDir)
                 .build()
 
         then:
@@ -85,7 +85,7 @@ class SystemVerilogPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-                .withProjectDir(testProjectDir.root)
+                .withProjectDir(testProjectDir)
                 .withArguments('assertProps')
                 .build()
 
@@ -94,7 +94,7 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "can configure a source set"() {
-        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
         buildFile << """
@@ -110,17 +110,17 @@ class SystemVerilogPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-                .withProjectDir(testProjectDir.root)
+                .withProjectDir(testProjectDir)
                 .withArguments('copy')
                 .build()
 
         then:
         result.task(":copy").outcome == SUCCESS
-        new File(testProjectDir.root, 'build/dummy.sv').exists()
+        new File(testProjectDir, 'build/dummy.sv').exists()
     }
 
     def "source set ignores 'svh' files"() {
-        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
         new File(sv, 'dummy.svh').createNewFile()
 
@@ -137,17 +137,17 @@ class SystemVerilogPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-                .withProjectDir(testProjectDir.root)
+                .withProjectDir(testProjectDir)
                 .withArguments('copy')
                 .build()
 
         then:
         result.task(":copy").outcome == SUCCESS
-        !(new File(testProjectDir.root, 'build/dummy.svh').exists())
+        !(new File(testProjectDir, 'build/dummy.svh').exists())
     }
 
     def "can specify a source set source directory using a closure"() {
-        File sv = testProjectDir.newFolder('sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
         buildFile << """
@@ -167,17 +167,17 @@ class SystemVerilogPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-                .withProjectDir(testProjectDir.root)
+                .withProjectDir(testProjectDir)
                 .withArguments('copy')
                 .build()
 
         then:
         result.task(":copy").outcome == SUCCESS
-        new File(testProjectDir.root, 'build/dummy.sv').exists()
+        new File(testProjectDir, 'build/dummy.sv').exists()
     }
 
     def "can specify a source set source exported header directory using a closure"() {
-        File sv = testProjectDir.newFolder('sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'sv')
         new File(sv, 'dummy.svh').createNewFile()
 
         buildFile << """
@@ -197,17 +197,17 @@ class SystemVerilogPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('copy')
             .build()
 
         then:
         result.task(":copy").outcome == SUCCESS
-        new File(testProjectDir.root, 'build/dummy.svh').exists()
+        new File(testProjectDir, 'build/dummy.svh').exists()
     }
 
     def "'main' source set is added by the plugin"() {
-        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
         buildFile << """
@@ -219,13 +219,13 @@ class SystemVerilogPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-                .withProjectDir(testProjectDir.root)
+                .withProjectDir(testProjectDir)
                 .withArguments('copy')
                 .build()
 
         then:
         result.task(":copy").outcome == SUCCESS
-        new File(testProjectDir.root, 'build/dummy.sv').exists()
+        new File(testProjectDir, 'build/dummy.sv').exists()
     }
 
     @Ignore("Complains that the source set doesn't support conventions")
@@ -233,12 +233,12 @@ class SystemVerilogPluginSpec extends Specification {
         // XXX Most tests use 'build.gradle', but in this test we want to use a Kotlin build script. It seems like
         // overkill to create a new test class just fo this.
         setup:
-        new File(testProjectDir.root, 'build.gradle').delete()
+        new File(testProjectDir, 'build.gradle').delete()
 
-        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
-        File buildFile = testProjectDir.newFile('build.gradle.kts')
+        File buildFile = TestProjectDir.newFile(testProjectDir, 'build.gradle.kts')
         buildFile << """
             import org.gradle.api.file.SourceDirectorySet
 
@@ -266,7 +266,7 @@ class SystemVerilogPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-                .withProjectDir(testProjectDir.root)
+                .withProjectDir(testProjectDir)
                 .withArguments('copy')
                 .build()
 
@@ -279,12 +279,12 @@ class SystemVerilogPluginSpec extends Specification {
         // XXX Most tests use 'build.gradle', but in this test we want to use a Kotlin build script. It seems like
         // overkill to create a new test class just fo this.
         setup:
-        new File(testProjectDir.root, 'build.gradle').delete()
+        new File(testProjectDir, 'build.gradle').delete()
 
-        File sv = testProjectDir.newFolder('src', 'main', 'sv_headers')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv_headers')
         new File(sv, 'dummy.svh').createNewFile()
 
-        File buildFile = testProjectDir.newFile('build.gradle.kts')
+        File buildFile = TestProjectDir.newFile(testProjectDir, 'build.gradle.kts')
         buildFile << """
             import org.gradle.api.file.SourceDirectorySet
 
@@ -312,7 +312,7 @@ class SystemVerilogPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('copy')
             .build()
 
@@ -321,53 +321,53 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genXrunArgsFile' task produces output"() {
-        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('genXrunArgsFile')
             .build()
 
         then:
         result.task(":genXrunArgsFile").outcome == SUCCESS
-        new File(testProjectDir.root, 'build/xrun_args.f').exists()
+        new File(testProjectDir, 'build/xrun_args.f').exists()
     }
 
     def "'genXrunArgsFile' task writes compile files to args file"() {
-        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('genXrunArgsFile')
             .build()
 
         then:
-        new File(testProjectDir.root, 'build/xrun_args.f').text.contains('src/main/sv/dummy.sv')
+        new File(testProjectDir, 'build/xrun_args.f').text.contains('src/main/sv/dummy.sv')
     }
 
     def "'genXrunArgsFile' task writes private include directories to args file"() {
-        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('genXrunArgsFile')
             .build()
 
         then:
-        def lines = new File(testProjectDir.root, 'build/xrun_args.f').text.split("\n")
+        def lines = new File(testProjectDir, 'build/xrun_args.f').text.split("\n")
         def lineWithIncdir = lines.find { it.contains('-incdir') }
         lineWithIncdir != null
         lineWithIncdir.endsWith("src/main/sv")
     }
 
     def "'genXrunArgsFile' task writes private include directories to args file after re-configure of source dirs"() {
-        File sv = testProjectDir.newFolder('sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
         buildFile << """
@@ -382,12 +382,12 @@ class SystemVerilogPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('genXrunArgsFile')
             .build()
 
         then:
-        def lines = new File(testProjectDir.root, 'build/xrun_args.f').text.split("\n")
+        def lines = new File(testProjectDir, 'build/xrun_args.f').text.split("\n")
         def lineWithIncdir = lines.find { it.contains('-incdir') }
         lineWithIncdir != null
         !lineWithIncdir.contains("src")
@@ -396,7 +396,7 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genXrunArgsFile' task skips empty private include directories"() {
-        File sv = testProjectDir.newFolder('sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
         buildFile << """
@@ -413,19 +413,19 @@ class SystemVerilogPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('genXrunArgsFile')
             .build()
 
         then:
-        def lines = new File(testProjectDir.root, 'build/xrun_args.f').text.split("\n")
+        def lines = new File(testProjectDir, 'build/xrun_args.f').text.split("\n")
         !lines.any { it.contains('src/main/sv') }
     }
 
     def "'genXrunArgsFile' task doesn't write private include directories to args file if they have no SV files"() {
-        File sv = testProjectDir.newFolder('sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'sv')
         new File(sv, 'dummy.sv').createNewFile()
-        testProjectDir.newFolder('src', 'main', 'sv')
+        TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
 
         buildFile << """
             sourceSets {
@@ -441,106 +441,106 @@ class SystemVerilogPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('genXrunArgsFile')
             .build()
 
         then:
-        def lines = new File(testProjectDir.root, 'build/xrun_args.f').text.split("\n")
+        def lines = new File(testProjectDir, 'build/xrun_args.f').text.split("\n")
         !lines.any { it.contains('src/main/sv') }
     }
 
     def "'genXrunArgsFile' task writes exported header directories to args file"() {
-        File svHeaders = testProjectDir.newFolder('src', 'main', 'sv_headers')
+        File svHeaders = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv_headers')
         new File(svHeaders, 'dummy.svh').createNewFile()
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('genXrunArgsFile')
             .build()
 
         then:
-        def lines = new File(testProjectDir.root, 'build/xrun_args.f').text.split("\n")
+        def lines = new File(testProjectDir, 'build/xrun_args.f').text.split("\n")
         def linesWithIncdir = lines.findAll { it.contains('-incdir') }
         !linesWithIncdir.isEmpty()
         linesWithIncdir.any { it.endsWith("src/main/sv_headers") }
     }
 
     def "'genXrunArgsFile' task doesn't write exported header directories to args file if they have no SV files"() {
-        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
-        testProjectDir.newFolder('src', 'main', 'sv_headers')
+        TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv_headers')
 
         // 'src/main/sv_headers' exists but is empty
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('genXrunArgsFile')
             .build()
 
         then:
-        def lines = new File(testProjectDir.root, 'build/xrun_args.f').text.split("\n")
+        def lines = new File(testProjectDir, 'build/xrun_args.f').text.split("\n")
         !lines.any { it.contains('src/main/sv_headers') }
     }
 
     def "'genXrunArgsFile' task doesn't write exported header directories to args file if none exist"() {
-        File sv = testProjectDir.newFolder('src/main/sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'src/main/sv')
         new File(sv, 'dummy.sv').createNewFile()
 
         // No 'src/main/sv_headers' directory
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('genXrunArgsFile')
             .build()
 
         then:
-        def lines = new File(testProjectDir.root, 'build/xrun_args.f').text.split("\n")
+        def lines = new File(testProjectDir, 'build/xrun_args.f').text.split("\n")
         !lines.any { it.contains('src/main/sv_headers') }
     }
 
     def "'genXrunArgsFile' task indents entries in makelib block"() {
-        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('genXrunArgsFile')
             .build()
 
         then:
-        def lines = new File(testProjectDir.root, 'build/xrun_args.f').text.split('\n')
+        def lines = new File(testProjectDir, 'build/xrun_args.f').text.split('\n')
         lines.findAll { !it.contains('-makelib') && !it.contains('-endlib') }.each {
             assert it.startsWith('  ')
         }
     }
 
     def "'genFullXrunArgsFile' task consumes output of 'genXrunArgsFile"() {
-        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('genFullXrunArgsFile')
             .build()
 
         then:
         result.task(":genXrunArgsFile").outcome == SUCCESS
         result.task(":genFullXrunArgsFile").outcome == SUCCESS
-        new File(testProjectDir.root, 'build/full_xrun_args.f').exists()
-        new File(testProjectDir.root, 'build/full_xrun_args.f').text.contains('build/xrun_args.f')
+        new File(testProjectDir, 'build/full_xrun_args.f').exists()
+        new File(testProjectDir, 'build/full_xrun_args.f').text.contains('build/xrun_args.f')
     }
 
     def "'argsFiles' artifacts produced by direct dependencies are consumed by main project in 'genFullXrunArgsFile'"() {
         setup:
         buildFile.delete()
 
-        File settingsFile = testProjectDir.newFile('settings.gradle')
+        File settingsFile = TestProjectDir.newFile(testProjectDir, 'settings.gradle')
         settingsFile << """
             include 'directDependency'
             include 'mainProject'
@@ -557,7 +557,7 @@ class SystemVerilogPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments(':mainProject:genFullXrunArgsFile')
             .build()
 
@@ -565,15 +565,15 @@ class SystemVerilogPluginSpec extends Specification {
         result.task(":directDependency:genXrunArgsFile").outcome == SUCCESS
         result.task(":mainProject:genXrunArgsFile").outcome == SUCCESS
         result.task(":mainProject:genFullXrunArgsFile").outcome == SUCCESS
-        new File(testProjectDir.root, 'mainProject/build/full_xrun_args.f').text.contains('directDependency/build/xrun_args.f')
-        new File(testProjectDir.root, 'mainProject/build/full_xrun_args.f').text.contains('mainProject/build/xrun_args.f')
+        new File(testProjectDir, 'mainProject/build/full_xrun_args.f').text.contains('directDependency/build/xrun_args.f')
+        new File(testProjectDir, 'mainProject/build/full_xrun_args.f').text.contains('mainProject/build/xrun_args.f')
     }
 
     def "'argsFiles' artifacts produced by transitive dependencies are consumed in 'genFullXrunArgsFile'"() {
         setup:
         buildFile.delete()
 
-        File settingsFile = testProjectDir.newFile('settings.gradle')
+        File settingsFile = TestProjectDir.newFile(testProjectDir, 'settings.gradle')
         settingsFile << """
             include 'transitiveDependency'
             include 'directDependency'
@@ -598,7 +598,7 @@ class SystemVerilogPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments(':mainProject:genFullXrunArgsFile')
             .build()
 
@@ -607,16 +607,16 @@ class SystemVerilogPluginSpec extends Specification {
         result.task(":directDependency:genXrunArgsFile").outcome == SUCCESS
         result.task(":mainProject:genXrunArgsFile").outcome == SUCCESS
         result.task(":mainProject:genFullXrunArgsFile").outcome == SUCCESS
-        new File(testProjectDir.root, 'mainProject/build/full_xrun_args.f').text.contains('transitiveDependency/build/xrun_args.f')
-        new File(testProjectDir.root, 'mainProject/build/full_xrun_args.f').text.contains('directDependency/build/xrun_args.f')
-        new File(testProjectDir.root, 'mainProject/build/full_xrun_args.f').text.contains('mainProject/build/xrun_args.f')
+        new File(testProjectDir, 'mainProject/build/full_xrun_args.f').text.contains('transitiveDependency/build/xrun_args.f')
+        new File(testProjectDir, 'mainProject/build/full_xrun_args.f').text.contains('directDependency/build/xrun_args.f')
+        new File(testProjectDir, 'mainProject/build/full_xrun_args.f').text.contains('mainProject/build/xrun_args.f')
     }
 
     def "'argsFiles' are consumed in dependency order"() {
         setup:
         buildFile.delete()
 
-        File settingsFile = testProjectDir.newFile('settings.gradle')
+        File settingsFile = TestProjectDir.newFile(testProjectDir, 'settings.gradle')
         settingsFile << """
             include 'transitiveDependency'
             include 'directDependency'
@@ -641,12 +641,12 @@ class SystemVerilogPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments(':mainProject:genFullXrunArgsFile')
             .build()
 
         then:
-        def lines = new File(testProjectDir.root, 'mainProject/build/full_xrun_args.f').text.split('\n')
+        def lines = new File(testProjectDir, 'mainProject/build/full_xrun_args.f').text.split('\n')
         def transitiveDependencyIdx = lines.findIndexOf {
             it.contains('transitiveDependency/build/xrun_args.f')
         }
@@ -670,7 +670,7 @@ class SystemVerilogPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('tasks', '--all')
             .build()
 
@@ -680,7 +680,7 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genXrunArgsFile' task for custom source set produces args file"() {
-        File sv = testProjectDir.newFolder('src', 'dummy', 'sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'dummy', 'sv')
         new File(sv, "dummy.sv").createNewFile()
 
         buildFile << """
@@ -695,20 +695,20 @@ class SystemVerilogPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('genDummyXrunArgsFile')
             .build()
 
         then:
         result.task(":genDummyXrunArgsFile").outcome == SUCCESS
-        new File(testProjectDir.root, "build/dummy_xrun_args.f").exists()
-        new File(testProjectDir.root, "build/dummy_xrun_args.f").text.contains('dummy.sv')
+        new File(testProjectDir, "build/dummy_xrun_args.f").exists()
+        new File(testProjectDir, "build/dummy_xrun_args.f").text.contains('dummy.sv')
     }
 
     def "'genXrunArgsFile' tasks when custom source set present produce correct args file"() {
-        File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
+        File mainSv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
         new File(mainSv, "main.sv").createNewFile()
-        File dummySv = testProjectDir.newFolder('src', 'dummy', 'sv')
+        File dummySv = TestProjectDir.newFolder(testProjectDir, 'src', 'dummy', 'sv')
         new File(dummySv, "dummy.sv").createNewFile()
 
         buildFile << """
@@ -723,56 +723,56 @@ class SystemVerilogPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('genDummyXrunArgsFile', 'genXrunArgsFile')
             .build()
 
         then:
-        new File(testProjectDir.root, "build/xrun_args.f").text.contains('main.sv')
-        new File(testProjectDir.root, "build/dummy_xrun_args.f").text.contains('dummy.sv')
+        new File(testProjectDir, "build/xrun_args.f").text.contains('main.sv')
+        new File(testProjectDir, "build/dummy_xrun_args.f").text.contains('dummy.sv')
     }
 
     def "'genQrunArgsFile' task produces output"() {
-        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('genQrunArgsFile')
             .build()
 
         then:
         result.task(":genQrunArgsFile").outcome == SUCCESS
-        new File(testProjectDir.root, 'build/qrun_args.f').exists()
+        new File(testProjectDir, 'build/qrun_args.f').exists()
     }
 
     def "'genQrunArgsFile' task uses 'work' as name for library"() {
-        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('genQrunArgsFile')
             .build()
 
         then:
-        new File(testProjectDir.root, 'build/qrun_args.f').text.contains('-makelib work\n')
+        new File(testProjectDir, 'build/qrun_args.f').text.contains('-makelib work\n')
     }
 
     def "'genQrunArgsFile' task writes private include directories to args file"() {
-        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('genQrunArgsFile')
             .build()
 
         then:
-        def lines = new File(testProjectDir.root, 'build/qrun_args.f').text.split("\n")
+        def lines = new File(testProjectDir, 'build/qrun_args.f').text.split("\n")
         def lineWithIncdir = lines.find { it.contains('+incdir+') }
         lineWithIncdir != null
         lineWithIncdir.endsWith("src/main/sv")
@@ -780,17 +780,17 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genQrunArgsFile' task writes exported header directories to args file"() {
-        File svHeaders = testProjectDir.newFolder('src', 'main', 'sv_headers')
+        File svHeaders = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv_headers')
         new File(svHeaders, 'dummy.svh').createNewFile()
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('genQrunArgsFile')
             .build()
 
         then:
-        def lines = new File(testProjectDir.root, 'build/qrun_args.f').text.split("\n")
+        def lines = new File(testProjectDir, 'build/qrun_args.f').text.split("\n")
         def linesWithIncdir = lines.findAll { it.contains('+incdir+') }
         !linesWithIncdir.isEmpty()
         linesWithIncdir.any { it.endsWith("src/main/sv_headers") }
@@ -798,45 +798,45 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genQrunArgsFile' task doesn't write exported header directories to args file if they have no SV files"() {
-        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
-        testProjectDir.newFolder('src', 'main', 'sv_headers')
+        TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv_headers')
 
         // 'src/main/sv_headers' exists but is empty
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('genQrunArgsFile')
             .build()
 
         then:
-        def lines = new File(testProjectDir.root, 'build/qrun_args.f').text.split("\n")
+        def lines = new File(testProjectDir, 'build/qrun_args.f').text.split("\n")
         !lines.any { it.contains('src/main/sv_headers') }
     }
 
     def "'genFullQrunArgsFile' task consumes output of 'genQrunArgsFile"() {
-        File sv = testProjectDir.newFolder('src', 'main', 'sv')
+        File sv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
         new File(sv, 'dummy.sv').createNewFile()
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments('genFullQrunArgsFile')
             .build()
 
         then:
         result.task(":genQrunArgsFile").outcome == SUCCESS
         result.task(":genFullQrunArgsFile").outcome == SUCCESS
-        new File(testProjectDir.root, 'build/full_qrun_args.f').exists()
-        new File(testProjectDir.root, 'build/full_qrun_args.f').text.contains('build/qrun_args.f')
+        new File(testProjectDir, 'build/full_qrun_args.f').exists()
+        new File(testProjectDir, 'build/full_qrun_args.f').text.contains('build/qrun_args.f')
     }
 
     def "'argsFiles' artifacts produced by direct dependencies are consumed by main project in 'genFullQrunArgsFile'"() {
         setup:
         buildFile.delete()
 
-        File settingsFile = testProjectDir.newFile('settings.gradle')
+        File settingsFile = TestProjectDir.newFile(testProjectDir, 'settings.gradle')
         settingsFile << """
             include 'directDependency'
             include 'mainProject'
@@ -853,7 +853,7 @@ class SystemVerilogPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments(':mainProject:genFullQrunArgsFile')
             .build()
 
@@ -861,9 +861,9 @@ class SystemVerilogPluginSpec extends Specification {
         result.task(":directDependency:genQrunArgsFile").outcome == SUCCESS
         result.task(":mainProject:genQrunArgsFile").outcome == SUCCESS
         result.task(":mainProject:genFullQrunArgsFile").outcome == SUCCESS
-        new File(testProjectDir.root, 'mainProject/build/full_qrun_args.f').text
+        new File(testProjectDir, 'mainProject/build/full_qrun_args.f').text
                 .contains('directDependency/build/qrun_args.f')
-        new File(testProjectDir.root, 'mainProject/build/full_qrun_args.f').text
+        new File(testProjectDir, 'mainProject/build/full_qrun_args.f').text
                 .contains('mainProject/build/qrun_args.f')
     }
 
@@ -871,7 +871,7 @@ class SystemVerilogPluginSpec extends Specification {
         setup:
         buildFile.delete()
 
-        File settingsFile = testProjectDir.newFile('settings.gradle')
+        File settingsFile = TestProjectDir.newFile(testProjectDir, 'settings.gradle')
         settingsFile << """
             include 'directDependency'
             include 'mainProject'
@@ -888,7 +888,7 @@ class SystemVerilogPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments(':mainProject:genFullQrunArgsFile')
             .build()
 
@@ -896,7 +896,7 @@ class SystemVerilogPluginSpec extends Specification {
         result.task(":directDependency:genQrunArgsFile").outcome == SUCCESS
         result.task(":mainProject:genQrunArgsFile").outcome == SUCCESS
         result.task(":mainProject:genFullQrunArgsFile").outcome == SUCCESS
-        new File(testProjectDir.root, 'mainProject/build/full_qrun_args.f').readLines().each { String line ->
+        new File(testProjectDir, 'mainProject/build/full_qrun_args.f').readLines().each { String line ->
             if (line.contains('args.f')) {
                 assert line.contains('qrun_args.f')
             }
@@ -904,17 +904,17 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "can write sv source to compile spec file"() {
-        File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
+        File mainSv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
         new File(mainSv, "main.sv").createNewFile()
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments(':writeCompileSpecFile')
             .build()
 
         then:
-        def compileSpecFile = new File(testProjectDir.root, 'build/compile-spec.json')
+        def compileSpecFile = new File(testProjectDir, 'build/compile-spec.json')
         compileSpecFile.exists()
         JsonNode compileSpec = new ObjectMapper().readTree(compileSpecFile)
         JsonNode svSourceFiles = compileSpec.get("svSourceFiles")
@@ -924,43 +924,43 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "archive with source file contains compile spec"() {
-        File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
+        File mainSv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
         new File(mainSv, "main.sv").createNewFile()
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments(':hdvlSourcesArchive')
             .build()
 
         then:
-        new File(testProjectDir.root, 'build/hdvl-sources.zip').exists()
-        def zipFile = new ZipFile(new File(testProjectDir.root, 'build/hdvl-sources.zip'))
+        new File(testProjectDir, 'build/hdvl-sources.zip').exists()
+        def zipFile = new ZipFile(new File(testProjectDir, 'build/hdvl-sources.zip'))
         def entries = zipFile.entries().findAll { !it.directory }
         entries.size() == 2
         entries[0].name == '.gradle-hdvl/compile-spec.json'
     }
 
     def "can produce archive with source file"() {
-        File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
+        File mainSv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
         new File(mainSv, "main.sv").createNewFile()
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments(':hdvlSourcesArchive')
             .build()
 
         then:
-        new File(testProjectDir.root, 'build/hdvl-sources.zip').exists()
-        def zipFile = new ZipFile(new File(testProjectDir.root, 'build/hdvl-sources.zip'))
+        new File(testProjectDir, 'build/hdvl-sources.zip').exists()
+        def zipFile = new ZipFile(new File(testProjectDir, 'build/hdvl-sources.zip'))
         def entries = zipFile.entries().findAll { !it.directory }
         entries.size() == 2
         entries[1].name == 'src/main/sv/main.sv'
     }
 
     def "can produce archive with source file in custom location"() {
-        File mainSv = testProjectDir.newFolder('sv')
+        File mainSv = TestProjectDir.newFolder(testProjectDir, 'sv')
         new File(mainSv, "main.sv").createNewFile()
 
         buildFile << """
@@ -969,32 +969,32 @@ class SystemVerilogPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments(':hdvlSourcesArchive')
             .build()
 
         then:
-        new File(testProjectDir.root, 'build/hdvl-sources.zip').exists()
-        def zipFile = new ZipFile(new File(testProjectDir.root, 'build/hdvl-sources.zip'))
+        new File(testProjectDir, 'build/hdvl-sources.zip').exists()
+        def zipFile = new ZipFile(new File(testProjectDir, 'build/hdvl-sources.zip'))
         def entries = zipFile.entries().findAll { !it.directory }
         entries.size() == 2
         entries[1].name == 'sv/main.sv'
     }
 
     def "can produce archive with private header"() {
-        File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
+        File mainSv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
         new File(mainSv, "main.sv").createNewFile()
         new File(mainSv, "private_header.svh").createNewFile()
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments(':hdvlSourcesArchive')
             .build()
 
         then:
-        new File(testProjectDir.root, 'build/hdvl-sources.zip').exists()
-        def zipFile = new ZipFile(new File(testProjectDir.root, 'build/hdvl-sources.zip'))
+        new File(testProjectDir, 'build/hdvl-sources.zip').exists()
+        def zipFile = new ZipFile(new File(testProjectDir, 'build/hdvl-sources.zip'))
         def entries = zipFile.entries().findAll { !it.directory }
         entries.size() == 3
         entries[1].name == 'src/main/sv/main.sv'
@@ -1002,7 +1002,7 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "can produce archive with private header in custom location"() {
-        File mainSv = testProjectDir.newFolder('sv')
+        File mainSv = TestProjectDir.newFolder(testProjectDir, 'sv')
         new File(mainSv, "main.sv").createNewFile()
         new File(mainSv, "private_header.svh").createNewFile()
 
@@ -1012,13 +1012,13 @@ class SystemVerilogPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments(':hdvlSourcesArchive')
             .build()
 
         then:
-        new File(testProjectDir.root, 'build/hdvl-sources.zip').exists()
-        def zipFile = new ZipFile(new File(testProjectDir.root, 'build/hdvl-sources.zip'))
+        new File(testProjectDir, 'build/hdvl-sources.zip').exists()
+        def zipFile = new ZipFile(new File(testProjectDir, 'build/hdvl-sources.zip'))
         def entries = zipFile.entries().findAll { !it.directory }
         entries.size() == 3
         entries[1].name == 'sv/main.sv'
@@ -1026,25 +1026,25 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "can produce archive with exported header"() {
-        File mainSvHeaders = testProjectDir.newFolder('src', 'main', 'sv_headers')
+        File mainSvHeaders = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv_headers')
         new File(mainSvHeaders, "exported_header.svh").createNewFile()
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments(':hdvlSourcesArchive')
             .build()
 
         then:
-        new File(testProjectDir.root, 'build/hdvl-sources.zip').exists()
-        def zipFile = new ZipFile(new File(testProjectDir.root, 'build/hdvl-sources.zip'))
+        new File(testProjectDir, 'build/hdvl-sources.zip').exists()
+        def zipFile = new ZipFile(new File(testProjectDir, 'build/hdvl-sources.zip'))
         def entries = zipFile.entries().findAll { !it.directory }
         entries.size() == 2
         entries[1].name == 'src/main/sv_headers/exported_header.svh'
     }
 
     def "can produce archive with exported header in custom location"() {
-        File mainSvHeaders = testProjectDir.newFolder('sv')
+        File mainSvHeaders = TestProjectDir.newFolder(testProjectDir, 'sv')
         new File(mainSvHeaders, "exported_header.svh").createNewFile()
 
         buildFile << """
@@ -1053,20 +1053,20 @@ class SystemVerilogPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments(':hdvlSourcesArchive')
             .build()
 
         then:
-        new File(testProjectDir.root, 'build/hdvl-sources.zip').exists()
-        def zipFile = new ZipFile(new File(testProjectDir.root, 'build/hdvl-sources.zip'))
+        new File(testProjectDir, 'build/hdvl-sources.zip').exists()
+        def zipFile = new ZipFile(new File(testProjectDir, 'build/hdvl-sources.zip'))
         def entries = zipFile.entries().findAll { !it.directory }
         entries.size() == 2
         entries[1].name == 'sv/exported_header.svh'
     }
 
     def "can publishing metadata for archive"() {
-        File mainSv = testProjectDir.newFolder('src', 'main', 'sv')
+        File mainSv = TestProjectDir.newFolder(testProjectDir, 'src', 'main', 'sv')
         new File(mainSv, "main.sv").createNewFile()
 
         buildFile.text = """
@@ -1081,18 +1081,18 @@ class SystemVerilogPluginSpec extends Specification {
 
         when:
         def result = FunctionalTestRunner.create()
-            .withProjectDir(testProjectDir.root)
+            .withProjectDir(testProjectDir)
             .withArguments(':generateMetadataFileForHdvlLibraryPublication')
             .build()
 
         then:
-        def gradleMetadata = new File(testProjectDir.root, "build/publications/hdvlLibrary/module.json")
+        def gradleMetadata = new File(testProjectDir, "build/publications/hdvlLibrary/module.json")
         gradleMetadata.exists()
         JsonNode metadata = new ObjectMapper().readTree(gradleMetadata);
 
         JsonNode component = metadata.get("component")
         component.get("group").asText() == "org.example"
-        component.get("module").asText() == testProjectDir.root.name
+        component.get("module").asText() == testProjectDir.name
         component.get("version").asText() == "1.0.0"
 
         JsonNode variants = metadata.get("variants")
