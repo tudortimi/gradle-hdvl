@@ -34,12 +34,14 @@ class SystemVerilogPluginSpec extends Specification {
     File buildFile
 
     def setup() {
-        buildFile = testProjectDir.file('build.gradle').toFile()
-        buildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
-            }
-        """
+        testProjectDir.create {
+            file('build.gradle') << """
+                plugins {
+                    id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+                }
+            """
+        }
+        buildFile = testProjectDir.resolve('build.gradle').toFile()
     }
 
     /**
@@ -49,19 +51,20 @@ class SystemVerilogPluginSpec extends Specification {
      * @return The build file of the project
      */
     def newStandardProject(String name) {
-        File folder = testProjectDir.dir(name).toFile()
-
-        File sv = testProjectDir.dir("$name/src/main/sv").toFile()
-        new File(sv, "${name}.sv").createNewFile()
-
-        File buildFile = new File(folder, "build.gradle")
-        buildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+        testProjectDir.create {
+            dir(name) {
+                file('build.gradle') << """
+                    plugins {
+                        id 'com.verificationgentleman.gradle.hdvl.systemverilog'
+                    }
+                """
+                dir('src/main/sv') {
+                    file("${name}.sv") << ''
+                }
             }
-        """
+        }
 
-        return buildFile
+        return testProjectDir.resolve("$name/build.gradle").toFile()
     }
 
     def "can successfully import the plugin"() {
@@ -94,8 +97,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "can configure a source set"() {
-        File sv = testProjectDir.dir('src/main/sv').toFile()
-        new File(sv, 'dummy.sv').createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('dummy.sv') << ''
+            }
+        }
 
         buildFile << """
             sourceSets {
@@ -120,9 +126,12 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "source set ignores 'svh' files"() {
-        File sv = testProjectDir.dir('src/main/sv').toFile()
-        new File(sv, 'dummy.sv').createNewFile()
-        new File(sv, 'dummy.svh').createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('dummy.sv') << ''
+                file('dummy.svh') << ''
+            }
+        }
 
         buildFile << """
             sourceSets {
@@ -147,8 +156,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "can specify a source set source directory using a closure"() {
-        File sv = testProjectDir.dir('sv').toFile()
-        new File(sv, 'dummy.sv').createNewFile()
+        testProjectDir.create {
+            dir('sv') {
+                file('dummy.sv') << ''
+            }
+        }
 
         buildFile << """
             sourceSets {
@@ -177,8 +189,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "can specify a source set source exported header directory using a closure"() {
-        File sv = testProjectDir.dir('sv').toFile()
-        new File(sv, 'dummy.svh').createNewFile()
+        testProjectDir.create {
+            dir('sv') {
+                file('dummy.svh') << ''
+            }
+        }
 
         buildFile << """
             sourceSets {
@@ -207,8 +222,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'main' source set is added by the plugin"() {
-        File sv = testProjectDir.dir('src/main/sv').toFile()
-        new File(sv, 'dummy.sv').createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('dummy.sv') << ''
+            }
+        }
 
         buildFile << """
             task copy(type: Copy) {
@@ -235,34 +253,35 @@ class SystemVerilogPluginSpec extends Specification {
         setup:
         testProjectDir.resolve('build.gradle').toFile().delete()
 
-        File sv = testProjectDir.dir('src/main/sv').toFile()
-        new File(sv, 'dummy.sv').createNewFile()
-
-        File buildFile = testProjectDir.file('build.gradle.kts').toFile()
-        buildFile << """
-            import org.gradle.api.file.SourceDirectorySet
-
-            plugins {
-                id("com.verificationgentleman.gradle.hdvl.systemverilog")
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('dummy.sv') << ''
             }
+            file('build.gradle.kts') << """
+                import org.gradle.api.file.SourceDirectorySet
 
-            sourceSets {
-                main {
-                    extensions.configure<SourceDirectorySet>("sv") {
-                        exclude("**/dummy.sv")
+                plugins {
+                    id("com.verificationgentleman.gradle.hdvl.systemverilog")
+                }
+
+                sourceSets {
+                    main {
+                        extensions.configure<SourceDirectorySet>("sv") {
+                            exclude("**/dummy.sv")
+                        }
                     }
                 }
-            }
 
-            tasks.register<Copy>("copy") {
-                // XXX Not clear why we can't just do 'sourceSets.main.sv'.
-                // 'sourceSets.main' doesn't return an object of type 'SourceSet', but a
-                // 'NamedDomainObjectProvider<SourceSet'. The Java plugin has the same issue.
-                from((sourceSets.main.get().extensions.getByName("sv") as SourceDirectorySet).files)
-                include("*")
-                into("build")
-            }
-        """
+                tasks.register<Copy>("copy") {
+                    // XXX Not clear why we can't just do 'sourceSets.main.sv'.
+                    // 'sourceSets.main' doesn't return an object of type 'SourceSet', but a
+                    // 'NamedDomainObjectProvider<SourceSet'. The Java plugin has the same issue.
+                    from((sourceSets.main.get().extensions.getByName("sv") as SourceDirectorySet).files)
+                    include("*")
+                    into("build")
+                }
+            """
+        }
 
         when:
         def result = FunctionalTestRunner.create()
@@ -281,34 +300,35 @@ class SystemVerilogPluginSpec extends Specification {
         setup:
         testProjectDir.resolve('build.gradle').toFile().delete()
 
-        File sv = testProjectDir.dir('src/main/sv_headers').toFile()
-        new File(sv, 'dummy.svh').createNewFile()
-
-        File buildFile = testProjectDir.file('build.gradle.kts').toFile()
-        buildFile << """
-            import org.gradle.api.file.SourceDirectorySet
-
-            plugins {
-                id("com.verificationgentleman.gradle.hdvl.systemverilog")
+        testProjectDir.create {
+            dir('src/main/sv_headers') {
+                file('dummy.svh') << ''
             }
+            file('build.gradle.kts') << """
+                import org.gradle.api.file.SourceDirectorySet
 
-            sourceSets {
-                main {
-                    extensions.configure<SourceDirectorySet>("svHeaders") {
-                        exclude("**/dummy.svh")
+                plugins {
+                    id("com.verificationgentleman.gradle.hdvl.systemverilog")
+                }
+
+                sourceSets {
+                    main {
+                        extensions.configure<SourceDirectorySet>("svHeaders") {
+                            exclude("**/dummy.svh")
+                        }
                     }
                 }
-            }
 
-            tasks.register<Copy>("copy") {
-                // XXX Not clear why we can't just do 'sourceSets.main.sv'.
-                // 'sourceSets.main' doesn't return an object of type 'SourceSet', but a
-                // 'NamedDomainObjectProvider<SourceSet'. The Java plugin has the same issue.
-                from((sourceSets.main.get().extensions.getByName("svHeaders") as SourceDirectorySet).files)
-                include("*")
-                into("build")
-            }
-        """
+                tasks.register<Copy>("copy") {
+                    // XXX Not clear why we can't just do 'sourceSets.main.sv'.
+                    // 'sourceSets.main' doesn't return an object of type 'SourceSet', but a
+                    // 'NamedDomainObjectProvider<SourceSet'. The Java plugin has the same issue.
+                    from((sourceSets.main.get().extensions.getByName("svHeaders") as SourceDirectorySet).files)
+                    include("*")
+                    into("build")
+                }
+            """
+        }
 
         when:
         def result = FunctionalTestRunner.create()
@@ -321,8 +341,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genXrunArgsFile' task produces output"() {
-        File sv = testProjectDir.dir('src/main/sv').toFile()
-        new File(sv, 'dummy.sv').createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('dummy.sv') << ''
+            }
+        }
 
         when:
         def result = FunctionalTestRunner.create()
@@ -336,8 +359,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genXrunArgsFile' task writes compile files to args file"() {
-        File sv = testProjectDir.dir('src/main/sv').toFile()
-        new File(sv, 'dummy.sv').createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('dummy.sv') << ''
+            }
+        }
 
         when:
         def result = FunctionalTestRunner.create()
@@ -350,8 +376,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genXrunArgsFile' task writes private include directories to args file"() {
-        File sv = testProjectDir.dir('src/main/sv').toFile()
-        new File(sv, 'dummy.sv').createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('dummy.sv') << ''
+            }
+        }
 
         when:
         def result = FunctionalTestRunner.create()
@@ -367,8 +396,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genXrunArgsFile' task writes private include directories to args file after re-configure of source dirs"() {
-        File sv = testProjectDir.dir('sv').toFile()
-        new File(sv, 'dummy.sv').createNewFile()
+        testProjectDir.create {
+            dir('sv') {
+                file('dummy.sv') << ''
+            }
+        }
 
         buildFile << """
             sourceSets {
@@ -396,8 +428,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genXrunArgsFile' task skips empty private include directories"() {
-        File sv = testProjectDir.dir('sv').toFile()
-        new File(sv, 'dummy.sv').createNewFile()
+        testProjectDir.create {
+            dir('sv') {
+                file('dummy.sv') << ''
+            }
+        }
 
         buildFile << """
             sourceSets {
@@ -423,9 +458,12 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genXrunArgsFile' task doesn't write private include directories to args file if they have no SV files"() {
-        File sv = testProjectDir.dir('sv').toFile()
-        new File(sv, 'dummy.sv').createNewFile()
-        testProjectDir.dir('src/main/sv')
+        testProjectDir.create {
+            dir('sv') {
+                file('dummy.sv') << ''
+            }
+            dir('src/main/sv')
+        }
 
         buildFile << """
             sourceSets {
@@ -451,8 +489,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genXrunArgsFile' task writes exported header directories to args file"() {
-        File svHeaders = testProjectDir.dir('src/main/sv_headers').toFile()
-        new File(svHeaders, 'dummy.svh').createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv_headers') {
+                file('dummy.svh') << ''
+            }
+        }
 
         when:
         def result = FunctionalTestRunner.create()
@@ -468,9 +509,12 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genXrunArgsFile' task doesn't write exported header directories to args file if they have no SV files"() {
-        File sv = testProjectDir.dir('src/main/sv').toFile()
-        new File(sv, 'dummy.sv').createNewFile()
-        testProjectDir.dir('src/main/sv_headers')
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('dummy.sv') << ''
+            }
+            dir('src/main/sv_headers')
+        }
 
         // 'src/main/sv_headers' exists but is empty
 
@@ -486,8 +530,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genXrunArgsFile' task doesn't write exported header directories to args file if none exist"() {
-        File sv = testProjectDir.dir('src/main/sv').toFile()
-        new File(sv, 'dummy.sv').createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('dummy.sv') << ''
+            }
+        }
 
         // No 'src/main/sv_headers' directory
 
@@ -503,8 +550,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genXrunArgsFile' task indents entries in makelib block"() {
-        File sv = testProjectDir.dir('src/main/sv').toFile()
-        new File(sv, 'dummy.sv').createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('dummy.sv') << ''
+            }
+        }
 
         when:
         def result = FunctionalTestRunner.create()
@@ -520,8 +570,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genFullXrunArgsFile' task consumes output of 'genXrunArgsFile"() {
-        File sv = testProjectDir.dir('src/main/sv').toFile()
-        new File(sv, 'dummy.sv').createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('dummy.sv') << ''
+            }
+        }
 
         when:
         def result = FunctionalTestRunner.create()
@@ -540,11 +593,12 @@ class SystemVerilogPluginSpec extends Specification {
         setup:
         buildFile.delete()
 
-        File settingsFile = testProjectDir.file('settings.gradle').toFile()
-        settingsFile << """
-            include 'directDependency'
-            include 'mainProject'
-        """
+        testProjectDir.create {
+            file('settings.gradle') << """
+                include 'directDependency'
+                include 'mainProject'
+            """
+        }
 
         File directDependencyBuildFile = newStandardProject('directDependency')
 
@@ -573,12 +627,13 @@ class SystemVerilogPluginSpec extends Specification {
         setup:
         buildFile.delete()
 
-        File settingsFile = testProjectDir.file('settings.gradle').toFile()
-        settingsFile << """
-            include 'transitiveDependency'
-            include 'directDependency'
-            include 'mainProject'
-        """
+        testProjectDir.create {
+            file('settings.gradle') << """
+                include 'transitiveDependency'
+                include 'directDependency'
+                include 'mainProject'
+            """
+        }
 
         File transitiveDependencyBuildFile = newStandardProject('transitiveDependency')
 
@@ -616,12 +671,13 @@ class SystemVerilogPluginSpec extends Specification {
         setup:
         buildFile.delete()
 
-        File settingsFile = testProjectDir.file('settings.gradle').toFile()
-        settingsFile << """
-            include 'transitiveDependency'
-            include 'directDependency'
-            include 'mainProject'
-        """
+        testProjectDir.create {
+            file('settings.gradle') << """
+                include 'transitiveDependency'
+                include 'directDependency'
+                include 'mainProject'
+            """
+        }
 
         File transitiveDependencyBuildFile = newStandardProject('transitiveDependency')
 
@@ -680,8 +736,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genXrunArgsFile' task for custom source set produces args file"() {
-        File sv = testProjectDir.dir('src/dummy/sv').toFile()
-        new File(sv, "dummy.sv").createNewFile()
+        testProjectDir.create {
+            dir('src/dummy/sv') {
+                file('dummy.sv') << ''
+            }
+        }
 
         buildFile << """
             sourceSets {
@@ -706,10 +765,14 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genXrunArgsFile' tasks when custom source set present produce correct args file"() {
-        File mainSv = testProjectDir.dir('src/main/sv').toFile()
-        new File(mainSv, "main.sv").createNewFile()
-        File dummySv = testProjectDir.dir('src/dummy/sv').toFile()
-        new File(dummySv, "dummy.sv").createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('main.sv') << ''
+            }
+            dir('src/dummy/sv') {
+                file('dummy.sv') << ''
+            }
+        }
 
         buildFile << """
             sourceSets {
@@ -733,8 +796,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genQrunArgsFile' task produces output"() {
-        File sv = testProjectDir.dir('src/main/sv').toFile()
-        new File(sv, 'dummy.sv').createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('dummy.sv') << ''
+            }
+        }
 
         when:
         def result = FunctionalTestRunner.create()
@@ -748,8 +814,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genQrunArgsFile' task uses 'work' as name for library"() {
-        File sv = testProjectDir.dir('src/main/sv').toFile()
-        new File(sv, 'dummy.sv').createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('dummy.sv') << ''
+            }
+        }
 
         when:
         def result = FunctionalTestRunner.create()
@@ -762,8 +831,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genQrunArgsFile' task writes private include directories to args file"() {
-        File sv = testProjectDir.dir('src/main/sv').toFile()
-        new File(sv, 'dummy.sv').createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('dummy.sv') << ''
+            }
+        }
 
         when:
         def result = FunctionalTestRunner.create()
@@ -780,8 +852,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genQrunArgsFile' task writes exported header directories to args file"() {
-        File svHeaders = testProjectDir.dir('src/main/sv_headers').toFile()
-        new File(svHeaders, 'dummy.svh').createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv_headers') {
+                file('dummy.svh') << ''
+            }
+        }
 
         when:
         def result = FunctionalTestRunner.create()
@@ -798,9 +873,12 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genQrunArgsFile' task doesn't write exported header directories to args file if they have no SV files"() {
-        File sv = testProjectDir.dir('src/main/sv').toFile()
-        new File(sv, 'dummy.sv').createNewFile()
-        testProjectDir.dir('src/main/sv_headers')
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('dummy.sv') << ''
+            }
+            dir('src/main/sv_headers')
+        }
 
         // 'src/main/sv_headers' exists but is empty
 
@@ -816,8 +894,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "'genFullQrunArgsFile' task consumes output of 'genQrunArgsFile"() {
-        File sv = testProjectDir.dir('src/main/sv').toFile()
-        new File(sv, 'dummy.sv').createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('dummy.sv') << ''
+            }
+        }
 
         when:
         def result = FunctionalTestRunner.create()
@@ -836,11 +917,12 @@ class SystemVerilogPluginSpec extends Specification {
         setup:
         buildFile.delete()
 
-        File settingsFile = testProjectDir.file('settings.gradle').toFile()
-        settingsFile << """
-            include 'directDependency'
-            include 'mainProject'
-        """
+        testProjectDir.create {
+            file('settings.gradle') << """
+                include 'directDependency'
+                include 'mainProject'
+            """
+        }
 
         File directDependencyBuildFile = newStandardProject('directDependency')
 
@@ -871,11 +953,12 @@ class SystemVerilogPluginSpec extends Specification {
         setup:
         buildFile.delete()
 
-        File settingsFile = testProjectDir.file('settings.gradle').toFile()
-        settingsFile << """
-            include 'directDependency'
-            include 'mainProject'
-        """
+        testProjectDir.create {
+            file('settings.gradle') << """
+                include 'directDependency'
+                include 'mainProject'
+            """
+        }
 
         File directDependencyBuildFile = newStandardProject('directDependency')
 
@@ -904,8 +987,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "can write sv source to compile spec file"() {
-        File mainSv = testProjectDir.dir('src/main/sv').toFile()
-        new File(mainSv, "main.sv").createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('main.sv') << ''
+            }
+        }
 
         when:
         def result = FunctionalTestRunner.create()
@@ -924,8 +1010,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "archive with source file contains compile spec"() {
-        File mainSv = testProjectDir.dir('src/main/sv').toFile()
-        new File(mainSv, "main.sv").createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('main.sv') << ''
+            }
+        }
 
         when:
         def result = FunctionalTestRunner.create()
@@ -942,8 +1031,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "can produce archive with source file"() {
-        File mainSv = testProjectDir.dir('src/main/sv').toFile()
-        new File(mainSv, "main.sv").createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('main.sv') << ''
+            }
+        }
 
         when:
         def result = FunctionalTestRunner.create()
@@ -960,8 +1052,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "can produce archive with source file in custom location"() {
-        File mainSv = testProjectDir.dir('sv').toFile()
-        new File(mainSv, "main.sv").createNewFile()
+        testProjectDir.create {
+            dir('sv') {
+                file('main.sv') << ''
+            }
+        }
 
         buildFile << """
         sourceSets.main.sv.srcDirs = ['sv']
@@ -982,9 +1077,12 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "can produce archive with private header"() {
-        File mainSv = testProjectDir.dir('src/main/sv').toFile()
-        new File(mainSv, "main.sv").createNewFile()
-        new File(mainSv, "private_header.svh").createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('main.sv') << ''
+                file('private_header.svh') << ''
+            }
+        }
 
         when:
         def result = FunctionalTestRunner.create()
@@ -1002,9 +1100,12 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "can produce archive with private header in custom location"() {
-        File mainSv = testProjectDir.dir('sv').toFile()
-        new File(mainSv, "main.sv").createNewFile()
-        new File(mainSv, "private_header.svh").createNewFile()
+        testProjectDir.create {
+            dir('sv') {
+                file('main.sv') << ''
+                file('private_header.svh') << ''
+            }
+        }
 
         buildFile << """
         sourceSets.main.sv.srcDirs = ['sv']
@@ -1026,8 +1127,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "can produce archive with exported header"() {
-        File mainSvHeaders = testProjectDir.dir('src/main/sv_headers').toFile()
-        new File(mainSvHeaders, "exported_header.svh").createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv_headers') {
+                file('exported_header.svh') << ''
+            }
+        }
 
         when:
         def result = FunctionalTestRunner.create()
@@ -1044,8 +1148,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "can produce archive with exported header in custom location"() {
-        File mainSvHeaders = testProjectDir.dir('sv').toFile()
-        new File(mainSvHeaders, "exported_header.svh").createNewFile()
+        testProjectDir.create {
+            dir('sv') {
+                file('exported_header.svh') << ''
+            }
+        }
 
         buildFile << """
         sourceSets.main.svHeaders.srcDirs = ['sv']
@@ -1066,8 +1173,11 @@ class SystemVerilogPluginSpec extends Specification {
     }
 
     def "can publishing metadata for archive"() {
-        File mainSv = testProjectDir.dir('src/main/sv').toFile()
-        new File(mainSv, "main.sv").createNewFile()
+        testProjectDir.create {
+            dir('src/main/sv') {
+                file('main.sv') << ''
+            }
+        }
 
         buildFile.text = """
             plugins {
@@ -1176,8 +1286,11 @@ class SystemVerilogPluginSpec extends Specification {
             }
         """
 
-        File dependencyProjectPrivateHeader = new File(dependencyProjectBuildFile.parentFile, 'src/main/sv/dependency-project-private-header.svh')
-        dependencyProjectPrivateHeader.text = "dummy"
+        testProjectDir.create {
+            dir('dependency-project/src/main/sv') {
+                file('dependency-project-private-header.svh') << "dummy"
+            }
+        }
 
         FunctionalTestRunner.create()
             .withProjectDir(dependencyProjectBuildFile.parentFile)
@@ -1232,10 +1345,11 @@ class SystemVerilogPluginSpec extends Specification {
             }
         """
 
-        File dependencyProjectExportedHeaderDir = new File(dependencyProjectBuildFile.parentFile, 'src/main/sv_headers')
-        dependencyProjectExportedHeaderDir.mkdir()
-        File dependencyProjectPrivateHeader = new File(dependencyProjectExportedHeaderDir, 'dependency-project-exported-header.svh')
-        dependencyProjectPrivateHeader.text = "dummy"
+        testProjectDir.create {
+            dir('dependency-project/src/main/sv_headers') {
+                file('dependency-project-exported-header.svh') << "dummy"
+            }
+        }
 
         FunctionalTestRunner.create()
             .withProjectDir(dependencyProjectBuildFile.parentFile)
@@ -1293,10 +1407,11 @@ class SystemVerilogPluginSpec extends Specification {
         File dependencyProjectSvDir = new File(dependencyProjectBuildFile.parentFile, 'src/main/sv')
         dependencyProjectSvDir.deleteDir()
 
-        File dependencyProjectExportedHeaderDir = new File(dependencyProjectBuildFile.parentFile, 'src/main/sv_headers')
-        dependencyProjectExportedHeaderDir.mkdir()
-        File dependencyProjectPrivateHeader = new File(dependencyProjectExportedHeaderDir, 'dependency-project-exported-header.svh')
-        dependencyProjectPrivateHeader.text = "dummy"
+        testProjectDir.create {
+            dir('dependency-project/src/main/sv_headers') {
+                file('dependency-project-exported-header.svh') << "dummy"
+            }
+        }
 
         FunctionalTestRunner.create()
             .withProjectDir(dependencyProjectBuildFile.parentFile)
