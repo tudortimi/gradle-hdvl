@@ -26,29 +26,30 @@ class DVTWithSVUnitPluginSpec extends AbstractDVTPluginSpec {
     File testSv
 
     def setup() {
-        testSv = testProjectDir.dir('src/test/sv').toFile()
-        new File(testSv, 'dummy_unit_test.sv').createNewFile()
-
-        buildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.svunit'
+        testProjectDir.create {
+            dir('src/test/sv') {
+                file('dummy_unit_test.sv') << ''
             }
-            dependencies {
-                testCompile "org.svunit:svunit:v3.34.2"
-            }
-        """
-
-        File settingsFile = testProjectDir.file('settings.gradle').toFile()
-        settingsFile << """
-            sourceControl {
-                gitRepository("https://github.com/tudortimi/svunit.git") {
-                    producesModule("org.svunit:svunit")
-                    plugins {
-                        id "com.verificationgentleman.gradle.hdvl.svunit-build-injector"
+            file('build.gradle') << """
+                plugins {
+                    id 'com.verificationgentleman.gradle.hdvl.svunit'
+                }
+                dependencies {
+                    testCompile "org.svunit:svunit:v3.34.2"
+                }
+            """
+            file('settings.gradle') << """
+                sourceControl {
+                    gitRepository("https://github.com/tudortimi/svunit.git") {
+                        producesModule("org.svunit:svunit")
+                        plugins {
+                            id "com.verificationgentleman.gradle.hdvl.svunit-build-injector"
+                        }
                     }
                 }
-            }
-        """
+            """
+        }
+        testSv = testProjectDir.resolve('src/test/sv').toFile()
     }
 
     def "'dvt' task task creates link in build directory to tests"() {
