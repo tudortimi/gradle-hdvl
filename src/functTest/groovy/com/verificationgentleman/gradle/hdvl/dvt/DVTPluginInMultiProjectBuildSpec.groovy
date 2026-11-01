@@ -27,45 +27,46 @@ class DVTPluginInMultiProjectBuildSpec extends Specification {
     @TempDir FileSystemFixture testProjectDir
 
     def setup() {
-        File sv0 = testProjectDir.dir('proj0/src/main/sv').toFile()
-        new File(sv0, 'proj0.sv').createNewFile()
-        File testSv0 = testProjectDir.dir('proj0/src/test/sv').toFile()
-        new File(testSv0, 'proj0_unit_test.sv').createNewFile()
-
-        File sv1 = testProjectDir.dir('proj1/src/main/sv').toFile()
-        new File(sv1, 'proj1.sv').createNewFile()
-        File testSv1= testProjectDir.dir('proj1/src/test/sv').toFile()
-        new File(testSv1, 'proj1_unit_test.sv').createNewFile()
-
-        File buildFile = testProjectDir.file('build.gradle').toFile()
-        buildFile << """
-            plugins {
-                id 'com.verificationgentleman.gradle.hdvl.systemverilog' apply false
-                id 'com.verificationgentleman.gradle.hdvl.svunit' apply false
-                id 'com.verificationgentleman.gradle.hdvl.dvt'
+        testProjectDir.create {
+            dir('proj0/src/main/sv') {
+                file('proj0.sv') << ''
             }
-            subprojects {
-                apply plugin: 'com.verificationgentleman.gradle.hdvl.systemverilog'
-                apply plugin: 'com.verificationgentleman.gradle.hdvl.svunit'
-                dependencies {
-                    testCompile "org.svunit:svunit:v3.34.2"
+            dir('proj0/src/test/sv') {
+                file('proj0_unit_test.sv') << ''
+            }
+            dir('proj1/src/main/sv') {
+                file('proj1.sv') << ''
+            }
+            dir('proj1/src/test/sv') {
+                file('proj1_unit_test.sv') << ''
+            }
+            file('build.gradle') << """
+                plugins {
+                    id 'com.verificationgentleman.gradle.hdvl.systemverilog' apply false
+                    id 'com.verificationgentleman.gradle.hdvl.svunit' apply false
+                    id 'com.verificationgentleman.gradle.hdvl.dvt'
                 }
-            }
-        """
-
-        File settingsFile = testProjectDir.file('settings.gradle').toFile()
-        settingsFile << """
-            include 'proj0'
-            include 'proj1'
-            sourceControl {
-                gitRepository("https://github.com/tudortimi/svunit.git") {
-                    producesModule("org.svunit:svunit")
-                    plugins {
-                        id "com.verificationgentleman.gradle.hdvl.svunit-build-injector"
+                subprojects {
+                    apply plugin: 'com.verificationgentleman.gradle.hdvl.systemverilog'
+                    apply plugin: 'com.verificationgentleman.gradle.hdvl.svunit'
+                    dependencies {
+                        testCompile "org.svunit:svunit:v3.34.2"
                     }
                 }
-            }
-        """
+            """
+            file('settings.gradle') << """
+                include 'proj0'
+                include 'proj1'
+                sourceControl {
+                    gitRepository("https://github.com/tudortimi/svunit.git") {
+                        producesModule("org.svunit:svunit")
+                        plugins {
+                            id "com.verificationgentleman.gradle.hdvl.svunit-build-injector"
+                        }
+                    }
+                }
+            """
+        }
     }
 
     def "'dvt' task includes args files of both projects in 'default.build'"() {
